@@ -1,0 +1,30 @@
+{
+  "name": "ebpml.org",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "async": "*",
+    "body-parser": "*",
+    "compression": "1.6.0",
+    "cookie-parser": "",
+    "cron": "1.0.x",
+    "express": "4.13.x",
+    "express-http-proxy": "^0.6.0",
+    "he": "*",
+    "http-proxy": "1.12.x",
+    "memcached": "2.2.x",
+    "node-cache": "3.0.x", 
+    "morgan": "1.6.x",
+    "node-uuid": "*",
+    "nodemailer": "1.8.0",
+    "nodemailer-smtp-pool": "*",
+    "pmx": "^0.5.5",
+    "proxy-agent": "^2.0.0",
+    "request": "2.64.x",
+    "sequence": "3.0.x"
+  },
+  "preferGlobal": false,
+  "private": true
+}
