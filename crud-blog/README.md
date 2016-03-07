@@ -13,6 +13,7 @@ The project contains 4 files:
 You can switch between the client or client/server app by commenting out the corresponding lines in these two functions (blog.html):
 
 `
+
 	function present(data) {
 		// client side
 		//model.present(data) ;
@@ -40,8 +41,10 @@ You can switch between the client or client/server app by commenting out the cor
 
 to start the server:
 `
+
 	$ npm install
 	$ node server
+
 `
 
 You can check if the server is running correctly by [opening this URL](http://localhost:5425/app/v1/init)
