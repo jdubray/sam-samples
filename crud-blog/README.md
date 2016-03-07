@@ -19,7 +19,7 @@ You can switch between the client or client/server app by commenting out the cor
 		//model.present(data) ;
 
 		// server side
-		$.post( "http://107.170.242.211:5425/app/v1/present", data) 
+		$.post( "http://localhost:5425/app/v1/present", data) 
 		.done(function( representation ) {
 			$( "#representation" ).html( representation );
 		}		
@@ -31,7 +31,7 @@ You can switch between the client or client/server app by commenting out the cor
 		//view.display(view.init(model)) ;
 
 		// server side
-		$.get( "http://107.170.242.211:5425/app/v1/init", function( data ) {
+		$.get( "http://locahost:5425/app/v1/init", function( data ) {
 			$( "#representation" ).html( data );
 		}		
 		);
