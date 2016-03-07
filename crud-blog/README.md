@@ -11,36 +11,37 @@ The project contains 4 files:
 
 
 You can switch between the client or client/server app by commenting out the corresponding lines in these two functions (blog.html):
+
 `
-		function present(data) {
-			// client side
-			//model.present(data) ;
+	function present(data) {
+		// client side
+		//model.present(data) ;
 
-			// server side
-			$.post( "http://107.170.242.211:5425/app/v1/present", data) 
-			.done(function( representation ) {
-				$( "#representation" ).html( representation );
-			}		
-			);
-		}
+		// server side
+		$.post( "http://107.170.242.211:5425/app/v1/present", data) 
+		.done(function( representation ) {
+			$( "#representation" ).html( representation );
+		}		
+		);
+	}
 
-		function init() {
-			// client side
-			//view.display(view.init(model)) ;
+	function init() {
+		// client side
+		//view.display(view.init(model)) ;
 
-			// server side
-			$.get( "http://107.170.242.211:5425/app/v1/init", function( data ) {
-				$( "#representation" ).html( data );
-			}		
-			);
-		}
+		// server side
+		$.get( "http://107.170.242.211:5425/app/v1/init", function( data ) {
+			$( "#representation" ).html( data );
+		}		
+		);
+	}
 
 `
 
 to start the server:
 `
-$ npm install
-$ node server
+	$ npm install
+	$ node server
 `
 
 You can check if the server is running correctly by [opening this URL](http://localhost:5425/app/v1/init)
