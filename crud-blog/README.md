@@ -1,4 +1,4 @@
-# An Isomorphic CRUD App implementing the SAM Pattern
+# An Isomorphic CRUD Application implementing the SAM Pattern
 
 This sample was inspired by the blog post from @rajaraodv on [building a React/Redux CRUD App](https://medium.com/@rajaraodv/a-guide-for-building-a-react-redux-crud-app-7fe0b8943d0f#.ydbwd6ccl)
 
