@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<body>
+<rocket id='rocket1' sam.model=></rocket>
+<rocket id='rocket2' sam.model=></rocket>
+
+<script src="angular.js"></script>
+<script>
+  var app = angular.module('rocket-app', [])
+   .controller('samRocketCtrl', ['$compile', '$scope', '$element',  function($compile, $scope, $element) {
+       const COUNTER_MAX = 10;
+       $scope.model = { 
+                    counter: COUNTER_MAX, 
+                    started: false,      
+                    launched: false, 
+                    aborted: false
+                    },
+       $scope.model.present=function(data) {
+                if ($scope.state.counting($scope.model)) {
+                    if ($scope.model.counter === 0) {
+                        $scope.model.launched = data.launched || false ;
+                    } else {
+                        $scope.model.aborted = data.aborted || false ;
+                        if (data.counter !== undefined) { $scope.model.counter = data.counter ; }
+                    }
+                } else {
+                    if ($scope.state.ready($scope.model)) {
+                        $scope.model.started = data.started || false ;
+                    }
+                }
+                $scope.state.render($scope.model) ;
+       };
+       
+            $scope.view = {} ;
+
+            // Initial State
+            $scope.view.init = function(model) {
+                return $scope.view.ready(model) ;
+            }
+        
+            // State representation of the ready state
+            $scope.view.ready = function(model) {
+                return (
+                        "<p>Counter:" + model.counter +"</p>\n\
+                        <form ng-submit=actions.Start({})>\n\
+                            <input type=\"submit\" value=\"Start\">\n\
+                        </form>"
+                    ) ;
+            }
+
+            // State representation of the counting state
+            $scope.view.counting = function(model) {
+
+                return (
+                        "<p>Count down:"+ model.counter + "</p>\n\
+                        <form ng-submit=actions.abort({})>\n\
+                            <input type=\"submit\" value=\"Abort\">\n\
+                        </form>"
+                    ) ;
+
+            }
+            // State representation of the aborted state
+            $scope.view.aborted = function(model) {
+
+                return (
+                        "<p>Aborted at Counter:"+model.counter+"</p>\n"
+                    ) ;
+            }
+
+            // State representation of the launched state
+            $scope.view.launched = function(model) {
+
+                return (
+                        "<p>Launched</p>"
+                    ) ;
+
+            }            
+            
+            //display the state representation
+            $scope.view.display = function(representation) {
+
+                $scope.representation = representation;
+            }
+
+            // Display initial state
+            //$scope.view.display(sam.view.init(sam.model)) ;
+            $scope.view = {} ;
+
+            // Initial State
+            $scope.view.init = function(model) {
+                return $scope.view.ready(model) ;
+            }
+        
+            // State representation of the ready state
+            $scope.view.ready = function(model) {
+                return (
+                        "<p>Counter:" +  model.counter  +"</p>\n\
+                        <form ng-submit=actions.start()>\n\
+                            <input type=\"submit\" value=\"Start\">\n\
+                        </form>"
+                    ) ;
+            }
+
+            // State representation of the counting state
+            $scope.view.counting = function(model) {
+
+                return (
+                        "<p>Count down:"+model.counter+"</p>\n\
+                        <form ng-submit=actions.abort({})>\n\
+                            <input type=\"submit\" value=\"Abort\">\n\
+                        </form>"
+                    ) ;
+
+            }
+            // State representation of the aborted state
+            $scope.view.aborted = function(model) {
+
+                return (
+                        "<p>Aborted at Counter:"+model.counter+"</p>\n"
+                    ) ;
+
+            }
+
+            // State representation of the launched state
+            $scope.view.launched = function(model) {
+
+                return (
+                        "<p>Launched</p>"
+                    ) ;
+
+            }            
+            
+            //display the state representation
+            $scope.view.display = function(representation) {
+                //$scope.representation = representation;
+                var content = $compile( representation )($scope);
+
+                //scope.$apply( function() {
+                    //var content = $compile(scope.representation)(scope);
+                    //document.getElementById(scope.id).innerHTML = el;
+
+                $element.html("");
+                $element.append(content);
+            }
+
+            // Display initial state
+            //sam.view.display(sam.view.init(sam.model)) ;
+
+            $scope.state =  {view: $scope.view} ;
+
+            $scope.model.state = $scope.state ;
+
+            // Derive the state representation as a function of the systen
+            // control state
+            $scope.state.representation = function(model) {
+                var representation = 'oops... something went wrong, the system is in an invalid state' ;
+
+                if ($scope.state.ready(model)) {
+                    representation = $scope.state.view.ready(model) ;
+                } 
+
+                if ($scope.state.counting(model)) {
+                    representation = $scope.state.view.counting(model) ;
+                }
+
+                if ($scope.state.launched(model)) {
+                    representation = $scope.state.view.launched(model) ;
+                }
+
+                if ($scope.state.aborted(model)) {
+                    representation = $scope.state.view.aborted(model) ;
+                }
+
+                $scope.state.view.display(representation) ;
+            }
+
+            // Derive the current state of the system
+            $scope.state.ready = function(model) {
+                return ((model.counter === COUNTER_MAX) && !model.started && !model.launched && !model.aborted) ;
+            }
+
+            $scope.state.counting = function(model) {
+                var status = ((model.counter <= COUNTER_MAX) && (model.counter >= 0) && model.started && !model.launched && !model.aborted) ;
+                return status ;
+            }
+
+            $scope.state.launched = function(model) {
+                return ((model.counter == 0) && model.started && model.launched && !model.aborted) ;
+            }
+
+            $scope.state.aborted = function(model) {
+                return (
+                    (  model.counter <= COUNTER_MAX) && (model.counter >= 0) 
+                    && model.started && !model.launched && model.aborted ) ;
+            }
+
+
+            // Next action predicate, derives whether
+            // the system is in a (control) state where
+            // an action needs to be invoked
+
+            $scope.state.nextAction = function (model) {
+                if ($scope.state.counting(model)) {
+                    if (model.counter>0) {
+                        $scope.actions.decrement({counter: model.counter},model.present) ;
+                    }
+
+                    if (model.counter === 0) {
+                        $scope.actions.launch({},model.present) ;
+                    }
+                }
+            }
+
+            $scope.state.render = function(model) {
+                $scope.state.representation(model)
+                $scope.state.nextAction(model) ;
+            }
+
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // Actions
+            //
+
+            $scope.actions = {} ;
+
+            $scope.actions.display = function() {
+                present = $scope.model.present ;
+                present({}) ;
+                return false ;
+            }
+            $scope.actions.start = function(data, present) {
+                data = data || {};
+                present = present || $scope.model.present;
+
+                data.started = true ;
+                present(data) ;
+                return false ;
+            }
+
+            $scope.actions.decrement = function(data, present) {
+                present = present || $scope.model.present ;
+                data = data || {} ;
+                data.counter = data.counter || 10 ;
+                var d = data ;
+                var p = present ;
+                setTimeout(function() {
+                    d.counter = d.counter - 1 ;
+                    p(d) ;
+                }, 1000) ;
+            }
+
+            $scope.actions.launch = function(data, present) {
+                present = present || $scope.model.present ;
+                data.launched = true ;
+                present(data) ;
+            }
+
+            $scope.actions.abort = function(data, present) {
+                present = present || $scope.model.present ;
+                data.aborted = true ;
+                present(data) ;
+                return false ;
+            } 
+        $scope.actions.display({});
+         
+   }])
+   .directive('rocket', ['$compile',function($compile) {
+ 
+      return {
+        restrict: 'E', 
+        scope:{
+            id: '@id'
+        },
+        controllerAs: 'vm',
+        bindToController: {
+            id:'@'
+        },
+        controller: 'samRocketCtrl',
+      }
+  }])
+  
+  angular.bootstrap(document, ['rocket-app']);
+</script>
+</body>
+</html>
