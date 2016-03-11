@@ -3,7 +3,6 @@
 var express = require('express');
 var bodyParser = require('body-parser') ;
 var morgan = require('morgan') ;
-var postman = require('./postman') ;
 
 
 var config = {} ;
@@ -91,9 +90,9 @@ var apis = {
 } ;
 
 
-var postman = require('./postman') ;
+// var postman = require('./postman') ;
 
-postman.addAPI(r, 'login', config.loginKey) ;
+// postman.addAPI(r, 'login', config.loginKey) ;
 app.post(apis.login,function(req,res) { 
     var username = req.body.username,
         password = req.body.password ;
@@ -108,7 +107,7 @@ app.post(apis.login,function(req,res) {
     }
 }) ;
 
-postman.addAPI(r, 'logout', config.loginKey) ;
+// postman.addAPI(r, 'logout', config.loginKey) ;
 app.get(apis.logout,function(req,res) { 
     authnz.del(req,res,'authorized') ;
     res.status(200).send({authorized:false}) ;
@@ -262,7 +261,8 @@ state.render = function(model,next) {
     state.nextAction(model) ;
 } ;
 
-postman.addAPI(r, 'present', config.loginKey) ;
+//postman.addAPI(r, 'present', config.loginKey) ;
+
 app.post(apis.present,function(req,res) { 
     var data = req.body ;
     model.present(data, function(representation) {
@@ -271,7 +271,8 @@ app.post(apis.present,function(req,res) {
 }) ;
 
 
-postman.addAPI(r, 'init', config.loginKey) ;
+//postman.addAPI(r, 'init', config.loginKey) ;
+
 app.get(apis.init,function(req,res) { 
     res.status(200).send(view.init(model)) ;
 }) ;

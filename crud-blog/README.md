@@ -9,6 +9,7 @@ The project contains 4 files:
 - server.js 	/ the server
 - package.json 	/ you know the drill	
 
+If you want to use the (optional) Postman library that creates a Postman collection from the APIs of your app, you can download it [here](https://bitbucket.org/jdubray/postman)
 
 You can switch between the client or client/server app by commenting out the corresponding lines in these two functions (blog.html):
 
