@@ -12,7 +12,7 @@ var theme = { } ;
 
 // Component 1: Item list ///////////////////////////////////////////
 
-theme.list = (todos, displayActive, displayCompleted) => {
+theme.list = (todos, displayActive, displayCompleted, intents) => {
 
 	// generate the item list
 	var items = todos.map( function(todo) {
@@ -22,20 +22,20 @@ theme.list = (todos, displayActive, displayCompleted) => {
 
 	    if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
  
-	    const label = '<label ondblclick="JavaScript:return actions.edit({\'id\':\''+todo.id+'\'});">'+todo.name+'</label>\n' ;
+	    const label = '<label ondblclick="JavaScript:return actions.'+intents['edit']+'({\'id\':\''+todo.id+'\'});">'+todo.name+'</label>\n' ;
 
 	    // if the item is in edit mode we return an input field instead 
 	    const input = ('<input  id="edit-todo" class="new-todo"\n\
-						onchange="JavaScript:return actions.save({\'id\':\''+todo.id+'\',\'name\':document.getElementById(\'edit-todo\').value});" \n\
+						onchange="JavaScript:return actions.'+intents['save']+'({\'id\':\''+todo.id+'\',\'name\':document.getElementById(\'edit-todo\').value});" \n\
 						value="'+todo.name+'"  autofocus></input>') ;
 	     
 		return ('\n\
 						<li '+(checked ? 'class="completed"' : '')+'>\n\
 							<div class="view">\n\
 								<input class="toggle" type="checkbox" '+(checked ? 'checked' : '')+' \n\
-										onclick="JavaScript:return actions.done({\'id\':\''+todo.id+'\'});">\n\
+										onclick="JavaScript:return actions.'+intents['done']+'({\'id\':\''+todo.id+'\'});">\n\
 								'+(todo.edited ? input : label)+'\n\
-								<button class="destroy" onclick="JavaScript:return actions.delete({\'id\':\''+todo.id+'\'});"></button>\n\
+								<button class="destroy" onclick="JavaScript:return actions.'+intents['delete']+'({\'id\':\''+todo.id+'\'});"></button>\n\
 							</div>\n\
 							<input class="edit" value="'+todo.description+'">\n\
 						</li>\n') ;
@@ -43,7 +43,7 @@ theme.list = (todos, displayActive, displayCompleted) => {
 
 	var showToggleCheckbox = false ;
 	const toggleCheckbox = '\
-				<input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.toggleAll({});">\n\
+				<input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.'+intents['toggleAll']+'({});">\n\
 				<label for="toggle-all">Mark all as complete</label>\n' ;
 
 	todos.forEach(function(item) {
@@ -62,27 +62,27 @@ theme.list = (todos, displayActive, displayCompleted) => {
 
 // Component 2: Filters /////////////////////////////////////////// 
 
-theme.filters = (displayActive,displayCompleted,count,completedCount) => {
+theme.filters = (displayActive,displayCompleted,count,completedCount,intents) => {
 	const displaySelectedClass = (displayActive && displayCompleted) ? 'class="selected" ' : '';
 	const displayActiveClass = (displayActive && !displayCompleted) ? 'class="selected" ' : '';
 	const displayCompletedClass = (!displayActive && displayCompleted) ? 'class="selected" ' : '';
 
 	const clearCompleted = ('\n\
 				<!-- Hidden if no completed items are left   -->\n\
-				<button class="clear-completed" onclick="JavaScript:return actions.delete({});">Clear completed</button>') ;
+				<button class="clear-completed" onclick="JavaScript:return actions.'+intents['delete']+'({});">Clear completed</button>') ;
 
 	return ('\n\
 		<!-- This should be `0 items left` by default -->\n\
 		<span class="todo-count"><strong>'+count+'</strong> item left</span>\n\
 		<ul class="filters">\n\
 			<li>\n\
-				<a '+displaySelectedClass+'href="#/" onclick="JavaScript:return actions.displayAll({});">All</a>\n\
+				<a '+displaySelectedClass+'href="#/" onclick="JavaScript:return actions.'+intents['displayAll']+'({});">All</a>\n\
 			</li>\n\
 			<li>\n\
-				<a '+displayActiveClass+'href="#/active" onclick="JavaScript:return actions.displayActive({});">Active</a>\n\
+				<a '+displayActiveClass+'href="#/active" onclick="JavaScript:return actions.'+intents['displayActive']+'({});">Active</a>\n\
 			</li>\n\
 			<li>\n\
-				<a '+displayCompletedClass+'href="#/completed" onclick="JavaScript:return actions.displayCompleted({});">Completed</a>\n\
+				<a '+displayCompletedClass+'href="#/completed" onclick="JavaScript:return actions.'+intents['displayCompleted']+'({});">Completed</a>\n\
 			</li>\n\
 		</ul>\n' + 
 		((completedCount > 0) ? clearCompleted : '' )
@@ -246,17 +246,17 @@ model.present = (data) => {
 var view = {} ;
 
 // Initial State
-view.init = (model) => {
-    return view.ready(model) ;
+view.init = (model, intents) => {
+    return view.ready(model, intents) ;
 } ;
 
 // State representation of the ready state
-view.ready = (model) => { 
+view.ready = (model, intents) => { 
     
     // generate the representation of each component
     return ({ 
-    	todoList: theme.list(model.items, model.displayActive, model.displayCompleted), 
-    	filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount) 
+    	todoList: theme.list(model.items, model.displayActive, model.displayCompleted, intents), 
+    	filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount, intents) 
     });
 } ;
 
@@ -293,7 +293,7 @@ state.representation = (model) => {
 	// In a real-world application there would be many control states and which
 	// would trigger the display of different components    
     if (state.ready(model)) {
-        representation = state.view.ready(model) ;
+        representation = state.view.ready(model, actions.intents) ;
     } 
     
     // complete the reactive loop
@@ -326,6 +326,20 @@ state.render = (model) => {
 var actions = {} ;
 
 actions.present = model.present ;
+
+// Intents enable a further decoupling between 
+// the view components and the actions
+actions.intents = {
+	edit: 'edit',
+	save: 'save',
+	done: 'done',
+	displayAll: 'displayAll',
+	displayActive: 'displayActive',
+	displayCompleted: 'displayCompleted',
+	toggleAll: 'toggleAll',
+	delete: 'delete'
+
+}
 
  actions.edit = (data, present) => {
     present = present || model.present ;
@@ -398,7 +412,7 @@ actions.delete = (data, present) => {
  	'use strict';
 
 	// Display initial state representation
- 	view.display(view.init(model)) ;
+ 	view.display(view.init(model, actions.intents)) ;
 
 
 })(window);
