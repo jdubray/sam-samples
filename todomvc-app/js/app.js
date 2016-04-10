@@ -15,7 +15,7 @@ var theme = { } ;
 theme.list = (todos, displayActive, displayCompleted, intents) => {
 
 	// generate the item list
-	var items = todos.map( function(todo) {
+	const items = todos.map( function(todo) {
 
 		const deleted = todo.deleted || false ;
 		const checked = todo.checked || false ;
@@ -237,8 +237,9 @@ model.present = (data) => {
     
     // next step of the reactive loop: compute the state representation   
     state.render(model) ;
-}
+} ;
 
+model.state = state ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // View
@@ -280,8 +281,6 @@ view.display = (representation) => {
 // State
 //
 var state =  { view: view} ;
-
-model.state = state ;
 
 // Derive the state representation as a function of the systen
 // control state
@@ -339,10 +338,10 @@ actions.intents = {
 	toggleAll: 'toggleAll',
 	delete: 'delete'
 
-}
+} ;
 
  actions.edit = (data, present) => {
-    present = present || model.present ;
+    present = present || actions.present ;
     data = {editItemId: data.id} ;
     // next step of the reactive loop: present values to the model        
     present(data) ;
@@ -412,7 +411,7 @@ actions.delete = (data, present) => {
  	'use strict';
 
 	// Display initial state representation
- 	view.display(view.init(model, actions.intents)) ;
 
+    state.render(model) ;
 
 })(window);

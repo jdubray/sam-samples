@@ -14,6 +14,8 @@
 
 SAM is naturally isomorphic so all the code provided in that sample can, without modification, run on node.js following [this tutorial](http://sam.js.org/#iso) 
 
+The "mods" directory contains a modularized version of the application.
+
 ## License
 
 The SAM sample code is <a rel="license" href="http://unlicense.org/">"unlicensed"</a><br>

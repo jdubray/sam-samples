@@ -14,9 +14,9 @@
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
-				<input 	class="new-todo"  
+				<input 	id="new-todo"  class="new-todo"  
 						onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
-						placeholder="What needs to be done?" id="new-todo"  autofocus></input>
+						placeholder="What needs to be done?" autofocus></input>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main">
