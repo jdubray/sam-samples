@@ -1,0 +1,41 @@
+{
+  "name": "sam-lambda-boilerplate",
+  "version": "1.0.0",
+  "main": "server.js",
+  "files": [
+    "*.js"
+  ],
+  "scripts": {
+    "create": "claudia create --name io_xgen_sam_safe_samples_lambda_blog --region us-west-2 --api-module server --policies policies",
+    "deploy": "claudia update"
+  },
+  "keywords": [
+    "sam",
+    "sam-safe",
+    "claudia",
+    "aws-lambda",
+    "dynamodb"
+  ],
+  "dependencies": {
+
+    "node-uuid": "*",
+
+    "aws-sdk": "^2.2.39",
+    "claudia-api-builder": "^1.1.0",
+    "dynamodb-doc": "^1.0.0",
+
+    "sam-safe": "^0.7.0",
+
+    "chai": "^3.5.0"
+
+  },
+
+  "author": "Jean-Jacques Dubray @jdubray",
+
+  "devDependencies": {
+    "claudia": "^1.2.5"
+  },
+
+  "preferGlobal": false,
+  "private": true
+}
