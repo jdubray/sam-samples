@@ -27,7 +27,7 @@
       Learn more about React at 
       <a href="https://facebook.github.io/react" target="_blank">facebook.github.io/react</a>.
     </p>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
     <script type="text/babel">
@@ -60,26 +60,18 @@
         // SAM makes React components stateless  
         var theme = { } ;
 
-        theme.counter = (c) => <Counter count={c}/> 
+        theme.counter = (c,a) => <Counter count={c} action={a}/> 
   
         theme.display = (m) => ReactDOM.render(
-                               theme.counter(m.count),
+                               theme.counter(m.count,actions.click),
                                document.getElementById('container')
                              ) 
-         
-        var Counter = React.createClass({
-             
-            render: function () {
-              return (
-                <button onClick={actions.click}>
-                  Click me! Number of clicks: {this.props.count}
-                </button>
-              )  
-            }
-            
-            
-        }) 
-      
+        
+        var Counter = (props) =>  (
+            <button onClick={props.action}>
+              Click me! Number of clicks: {props.count}
+            </button>
+          )
       
         // init
         state.render(model) 
