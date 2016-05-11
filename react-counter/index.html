@@ -47,7 +47,7 @@
         var state = {} ;
         //-------------------------------------------------------
         state.render = (m) => {
-            theme.display(m) ;
+            theme.display(m) 
         }
         
         
@@ -58,7 +58,7 @@
 
         // Here are the view components
         // SAM makes React components stateless  
-        var theme = { } ;
+        var theme = { } 
 
         theme.counter = (c,a) => <Counter count={c} action={a}/> 
   
@@ -67,9 +67,9 @@
                                document.getElementById('container')
                              ) 
         
-        var Counter = (props) =>  (
-            <button onClick={props.action}>
-              Click me! Number of clicks: {props.count}
+        var Counter = ({count,action}) =>  (
+            <button onClick={action}>
+              Click me! Number of clicks: {count}
             </button>
           )
       
