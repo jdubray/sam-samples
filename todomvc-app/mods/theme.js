@@ -21,29 +21,29 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
         if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
  
-        const label = '<label ondblclick="JavaScript:return actions.'+intents['edit']+'({\'id\':\''+todo.id+'\'});">'+todo.name+'</label>\n' ;
+        const label = `<label ondblclick="JavaScript:return actions.${intents['edit']}({\'id\':\'${todo.id}\'});">${todo.name}</label>` ;
 
         // if the item is in edit mode we return an input field instead 
-        const input = ('<input  id="edit-todo" class="new-todo"\n\
-                        onchange="JavaScript:return actions.'+intents['save']+'({\'id\':\''+todo.id+'\',\'name\':document.getElementById(\'edit-todo\').value});" \n\
-                        value="'+todo.name+'"  autofocus></input>') ;
+        const input = `<input  id="edit-todo" class="new-todo"
+                        onchange="JavaScript:return actions.${intents['save']}({\'id\':\'${todo.id}\',\'name\':document.getElementById(\'edit-todo\').value});"
+                        value="${todo.name}"  autofocus></input>` ;
          
-        return ('\n\
-                        <li '+(checked ? 'class="completed"' : '')+'>\n\
-                            <div class="view">\n\
-                                <input class="toggle" type="checkbox" '+(checked ? 'checked' : '')+' \n\
-                                        onclick="JavaScript:return actions.'+intents['done']+'({\'id\':\''+todo.id+'\'});">\n\
-                                '+(todo.edited ? input : label)+'\n\
-                                <button class="destroy" onclick="JavaScript:return actions.'+intents['delete']+'({\'id\':\''+todo.id+'\'});"></button>\n\
-                            </div>\n\
-                            <input class="edit" value="'+todo.description+'">\n\
-                        </li>\n') ;
+        return `
+                        <li ${(checked ? 'class="completed"' : '')}>
+                            <div class="view">
+                                <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
+                                        onclick="JavaScript:return actions.${intents['done']}({\'id\':\'${todo.id}\'});">
+                                ${(todo.edited ? input : label)}
+                                <button class="destroy" onclick="JavaScript:return actions.${intents['delete']}({\'id\':\'${todo.id}\'});"></button>
+                            </div>
+                            <input class="edit" value="${todo.description}">
+                        </li>` ;
     }) ;
 
     var showToggleCheckbox = false ;
-    const toggleCheckbox = '\
-                <input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.'+intents['toggleAll']+'({});">\n\
-                <label for="toggle-all">Mark all as complete</label>\n' ;
+    const toggleCheckbox = `
+                <input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.${intents['toggleAll']}({});">
+                <label for="toggle-all">Mark all as complete</label>` ;
 
     todos.forEach(function(item) {
         item.deleted = item.deleted || false ;
@@ -52,10 +52,10 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
         }
     })
 
-    return ( (showToggleCheckbox ? toggleCheckbox : '') +
-            '<ul class="todo-list" id="todo-list">'
-                +items.join('\n')
-           +'</ul>') ;    
+    return  `${(showToggleCheckbox ? toggleCheckbox : '')}
+             <ul class="todo-list" id="todo-list">
+                ${items.join('\n')}
+             </ul>` ;    
 
 } ;
 
@@ -66,25 +66,26 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
     const displayActiveClass = (displayActive && !displayCompleted) ? 'class="selected" ' : '';
     const displayCompletedClass = (!displayActive && displayCompleted) ? 'class="selected" ' : '';
 
-    const clearCompleted = ('\n\
-                <!-- Hidden if no completed items are left   -->\n\
-                <button class="clear-completed" onclick="JavaScript:return actions.'+intents['delete']+'({});">Clear completed</button>') ;
+    const clearCompleted = `
+                <!-- Hidden if no completed items are left   -->
+                <button class="clear-completed" onclick="JavaScript:return actions.${intents['delete']}({});">Clear completed</button>
+                ` ;
 
-    return ('\n\
-        <!-- This should be `0 items left` by default -->\n\
-        <span class="todo-count"><strong>'+count+'</strong> item left</span>\n\
-        <ul class="filters">\n\
-            <li>\n\
-                <a '+displaySelectedClass+'href="#/" onclick="JavaScript:return actions.'+intents['displayAll']+'({});">All</a>\n\
-            </li>\n\
-            <li>\n\
-                <a '+displayActiveClass+'href="#/active" onclick="JavaScript:return actions.'+intents['displayActive']+'({});">Active</a>\n\
-            </li>\n\
-            <li>\n\
-                <a '+displayCompletedClass+'href="#/completed" onclick="JavaScript:return actions.'+intents['displayCompleted']+'({});">Completed</a>\n\
-            </li>\n\
-        </ul>\n' + 
-        ((completedCount > 0) ? clearCompleted : '' )
+    return (`
+        <!-- This should be 0 items left by default -->
+        <span class="todo-count"><strong>${count}</strong> item left</span>
+        <ul class="filters">
+            <li>
+                <a ${displaySelectedClass} href="#/" onclick="JavaScript:return actions.${intents['displayAll']}({});">All</a>
+            </li>
+            <li>
+                <a ${displayActiveClass} href="#/active" onclick="JavaScript:return actions.${intents['displayActive']}({});">Active</a>
+            </li>
+            <li>
+                <a ${displayCompletedClass} href="#/completed" onclick="JavaScript:return actions.${intents['displayCompleted']}({});">Completed</a>
+            </li>
+        </ul>
+        ${((completedCount > 0) ? clearCompleted : '' )}`
         ) ;
 } ;
 
