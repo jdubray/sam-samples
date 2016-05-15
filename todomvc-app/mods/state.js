@@ -1,9 +1,9 @@
-import { actions } from 'actions' ;
+import { actions } from './actions.js' ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // State
 //
-var state =  {  } ;
+export var state =  {  } ;
 
 state.init = view => { 
 
@@ -45,4 +45,5 @@ state.render = (model) => {
     state.representation(model) ;
     state.nextAction(model) ;
 } ;
+
 

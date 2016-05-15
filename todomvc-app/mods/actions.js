@@ -2,7 +2,7 @@
 // Actions
 //
 
-var actions = {} ;
+export var actions = {} ;
 
 actions.init = (present) => {
      actions.present = present ;

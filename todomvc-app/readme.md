@@ -16,6 +16,12 @@ SAM is naturally isomorphic so all the code provided in that sample can, without
 
 The "mods" directory contains a modularized version of the application.
 
+## ES6 Implementation
+
+The code supports an ES6 implementation. You can comment/uncomment the E6 and ES5 sections in index.html
+
+You would need to run a local web server to load the index.html file. 
+
 ## License
 
 The SAM sample code is <a rel="license" href="http://unlicense.org/">"unlicensed"</a><br>

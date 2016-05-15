@@ -7,8 +7,8 @@
 // the model following the expression:
 // C = f(M.part)
 
-var theme = { } ;
-
+export var theme = { } ;
+ 
 // Component 1: Item list ///////////////////////////////////////////
 
 theme.list = (todos, displayActive, displayCompleted, intents) => {
@@ -89,4 +89,9 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
         ) ;
 } ;
 
-export { theme } 
+
+theme.header = () => `<h1>todos</h1>
+                      <input     id="new-todo"  class="new-todo"  
+                              onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
+                              placeholder="What needs to be done?" autofocus></input>`
+                              

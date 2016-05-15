@@ -4,7 +4,7 @@
 
 // Initialize the model 
 
-var model = { 
+export var model = { 
                    items: [
                     {
                           id: 1,

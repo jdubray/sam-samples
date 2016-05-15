@@ -12,11 +12,11 @@
 	</head>
 	<body>
 		<section class="todoapp">
+		    
 			<header class="header">
-				<h1>todos</h1>
-				<input 	id="new-todo"  class="new-todo"  
-						onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
-						placeholder="What needs to be done?" autofocus></input>
+			    
+			    <div id="todoHeader"></div>
+		
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main">
@@ -41,6 +41,29 @@
 		</footer>
 		<!-- Scripts here. Don't remove ↓ -->
 		<script src="node_modules/todomvc-common/base.js"></script>
-		<script src="js/app.js"></script>
+		<!-- ES5 -->
+		<script src="js/app.js"></script> 
+		<!-- ES6  // not working yet
+		<script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
+        <script src="https://google.github.io/traceur-compiler/bin/BrowserSystem.js"></script>
+        <script src="https://google.github.io/traceur-compiler/src/bootstrap.js"></script>
+		<script type="module">
+		    
+          import {state}      from './mods/state.js' ;
+          import {model}      from './mods/model.js' ;
+          import {actions as a}    from './mods/actions.js' ;
+          import {view}       from './mods/view.js' ;
+          
+          // wire the elements of the pattern
+          state.init(view) ;
+          model.init(state) ;
+          actions.init(model.present) ;
+          
+          // init
+          state.representation(model) ;
+          
+        </script>
+        -->
+		
 	</body>
 </html>

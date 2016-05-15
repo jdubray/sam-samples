@@ -89,6 +89,12 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
 		) ;
 } ;
 
+theme.header = () => `<h1>todos</h1>
+<input     id="new-todo"  class="new-todo"  
+        onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
+        placeholder="What needs to be done?" autofocus></input>`
+
+
 //////////////////////////////////////////////////////////////////////
 //  Model
 // 
@@ -127,7 +133,7 @@ model.presentFilters = (data) => {
 
 model.CRUD = (data) => {
 // CRUD
-    //
+    // Toggle All
     if (data.toggleAll) {
     	model.items.forEach(function(el,index) {
     		model.items[index].checked = !model.items[index].checked ;
@@ -210,7 +216,7 @@ model.CRUD = (data) => {
 } ;
 
 
-model.postProcessing = _ => {
+model.postProcessing = () => {
 
 	// perform ancillary assignments
 	model.count = 0 ;
@@ -256,6 +262,7 @@ view.ready = (model, intents) => {
     
     // generate the representation of each component
     return ({ 
+        todoHeader: theme.header(),
     	todoList: theme.list(model.items, model.displayActive, model.displayCompleted, intents), 
     	filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount, intents) 
     });

@@ -1,9 +1,9 @@
-import { theme } from 'theme' ;
+import { theme } from './theme.js' ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // View
 //
-var view = {} ;
+export var view = {} ;
 
 // Initial State
 view.init = (model, intents) => {
@@ -15,6 +15,7 @@ view.ready = (model, intents) => {
     
     // generate the representation of each component
     return ({ 
+        todoHeader: theme.header(),
         todoList: theme.list(model.items, model.displayActive, model.displayCompleted, intents), 
         filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount, intents) 
     });
