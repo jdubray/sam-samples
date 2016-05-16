@@ -22,20 +22,20 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
 	    if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
  
-	    const label = '<label ondblclick="JavaScript:return actions.'+intents['edit']+'({\'id\':\''+todo.id+'\'});">'+todo.name+'</label>\n' ;
+	    const label = '<label ondblclick="return '+intents['edit']+'({\'id\':\''+todo.id+'\'});">'+todo.name+'</label>\n' ;
 
 	    // if the item is in edit mode we return an input field instead 
 	    const input = ('<input  id="edit-todo" class="new-todo"\n\
-						onchange="JavaScript:return actions.'+intents['save']+'({\'id\':\''+todo.id+'\',\'name\':document.getElementById(\'edit-todo\').value});" \n\
+						onchange="return '+intents['save']+'({\'id\':\''+todo.id+'\',\'name\':document.getElementById(\'edit-todo\').value});" \n\
 						value="'+todo.name+'"  autofocus></input>') ;
 	     
 		return ('\n\
 						<li '+(checked ? 'class="completed"' : '')+'>\n\
 							<div class="view">\n\
 								<input class="toggle" type="checkbox" '+(checked ? 'checked' : '')+' \n\
-										onclick="JavaScript:return actions.'+intents['done']+'({\'id\':\''+todo.id+'\'});">\n\
+										onclick="return '+intents['done']+'({\'id\':\''+todo.id+'\'});">\n\
 								'+(todo.edited ? input : label)+'\n\
-								<button class="destroy" onclick="JavaScript:return actions.'+intents['delete']+'({\'id\':\''+todo.id+'\'});"></button>\n\
+								<button class="destroy" onclick="return '+intents['delete']+'({\'id\':\''+todo.id+'\'});"></button>\n\
 							</div>\n\
 							<input class="edit" value="'+todo.description+'">\n\
 						</li>\n') ;
@@ -43,7 +43,7 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
 	var showToggleCheckbox = false ;
 	const toggleCheckbox = '\
-				<input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.'+intents['toggleAll']+'({});">\n\
+				<input class="toggle-all" type="checkbox" onclick="return '+intents['toggleAll']+'({});">\n\
 				<label for="toggle-all">Mark all as complete</label>\n' ;
 
 	todos.forEach(function(item) {
@@ -69,30 +69,30 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
 
 	const clearCompleted = ('\n\
 				<!-- Hidden if no completed items are left   -->\n\
-				<button class="clear-completed" onclick="JavaScript:return actions.'+intents['delete']+'({});">Clear completed</button>') ;
+				<button class="clear-completed" onclick="JavaScript:return '+intents['delete']+'({});">Clear completed</button>') ;
 
 	return ('\n\
 		<!-- This should be `0 items left` by default -->\n\
 		<span class="todo-count"><strong>'+count+'</strong> item left</span>\n\
 		<ul class="filters">\n\
 			<li>\n\
-				<a '+displaySelectedClass+'href="#/" onclick="JavaScript:return actions.'+intents['displayAll']+'({});">All</a>\n\
+				<a '+displaySelectedClass+'href="#/" onclick="return '+intents['displayAll']+'({});">All</a>\n\
 			</li>\n\
 			<li>\n\
-				<a '+displayActiveClass+'href="#/active" onclick="JavaScript:return actions.'+intents['displayActive']+'({});">Active</a>\n\
+				<a '+displayActiveClass+'href="#/active" onclick="return '+intents['displayActive']+'({});">Active</a>\n\
 			</li>\n\
 			<li>\n\
-				<a '+displayCompletedClass+'href="#/completed" onclick="JavaScript:return actions.'+intents['displayCompleted']+'({});">Completed</a>\n\
+				<a '+displayCompletedClass+'href="#/completed" onclick="return '+intents['displayCompleted']+'({});">Completed</a>\n\
 			</li>\n\
 		</ul>\n' + 
 		((completedCount > 0) ? clearCompleted : '' )
 		) ;
 } ;
 
-theme.header = () => `<h1>todos</h1>
-<input     id="new-todo"  class="new-todo"  
-        onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
-        placeholder="What needs to be done?" autofocus></input>`
+theme.header = (intents) => '<h1>todos</h1>\n\
+<input     id="new-todo"  class="new-todo"\n\
+        onchange="return '+intents['save']+'({\'name\':document.getElementById(\'new-todo\').value});"\n\
+        placeholder="What needs to be done?" autofocus></input>' ;
 
 
 //////////////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ view.ready = (model, intents) => {
     
     // generate the representation of each component
     return ({ 
-        todoHeader: theme.header(),
+        todoHeader: theme.header(intents),
     	todoList: theme.list(model.items, model.displayActive, model.displayCompleted, intents), 
     	filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount, intents) 
     });
@@ -336,14 +336,14 @@ actions.present = model.present ;
 // Intents enable a further decoupling between 
 // the view components and the actions
 actions.intents = {
-	edit: 'edit',
-	save: 'save',
-	done: 'done',
-	displayAll: 'displayAll',
-	displayActive: 'displayActive',
-	displayCompleted: 'displayCompleted',
-	toggleAll: 'toggleAll',
-	delete: 'delete'
+	edit: 'actions.edit',
+	save: 'actions.save',
+	done: 'actions.done',
+	displayAll: 'actions.displayAll',
+	displayActive: 'actions.displayActive',
+	displayCompleted: 'actions.displayCompleted',
+	toggleAll: 'actions.toggleAll',
+	delete: 'actions.delete'
 
 } ;
 

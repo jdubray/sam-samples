@@ -11,14 +11,14 @@ actions.init = (present) => {
 // Intents enable a further decoupling between 
 // the view components and the actions
 actions.intents = {
-    edit: 'edit',
-    save: 'save',
-    done: 'done',
-    displayAll: 'displayAll',
-    displayActive: 'displayActive',
-    displayCompleted: 'displayCompleted',
-    toggleAll: 'toggleAll',
-    delete: 'delete'
+    edit: 'actions.edit',
+    save: 'actions.save',
+    done: 'actions.done',
+    displayAll: 'actions.displayAll',
+    displayActive: 'actions.displayActive',
+    displayCompleted: 'actions.displayCompleted',
+    toggleAll: 'actions.toggleAll',
+    delete: 'actions.delete'
 
 } ;
 

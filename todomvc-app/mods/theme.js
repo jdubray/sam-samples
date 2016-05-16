@@ -21,20 +21,20 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
         if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
  
-        const label = `<label ondblclick="JavaScript:return actions.${intents['edit']}({\'id\':\'${todo.id}\'});">${todo.name}</label>` ;
+        const label = `<label ondblclick="return ${intents['edit']}({\'id\':\'${todo.id}\'});">${todo.name}</label>` ;
 
         // if the item is in edit mode we return an input field instead 
         const input = `<input  id="edit-todo" class="new-todo"
-                        onchange="JavaScript:return actions.${intents['save']}({\'id\':\'${todo.id}\',\'name\':document.getElementById(\'edit-todo\').value});"
+                        onchange="return ${intents['save']}({\'id\':\'${todo.id}\',\'name\':document.getElementById(\'edit-todo\').value});"
                         value="${todo.name}"  autofocus></input>` ;
          
         return `
                         <li ${(checked ? 'class="completed"' : '')}>
                             <div class="view">
                                 <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
-                                        onclick="JavaScript:return actions.${intents['done']}({\'id\':\'${todo.id}\'});">
+                                        onclick="return ${intents['done']}({\'id\':\'${todo.id}\'});">
                                 ${(todo.edited ? input : label)}
-                                <button class="destroy" onclick="JavaScript:return actions.${intents['delete']}({\'id\':\'${todo.id}\'});"></button>
+                                <button class="destroy" onclick="return ${intents['delete']}({\'id\':\'${todo.id}\'});"></button>
                             </div>
                             <input class="edit" value="${todo.description}">
                         </li>` ;
@@ -42,7 +42,7 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
     var showToggleCheckbox = false ;
     const toggleCheckbox = `
-                <input class="toggle-all" type="checkbox" onclick="JavaScript:return actions.${intents['toggleAll']}({});">
+                <input class="toggle-all" type="checkbox" onclick="return ${intents['toggleAll']}({});">
                 <label for="toggle-all">Mark all as complete</label>` ;
 
     todos.forEach(function(item) {
@@ -68,7 +68,7 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
 
     const clearCompleted = `
                 <!-- Hidden if no completed items are left   -->
-                <button class="clear-completed" onclick="JavaScript:return actions.${intents['delete']}({});">Clear completed</button>
+                <button class="clear-completed" onclick="return ${intents['delete']}({});">Clear completed</button>
                 ` ;
 
     return (`
@@ -76,13 +76,13 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
         <span class="todo-count"><strong>${count}</strong> item left</span>
         <ul class="filters">
             <li>
-                <a ${displaySelectedClass} href="#/" onclick="JavaScript:return actions.${intents['displayAll']}({});">All</a>
+                <a ${displaySelectedClass} href="#/" onclick="return ${intents['displayAll']}({});">All</a>
             </li>
             <li>
-                <a ${displayActiveClass} href="#/active" onclick="JavaScript:return actions.${intents['displayActive']}({});">Active</a>
+                <a ${displayActiveClass} href="#/active" onclick="return ${intents['displayActive']}({});">Active</a>
             </li>
             <li>
-                <a ${displayCompletedClass} href="#/completed" onclick="JavaScript:return actions.${intents['displayCompleted']}({});">Completed</a>
+                <a ${displayCompletedClass} href="#/completed" onclick="return ${intents['displayCompleted']}({});">Completed</a>
             </li>
         </ul>
         ${((completedCount > 0) ? clearCompleted : '' )}`
@@ -90,8 +90,8 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
 } ;
 
 
-theme.header = () => `<h1>todos</h1>
+theme.header = (intents) => `<h1>todos</h1>
                       <input     id="new-todo"  class="new-todo"  
-                              onchange="JavaScript:return actions.save({'name':document.getElementById('new-todo').value});" 
+                              onchange="return ${intents['save']}({'name':document.getElementById('new-todo').value});" 
                               placeholder="What needs to be done?" autofocus></input>`
                               
