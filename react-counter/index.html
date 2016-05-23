@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>Basic Click Counter Example with JSX</title>
-    <link rel="stylesheet" href="../shared/css/base.css" />
   </head>
   <body>
     <h1>SAM Implementation of the Basic Click Counter Example with JSX</h1>
@@ -35,48 +34,57 @@
         // modified by Jean-Jacques Dubray  jdubray@xgen.io
         
     
-        // SAM  
-        var model = { count: 0 } 
-        //-------------------------------------------------------
-        model.present = ( data ) =>  {
-            data.incrementBy = data.incrementBy || 1 
-            model.count += data.incrementBy 
-            state.render(model) 
-        } 
-    
-        var state = {} ;
-        //-------------------------------------------------------
-        state.render = (m) => {
-            theme.display(m) 
-        }
+        // SAM Implementation 
         
-        
-        var actions = {} 
-        //------------------------------------------------------- 
-        actions.click = () => model.present({incrementBy:1}) 
-        
-
-        // Here are the view components
-        // SAM makes React components stateless  
+        // View components
         var theme = { } 
 
         theme.counter = (c,a) => <Counter count={c} action={a}/> 
-  
-        theme.display = (m) => ReactDOM.render(
-                               theme.counter(m.count,actions.click),
-                               document.getElementById('container')
-                             ) 
         
+        theme.display = (m) => {}  // nothing to do - react does it
+        
+        theme.display = (m) => ReactDOM.render(
+                              <SAMContainer model={m}/>,
+                              document.getElementById('container')
+                             ) 
+                             
+                             
         var Counter = ({count,action}) =>  (
             <button onClick={action}>
               Click me! Number of clicks: {count}
             </button>
           )
       
+        // App Container
+        // With React, we have to implement SAM in a "container" class
+        // model, actions and state are in the same container
+        
+        var SAMContainer = React.createClass({
+            getInitialState: function() {
+                return this.props.model 
+            },
+          
+            click: function() { this.present({incrementBy:1}) },
+          
+            present: function(data) {
+                data.incrementBy = data.incrementBy || 1 
+                this.setState( {count: this.state.count + data.incrementBy} )
+            },  
+          
+            nap: function() {
+                // there are no automatic action in this example  
+            }, 
+            
+            render: function() {
+                this.nap() 
+                return theme.counter(this.state.count, this.click) 
+            }
+          
+        })
+      
         // init
-        state.render(model) 
-      
-      
+        theme.display({ count: 0 })
+       
     </script>
   </body>
 </html>
