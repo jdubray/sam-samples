@@ -21,20 +21,20 @@ theme.list = (todos, displayActive, displayCompleted, intents) => {
 
         if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
  
-        const label = `<label ondblclick="return ${intents['edit']}({\'id\':\'${todo.id}\'});">${todo.name}</label>` ;
+        const label = `<label ondblclick="return ${intents['edit']}({'id':'${todo.id}'});">${todo.name}</label>` ;
 
         // if the item is in edit mode we return an input field instead 
         const input = `<input  id="edit-todo" class="new-todo"
-                        onchange="return ${intents['save']}({\'id\':\'${todo.id}\',\'name\':document.getElementById(\'edit-todo\').value});"
+                        onchange="return ${intents['save']}({'id':'${todo.id}','name':document.getElementById('edit-todo').value});"
                         value="${todo.name}"  autofocus></input>` ;
          
         return `
                         <li ${(checked ? 'class="completed"' : '')}>
                             <div class="view">
                                 <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
-                                        onclick="return ${intents['done']}({\'id\':\'${todo.id}\'});">
+                                        onclick="return ${intents['done']}({'id':'${todo.id}'});">
                                 ${(todo.edited ? input : label)}
-                                <button class="destroy" onclick="return ${intents['delete']}({\'id\':\'${todo.id}\'});"></button>
+                                <button class="destroy" onclick="return ${intents['delete']}({'id':'${todo.id}'});"></button>
                             </div>
                             <input class="edit" value="${todo.description}">
                         </li>` ;

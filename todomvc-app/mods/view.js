@@ -15,7 +15,7 @@ view.ready = (model, intents) => {
     
     // generate the representation of each component
     return ({ 
-        todoHeader: theme.header(),
+        todoHeader: theme.header(intents),
         todoList: theme.list(model.items, model.displayActive, model.displayCompleted, intents), 
         filters: theme.filters(model.displayActive,model.displayCompleted,model.count,model.completedCount, intents) 
     });
