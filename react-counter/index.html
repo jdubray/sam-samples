@@ -36,7 +36,7 @@
     
         // SAM Implementation 
         
-        // View components
+        // Theme (View components)
         var theme = { } 
 
         theme.counter = (c,a) => <Counter count={c} action={a}/> 
@@ -55,22 +55,29 @@
             </button>
           )
       
+      
         // App Container
         // With React, we have to implement SAM in a "container" class
         // model, actions and state are in the same container
         
         var SAMContainer = React.createClass({
+            
+            // Model -------------------------------------------------------
             getInitialState: function() {
                 return this.props.model 
             },
-          
-            click: function() { this.present({incrementBy:1}) },
-          
+
             present: function(data) {
                 data.incrementBy = data.incrementBy || 1 
                 this.setState( {count: this.state.count + data.incrementBy} )
             },  
           
+          
+            // Actions -----------------------------------------------------
+            click: function() { this.present({incrementBy:1}) },
+          
+          
+            // State -------------------------------------------------------
             nap: function() {
                 // there are no automatic action in this example  
             }, 
