@@ -41,8 +41,6 @@
 
         theme.counter = (c,a) => <Counter count={c} action={a}/> 
         
-        theme.display = (m) => {}  // nothing to do - react does it
-        
         theme.display = (m) => ReactDOM.render(
                               <SAMContainer model={m}/>,
                               document.getElementById('container')
