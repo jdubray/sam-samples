@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Basic Child SAM instance Example with JSX</title> 
+  </head>
+  <body>
+    <h1>Implementation of the Basic SAM Child Instance Example with JSX</h1>
+    <div id="container" style="height: 300px;">
+      <p>
+        To install React, follow the instructions on
+        <a href="https://github.com/facebook/react/">GitHub</a>.
+      </p>
+      <p>
+        If you can see this, React is <strong>not</strong> working right.
+        If you checked out the source from GitHub make sure to run <code>grunt</code>.
+      </p>
+    </div>
+    <br><br>
+    <h4>Example Details</h4>
+    <p>This is written with with React, using JSX and transformed in the browser.</p>
+    <p>This example has been implemented following the SAM pattern which makes the view components stateless.</p>
+    <p>
+      Learn more about SAM at
+      <a href="https://sam.js.org/" target="_blank">sam.js.org</a>.<br>         
+      Learn more about React at 
+      <a href="https://facebook.github.io/react" target="_blank">facebook.github.io/react</a>.
+    </p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
+    <script type="text/babel">
+    
+        // modified by Jean-Jacques Dubray  jdubray@xgen.io
+        
+        // SAM Implementation 
+        
+        // Theme (View components)
+        var theme = { } 
+
+        theme.child = (a,defaults) => <SAMChildInstance action={a} defaults={defaults}/> 
+        
+        theme.parent = (data) => <FormData data={data} />
+        
+        theme.display = (m) => ReactDOM.render(
+                              <SAMParentContainer model={m}/>,
+                              document.getElementById('container')
+                             ) 
+        
+        
+        var FormData = ({data}) =>  (
+            <table><tbody>
+                <tr><td width="100px">name</td><td with="200px">{data.name}</td></tr>
+                <tr><td width="100px">password</td><td with="200px">{data.password}</td></tr>
+                <tr><td width="100px">email</td><td with="200px">{data.email}</td></tr>
+            </tbody></table>
+        )
+                             
+        // Modified From Tommy Marshall example
+        // https://www.viget.com/articles/building-a-multi-step-registration-form-with-react
+        
+        var SAMChildInstance = React.createClass({
+            
+            // Model -------------------------------------------------------
+            getInitialState: function() {
+                return { action: this.props.action, defaultValues: this.props.defaults, errors: []} 
+            },
+
+            present: function(data) {
+                // validate
+                
+                // 
+                this.setState( {spinner: data.spinner, defaults} )
+                 
+            },  
+          
+          
+            // Actions -----------------------------------------------------
+            submit: function(e) { 
+                e.preventDefault()
+            
+                var data = {
+                  name     : this.refs.name.value,
+                  password : this.refs.password.value,
+                  email    : this.refs.email.value,
+                }
+                
+                // validaate 
+                var errors = [] ;
+                
+                if (data.name.length<3) { 
+                    errors.push("invalid name") 
+                    data.name = ""
+                }
+                if (data.password.length<6) { 
+                    errors.push("invalid password, must be at least six chars") 
+                    data.password = ""
+                }
+                // email validation from 
+                // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+                var re = /\S+@\S+\.\S+/;
+                if (!re.test(data.email)) { 
+                    errors.push("invalid email") 
+                    data.email = ""
+                }
+                
+                if (errors.length>0) {
+                    this.setState( {data: data, errors: errors} ) 
+                } else {
+                    // submit results to the parent
+                    this.state.action(data)  
+                }
+               
+            },
+          
+          
+            // State -------------------------------------------------------
+            nap: function() {
+                // there are no automatic action in this example  
+            }, 
+            
+            render: function() {
+                 
+                this.nap()     
+                
+                return ( <div>
+                  <p>{(this.state.errors.length>0) ? this.state.errors.join(', ') : ''}</p> 
+                  <br/>
+                  <table><tbody>
+                  <tr><td>
+                  <label>Name</label>
+                  </td><td>
+                  <input type="text"
+                         ref="name"
+                         defaultValue={ this.state.defaultValues.name } />
+                  </td></tr>
+                  <tr><td>
+                  <label>Password</label>
+                  </td><td>
+                  <input type="password"
+                         ref="password"
+                         defaultValue={ this.state.defaultValues.password } />
+                  </td></tr>    
+                  <tr><td>    
+                  <label>Email</label>
+                  </td><td>
+                  <input type="email"
+                         ref="email"
+                         defaultValue={ this.state.defaultValues.email } />
+                  </td></tr>
+                  </tbody></table>
+                  <button onClick={ this.submit }>Save and Continue</button></div>
+                )
+            }
+          
+        })
+          
+        
+      
+      
+        // App Container
+        // With React, we have to implement SAM in a "container" class
+        // model, actions and state are in the same container
+        
+        var SAMParentContainer = React.createClass({
+            
+            // Model -------------------------------------------------------
+            getInitialState: function() {
+                return {} 
+            },
+
+            present: function(data) {
+                data = data || {} 
+                if (data.name !== undefined) {
+                    this.setState( {name: data.name, password: data.password, email: data.email} )
+                }
+            },  
+          
+          
+            // Actions -----------------------------------------------------
+            parentAction: function(data) { 
+                // spin for 5 second
+                this.present(data) 
+            },
+          
+          
+            // State -------------------------------------------------------
+            nap: function() {
+                // there are no automatic action in this example  
+            }, 
+            
+            render: function() {
+                if (this.state.name !== undefined) {
+                    return theme.parent(this.state)
+                }
+                else { 
+                    return theme.child(this.parentAction, { name:'', password: '', email:''}) 
+                }
+            }
+          
+        })
+      
+        // init
+        theme.display({ })
+       
+    </script>
+  </body>
+</html>
