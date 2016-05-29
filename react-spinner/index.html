@@ -72,7 +72,7 @@
   </head>
   <body>
     <h1>SAM Implementation of the Basic Spinner Example with JSX</h1>
-    <div id="container">
+    <div id="container" style="height: 300px;">
       <p>
         To install React, follow the instructions on
         <a href="https://github.com/facebook/react/">GitHub</a>.
@@ -166,6 +166,7 @@
                 if (this.state.spinner !== undefined) {
                     document.getElementById(this.state.spinner).className = ""
                 }
+                
                 this.nap()     
                 
                 return theme.spinner(this.click) 
