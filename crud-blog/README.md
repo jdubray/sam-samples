@@ -2,6 +2,8 @@
 
 This sample was inspired by the blog post from @rajaraodv on [building a React/Redux CRUD App](https://medium.com/@rajaraodv/a-guide-for-building-a-react-redux-crud-app-7fe0b8943d0f#.ydbwd6ccl)
 
+The client-side version of this sample is [hosted on HyperDev](https://fish-trader.hyperdev.space/)
+
 The project contains 4 files:
 
 - blog.html 	/ the client
