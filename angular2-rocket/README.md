@@ -13,6 +13,11 @@ npm install
 npm start
 ```
 
+I found that the lite-server to be unstable. If you get some error, you can run the sample with something like:
+```bash
+python -m SimpleHTTPServer
+```
+
 # Angular 2 QuickStart Source
 
 This repository holds the TypeScript source code of the [angular.io quickstart](https://angular.io/docs/ts/latest/quickstart.html),

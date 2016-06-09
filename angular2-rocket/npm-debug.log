@@ -7,8 +7,8 @@
 6 silly lifecycle angular2-quickstart@1.0.0~prestart: no script for prestart, continuing
 7 info lifecycle angular2-quickstart@1.0.0~start: angular2-quickstart@1.0.0
 8 verbose lifecycle angular2-quickstart@1.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle angular2-quickstart@1.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/jjdubray/Documents/bolt/customers/USFoods/dev/angular2-quickstart-master/node_modules/.bin:/Users/jjdubray/.gvm/vertx/current/bin:/Users/jjdubray/.gvm/springboot/current/bin:/Users/jjdubray/.gvm/lazybones/current/bin:/Users/jjdubray/.gvm/jbake/current/bin:/Users/jjdubray/.gvm/groovyserv/current/bin:/Users/jjdubray/.gvm/groovy/current/bin:/Users/jjdubray/.gvm/griffon/current/bin:/Users/jjdubray/.gvm/grails/current/bin:/Users/jjdubray/.gvm/gradle/current/bin:/Users/jjdubray/.gvm/glide/current/bin:/Users/jjdubray/.gvm/gaiden/current/bin:/Users/jjdubray/.gvm/crash/current/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin
-10 verbose lifecycle angular2-quickstart@1.0.0~start: CWD: /Users/jjdubray/Documents/bolt/customers/USFoods/dev/angular2-quickstart-master
+9 verbose lifecycle angular2-quickstart@1.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/jjdubray/Documents/dev/sam-dev/sam-samples/angular2-rocket/node_modules/.bin:/Users/jjdubray/.gvm/vertx/current/bin:/Users/jjdubray/.gvm/springboot/current/bin:/Users/jjdubray/.gvm/lazybones/current/bin:/Users/jjdubray/.gvm/jbake/current/bin:/Users/jjdubray/.gvm/groovyserv/current/bin:/Users/jjdubray/.gvm/groovy/current/bin:/Users/jjdubray/.gvm/griffon/current/bin:/Users/jjdubray/.gvm/grails/current/bin:/Users/jjdubray/.gvm/gradle/current/bin:/Users/jjdubray/.gvm/glide/current/bin:/Users/jjdubray/.gvm/gaiden/current/bin:/Users/jjdubray/.gvm/crash/current/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin
+10 verbose lifecycle angular2-quickstart@1.0.0~start: CWD: /Users/jjdubray/Documents/dev/sam-dev/sam-samples/angular2-rocket
 11 silly lifecycle angular2-quickstart@1.0.0~start: Args: [ '-c', 'tsc && concurrently "tsc -w" "lite-server" ' ]
 12 silly lifecycle angular2-quickstart@1.0.0~start: Returned: code: 2  signal: null
 13 info lifecycle angular2-quickstart@1.0.0~start: Failed to exec start script
@@ -23,7 +23,7 @@
 14 verbose stack     at maybeClose (internal/child_process.js:827:16)
 14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
 15 verbose pkgid angular2-quickstart@1.0.0
-16 verbose cwd /Users/jjdubray/Documents/bolt/customers/USFoods/dev/angular2-quickstart-master
+16 verbose cwd /Users/jjdubray/Documents/dev/sam-dev/sam-samples/angular2-rocket
 17 error Darwin 14.5.0
 18 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start"
 19 error node v5.7.1
