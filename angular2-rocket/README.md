@@ -4,7 +4,7 @@ This sample was created by modifying Google's Angular2 QuickStart sample
 
 It shows how Angular2 can be used to render SAM's view components. The elements of the parttern (State,Actions,Model) are defined outside the Angular Framework.
 
-This sample is using the [DynamicComponentLoader](https://angular.io/docs/ts/latest/api/core/DynamicComponentLoader-class.html) class to render the view.
+This sample is using the [DynamicComponentLoader](https://angular.io/docs/ts/latest/api/core/DynamicComponentLoader-class.html) class to render the view and is inspired by this [StackOverflow solution](http://stackoverflow.com/questions/34784778/equivalent-of-compile-in-angular-2).
 
 To start this sample:
 
