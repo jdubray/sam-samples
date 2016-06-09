@@ -13,7 +13,10 @@ view.ready = function(model) {
     return (
             `<p>Counter:${model.counter}</p>
             <form onSubmit="return actions.start({});">
+                [Directive]<br>
                 <input type="text" placeHolder="AutoGrow Directive" autoGrow/><br>
+                [/Directive]<br>
+                <br>    
                 <input type="submit" value="Start">
             </form>`
         ) ;
