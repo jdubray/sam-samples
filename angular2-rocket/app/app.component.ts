@@ -1,5 +1,6 @@
 //import {Component,NgZone}  from '@angular/core';
 import {Component, DynamicComponentLoader, Injector, OnInit} from '@angular/core'
+import {AutoGrowDirective} from './directives/autogrow.directive'
 
 function compileToComponent(template, directives) {
   @Component({ 
@@ -12,7 +13,8 @@ function compileToComponent(template, directives) {
 
 @Component({
   selector: 'child-component',
-  template: 'Child'
+  template: 'Child',
+  directives: [AutoGrowDirective]
 })
 class ChildComponent {}
 
@@ -45,7 +47,7 @@ export class AppComponent implements OnInit {
      
     render(sr: string) {
         
-        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent]), '#child', view.component.injector) ; 
+        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent,AutoGrowDirective]), '#child', view.component.injector) ; 
         
     }
     

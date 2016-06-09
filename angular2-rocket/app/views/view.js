@@ -11,10 +11,11 @@ view.init = function(model) {
 // State representation of the ready state
 view.ready = function(model) {
     return (
-            "<p>Counter:"+model.counter+"</p>\n\
-            <form onSubmit=\"JavaScript:return actions.start({});\">\n\
-                <input type=\"submit\" value=\"Start\">\n\
-            </form>"
+            `<p>Counter:${model.counter}</p>
+            <form onSubmit="return actions.start({});">
+                <input type="text" placeHolder="AutoGrow Directive" autoGrow/><br>
+                <input type="submit" value="Start">
+            </form>`
         ) ;
 
 }
@@ -23,10 +24,10 @@ view.ready = function(model) {
 view.counting = function(model) {
 
     return (
-            "<p>Count down:"+model.counter+"</p>\n\
-             <form onSubmit=\"JavaScript:return actions.abort({});\">\n\
-                <input type=\"submit\" value=\"Abort\">\n\
-            </form>"
+            `<p>Count down:${model.counter}</p>
+             <form onSubmit="return actions.abort({});">
+                <input type="submit" value="Abort">
+            </form>`
         ) ;
 
 }
@@ -35,7 +36,7 @@ view.counting = function(model) {
 view.aborted = function(model) {
 
     return (
-            "<p>Aborted at Counter:"+model.counter+"</p>\n"
+            `<p>Aborted at Counter:${model.counter}</p>`
         ) ;
 
 }
@@ -44,7 +45,7 @@ view.aborted = function(model) {
 view.launched = function(model) {
 
     return (
-            "<p>Launched</p>"
+            `<p>Launched</p>`
         ) ;
 
 }
@@ -53,7 +54,5 @@ view.launched = function(model) {
 view.display = function(representation) {
     console.log('display not initialized') ;
     console.log(representation) ;
-    // var stateRepresentation = document.getElementById("representation");
-    // stateRepresentation.innerHTML = representation ;
 }
 

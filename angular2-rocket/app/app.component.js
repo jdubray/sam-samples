@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 //import {Component,NgZone}  from '@angular/core';
 var core_1 = require('@angular/core');
+var autogrow_directive_1 = require('./directives/autogrow.directive');
 function compileToComponent(template, directives) {
     var ViewComponent = (function () {
         function ViewComponent() {
@@ -32,7 +33,8 @@ var ChildComponent = (function () {
     ChildComponent = __decorate([
         core_1.Component({
             selector: 'child-component',
-            template: 'Child'
+            template: 'Child',
+            directives: [autogrow_directive_1.AutoGrowDirective]
         }), 
         __metadata('design:paramtypes', [])
     ], ChildComponent);
@@ -52,7 +54,7 @@ var AppComponent = (function () {
         this.render(view.init(model));
     };
     AppComponent.prototype.render = function (sr) {
-        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent]), '#child', view.component.injector);
+        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent, autogrow_directive_1.AutoGrowDirective]), '#child', view.component.injector);
     };
     AppComponent = __decorate([
         core_1.Component({
