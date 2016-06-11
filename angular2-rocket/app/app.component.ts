@@ -2,7 +2,10 @@
 import {Component, DynamicComponentLoader, Injector, OnInit} from '@angular/core'
 import {AutoGrowDirective} from './directives/autogrow.directive'
 
-function compileToComponent(template, directives) {
+declare var view: any ;
+declare var model: any ;
+
+function compileToComponent(template: any, directives: any) {
   @Component({ 
     selector: 'view', 
     template , directives
