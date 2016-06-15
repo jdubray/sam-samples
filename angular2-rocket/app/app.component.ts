@@ -1,9 +1,17 @@
+
 //import {Component,NgZone}  from '@angular/core';
-import {Component, DynamicComponentLoader, Injector, OnInit} from '@angular/core'
+import {Component, DynamicComponentLoader, Injector, OnInit, AfterViewInit} from '@angular/core'
 import {AutoGrowDirective} from './directives/autogrow.directive'
 
-declare var view: any ;
-declare var model: any ;
+import {State}            from './state/state' ;
+import {Model}            from './model/model' ;
+import {Actions}          from './actions/actions' ;
+import {View}             from './views/view' ;
+
+import { SamService }     from './services/sam.service';
+
+// This is used to mount SAM's action in the DOM
+declare var actionsMount: any;
 
 function compileToComponent(template: any, directives: any) {
   @Component({ 
@@ -23,17 +31,32 @@ class ChildComponent {}
 
 @Component({
   selector: 'my-app',
-  template: '[Container]<br> <child id="child"></child> <br>[/Container]'
+  providers: [SamService],
+  template: '[Container]<br> <child id="container"></child> <br>[/Container]'
 })
 
 export class AppComponent implements OnInit { 
     
-    //private zone: NgZone ;
+    static _sam : any ;
+
+    static _loader : DynamicComponentLoader ;
+    static _injector : Injector ;
     
     constructor(private loader: DynamicComponentLoader, 
                 private injector: Injector) {
                     
-                    loader.loadAsRoot(ChildComponent, '#child', injector);
+
+                    // Initialize Component Structure
+                    AppComponent._loader = loader ;
+                    AppComponent._injector = injector ;
+                    
+                    // Create a SAM instance
+                    AppComponent._sam = SamService.SamInstance(
+                                          AppComponent.render,
+                                          'actionsMount',
+                                          actionsMount,
+                                          []
+                                        );  
 
                 }
     
@@ -41,17 +64,23 @@ export class AppComponent implements OnInit {
   
     ngOnInit() {
       
-      view.display = this.render ;
-      //view.zone = this.zone ;
-      view.component = this ;
-      
-      this.render(view.init(model)) ;
+      console.log('onInit') ;
     }
      
-    render(sr: string) {
+    static render(sr: string) {
         
-        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent,AutoGrowDirective]), '#child', view.component.injector) ; 
+        console.log('Rendering View') ;
+         
+        // Loop over the components being redered 
         
+        var props: string[] = Object.getOwnPropertyNames(sr) ;
+
+        props.forEach( (prop) => AppComponent._loader.loadAsRoot(
+            compileToComponent(sr[prop], [ChildComponent,AutoGrowDirective]), 
+            '#'+prop, 
+            AppComponent._injector
+          ) 
+        ) ; 
     }
     
 }

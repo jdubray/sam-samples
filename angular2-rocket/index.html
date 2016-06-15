@@ -12,25 +12,13 @@
     <script src="node_modules/reflect-metadata/Reflect.js"></script>
     <script src="node_modules/systemjs/dist/system.src.js"></script>
     
-    <script src="app/actions/actions.js"></script>
-    <script src="app/model/model.js"></script>
-    <script src="app/views/view.js"></script>
-    <script src="app/state/state.js"></script>
-    
     <script src="systemjs.config.js"></script>
     <script>
+
+      var actionsMount = {} ;
+
       System.import('app').catch(function(err){ console.error(err); });
-      
-      // Wire the reactive loop
-      state.model = model ;
-      model.state = state ;
-      actions.present = model.present ;
-      state.actions = actions ;
-      state.view = view ;
-      
-      // Display initial state
-      view.display(view.init(model)) ;
-      
+    
     </script>
   </head>
 

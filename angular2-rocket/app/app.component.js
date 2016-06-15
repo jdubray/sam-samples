@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 //import {Component,NgZone}  from '@angular/core';
 var core_1 = require('@angular/core');
 var autogrow_directive_1 = require('./directives/autogrow.directive');
+var sam_service_1 = require('./services/sam.service');
 function compileToComponent(template, directives) {
     var ViewComponent = (function () {
         function ViewComponent() {
@@ -41,25 +42,29 @@ var ChildComponent = (function () {
     return ChildComponent;
 }());
 var AppComponent = (function () {
-    //private zone: NgZone ;
     function AppComponent(loader, injector) {
         this.loader = loader;
         this.injector = injector;
-        loader.loadAsRoot(ChildComponent, '#child', injector);
+        // Initialize Component Structure
+        AppComponent._loader = loader;
+        AppComponent._injector = injector;
+        // Create a SAM instance
+        AppComponent._sam = sam_service_1.SamService.SamInstance(AppComponent.render, 'actionsMount', actionsMount, []);
     }
     AppComponent.prototype.ngOnInit = function () {
-        view.display = this.render;
-        //view.zone = this.zone ;
-        view.component = this;
-        this.render(view.init(model));
+        console.log('onInit');
     };
-    AppComponent.prototype.render = function (sr) {
-        view.component.loader.loadAsRoot(compileToComponent(sr, [ChildComponent, autogrow_directive_1.AutoGrowDirective]), '#child', view.component.injector);
+    AppComponent.render = function (sr) {
+        console.log('Rendering View');
+        // Loop over the components being redered 
+        var props = Object.getOwnPropertyNames(sr);
+        props.forEach(function (prop) { return AppComponent._loader.loadAsRoot(compileToComponent(sr[prop], [ChildComponent, autogrow_directive_1.AutoGrowDirective]), '#' + prop, AppComponent._injector); });
     };
     AppComponent = __decorate([
         core_1.Component({
             selector: 'my-app',
-            template: '[Container]<br> <child id="child"></child> <br>[/Container]'
+            providers: [sam_service_1.SamService],
+            template: '[Container]<br> <child id="container"></child> <br>[/Container]'
         }), 
         __metadata('design:paramtypes', [core_1.DynamicComponentLoader, core_1.Injector])
     ], AppComponent);
