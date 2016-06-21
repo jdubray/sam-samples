@@ -73,12 +73,10 @@ var state = (function() {
         render: function(model) {
             // State Representation
             
-            if (model.rect.startX) {
-                if (model.rect.w + model.rect.h === 0) {
-                    view.display(0,0,0,0,0) ; 
-                } else {
-                    view.display(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h,model.selectedFishes) ;
-                }
+            if (model.rect.startX !== undefined) {
+                
+                view.display(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h,model.selectedFishes) ;
+               
             }
             
 
@@ -103,30 +101,24 @@ var model = (function(state) {
         present(data) {
             data = data || {} ;
             
-            this.countFishes = false ;
+            this.countFishes = data.stopDrawing ;
+
+            if (data.selectedObjects !== undefined) {
+                this.selectedFishes = data.selectedObjects ;
+            }
 
             if (data.newRectangle) {
                 this.rect = data.newRectangle || {startX: 0, startY: 0} ;
                 this.rect.w = 0 ;
                 this.rect.h = 0 ;
-                this.dragging = true ;
                 this.selectedFishes = 0 ;
             }
 
-            if ((data.newDiagonal) && this.dragging)  {
+            if ((data.newDiagonal) && (this.selectedFishes === 0)) { 
                 this.rect.w = data.newDiagonal.w - this.rect.startX || 0 ;
                 this.rect.h = data.newDiagonal.h - this.rect.startY || 0 ;
             }
-
-            if (data.stopDrawing) {
-                this.dragging = false ;
-                this.countFishes = true ;
-            } 
             
-            if (data.selectedObjects !== undefined) {
-                this.selectedFishes = data.selectedObjects ;
-            }
-
             this.state.render(model) ;
         }
     }
