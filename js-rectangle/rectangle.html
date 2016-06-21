@@ -39,6 +39,8 @@ p {
 <body>
 <!--    inspired from Mike Thomas very elegant example 
         http://atomicrobotdesign.com/blog_media/draw/draw1.html 
+
+
     -->
 
 <h1>Gone<br>Fishing!<br><p id="net"></p></h1>
@@ -162,9 +164,29 @@ function mouseMove(e) {
 function selectObjects(objects,rectangle) {
     var count = 0 ;
     objects.forEach( function(el) {
-        if ((el.x>=rectangle.startX) && (el.x<=(rectangle.startX+rectangle.w))) {
-            if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
-                count++ ;
+        if (rectangle.w < 0) {
+           if ((el.x<=rectangle.startX) && (el.x>=(rectangle.startX+rectangle.w))) {
+                if (rectangle.h < 0) {
+                    if ((el.y<=rectangle.startY) && (el.y>=(rectangle.startY+rectangle.h))) {
+                        count++ ;
+                    }
+                } else {
+                    if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
+                        count++ ;
+                    }
+                }
+            }     
+        } else {
+            if (rectangle.h < 0) {
+                if ((el.y<=rectangle.startY) && (el.y>=(rectangle.startY+rectangle.h))) {
+                    count++ ;
+                }
+            } else {
+                if ((el.x>=rectangle.startX) && (el.x<=(rectangle.startX+rectangle.w))) {
+                    if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
+                        count++ ;
+                    }
+                }
             }
         }
     }) ;
