@@ -133,11 +133,10 @@ var model = (function(state) {
 
 
 function draw(ctx, x,y, w,h) {
-    if (x+y+w+h === 0) {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-    } else {
-        ctx.fillRect(x,y,w,h);
-    }
+    
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(x,y,w,h);
+    
 }
 
 function mouseDown(e) {
