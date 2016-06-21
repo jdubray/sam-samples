@@ -1,6 +1,6 @@
 
 //import {Component,NgZone}  from '@angular/core';
-import {Component, DynamicComponentLoader, Injector, OnInit, AfterViewInit} from '@angular/core'
+import {Component, DynamicComponentLoader, Injector, OnInit, AfterViewInit, Output, EventEmitter} from '@angular/core'
 import {AutoGrowDirective} from './directives/autogrow.directive'
 
 import {State}            from './state/state' ;
@@ -25,9 +25,12 @@ function compileToComponent(template: any, directives: any) {
 @Component({
   selector: 'child-component',
   template: 'Child',
-  directives: [AutoGrowDirective]
+  directives: [AutoGrowDirective],
 })
-class ChildComponent {}
+class ChildComponent {
+  @Output() complete = new EventEmitter();
+
+}
 
 @Component({
   selector: 'my-app',

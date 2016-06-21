@@ -30,12 +30,17 @@ function compileToComponent(template, directives) {
 }
 var ChildComponent = (function () {
     function ChildComponent() {
+        this.complete = new core_1.EventEmitter();
     }
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], ChildComponent.prototype, "complete", void 0);
     ChildComponent = __decorate([
         core_1.Component({
             selector: 'child-component',
             template: 'Child',
-            directives: [autogrow_directive_1.AutoGrowDirective]
+            directives: [autogrow_directive_1.AutoGrowDirective],
         }), 
         __metadata('design:paramtypes', [])
     ], ChildComponent);

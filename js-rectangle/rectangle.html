@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Draw a rectangle #1</title>
+<style>
+body {
+  padding:0;
+  margin:0;
+  background:#000;
+}
+canvas {
+  display:block;
+  margin:30px auto 0;
+  background:#fff;
+}
+h1 {
+  position:absolute;
+  top:0;
+  left:0;
+  color:#fff;
+  margin:0;
+  font-size:80px;
+  font-family:Arial, sans-serif;
+  width:400px;
+  line-height:80px;
+}
+
+p {
+    font-size:35px;
+    font-family:Arial, sans-serif;
+    color:#fff;
+}
+
+</style>
+</head>
+
+<body>
+<!--    inspired from Mike Thomas very elegant example 
+        http://atomicrobotdesign.com/blog_media/draw/draw1.html 
+    -->
+
+<h1>Gone<br>Fishing!<br><p id="net"></p></h1>
+<canvas id="canvas" width="500" height="500"></canvas>
+<script>
+
+var view = (function(canvas,net) {
+        return {
+            canvas: canvas,
+            net: net,
+            ctx: canvas.getContext('2d'),
+
+            display(x,y,w,h,count) {
+                if (this.ctx) {
+                    draw(this.ctx,x,y,w,h) ;
+                }
+                if (count>0) {
+                    var fishes = (count>1)? ' fishes!' : ' fish' ;
+                    net.innerHTML = "you caught "+count+fishes ;
+                } else {
+                    net.innerHTML = "" ;
+                }
+            }
+        } ;
+
+})(document.getElementById('canvas'),document.getElementById('net')) ;
+    
+var state = (function() {
+    return {
+        render: function(model) {
+            // State Representation
+            
+            if (model.rect.startX) {
+                if (model.rect.w + model.rect.h === 0) {
+                    view.display(0,0,0,0,0) ; 
+                } else {
+                    view.display(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h,model.selectedFishes) ;
+                }
+            }
+            
+
+            // Next-Action predicate
+            if (model.countFishes) {
+                selectObjects(model.fishes,model.rect) ; 
+            }
+        }
+
+    }
+})() ;
+
+
+var model = (function(state) {
+    return {
+        state: state, 
+        rect: { },
+        selectedFishes:0,
+        fishes: [] ,
+        countFishes: false,
+        
+        present(data) {
+            data = data || {} ;
+            
+            this.countFishes = false ;
+
+            if (data.newRectangle) {
+                this.rect = data.newRectangle || {startX: 0, startY: 0} ;
+                this.rect.w = 0 ;
+                this.rect.h = 0 ;
+                this.dragging = true ;
+            }
+
+            if ((data.newDiagonal) && this.dragging)  {
+                this.rect.w = data.newDiagonal.w - this.rect.startX || 0 ;
+                this.rect.h = data.newDiagonal.h - this.rect.startY || 0 ;
+            }
+
+            if (data.stopDrawing) {
+                this.dragging = false ;
+                this.countFishes = true ;
+            } 
+            
+            if (data.selectedObjects !== undefined) {
+                this.selectedFishes = data.selectedObjects ;
+            }
+
+            this.state.render(model) ;
+        }
+    }
+    
+})(state) ;
+
+
+
+function draw(ctx, x,y, w,h) {
+    if (x+y+w+h === 0) {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+    } else {
+        ctx.fillRect(x,y,w,h);
+    }
+}
+
+function mouseDown(e) {
+    var rect = {} ;
+    rect.startX = e.pageX - this.offsetLeft;
+    rect.startY = e.pageY - this.offsetTop;
+    model.present({newRectangle: rect}) ;
+}
+
+function mouseUp() {
+    model.present({stopDrawing: true}) ;
+}
+
+function mouseMove(e) {
+    var diag = {} ;
+    diag.w = (e.pageX - this.offsetLeft) ;
+    diag.h = (e.pageY - this.offsetTop) ;
+
+    model.present({newDiagonal: diag}) ;
+
+}
+
+function selectObjects(objects,rectangle) {
+    var count = 0 ;
+    objects.forEach( function(el) {
+        if ((el.x>=rectangle.startX) && (el.x<=(rectangle.startX+rectangle.w))) {
+            if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
+                count++ ;
+            }
+        }
+    }) ;
+    
+    model.present({selectedObjects: count}) ;
+    
+}
+
+function init() {
+    canvas.addEventListener('mousedown', mouseDown, false);
+    canvas.addEventListener('mouseup', mouseUp, false);
+    canvas.addEventListener('mousemove', mouseMove, false);
+
+    // generate some random position 
+    for (var i = 0 ; i < 10 ; i++) {
+        var element = {
+            x: Math.random()*500,
+            y: Math.random()*500
+        }
+        model.fishes.push(element) ;
+    }
+
+}
+
+init();
+
+</script>
+</body>
+</html>
