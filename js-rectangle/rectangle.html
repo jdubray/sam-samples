@@ -38,7 +38,7 @@ p {
 
 <body>
 <!--    inspired from Mike Thomas very elegant example 
-        http://atomicrobotdesign.com/blog_media/draw/draw1.html 
+        	
 
 
     -->
@@ -111,10 +111,10 @@ var model = (function(state) {
                 this.rect = data.newRectangle || {startX: 0, startY: 0} ;
                 this.rect.w = 0 ;
                 this.rect.h = 0 ;
-                this.selectedFishes = 0 ;
+                this.selectedFishes = -1 ;
             }
 
-            if ((data.newDiagonal) && (this.selectedFishes === 0)) { 
+            if ((data.newDiagonal) && (this.selectedFishes === -1)) { 
                 this.rect.w = data.newDiagonal.w - this.rect.startX || 0 ;
                 this.rect.h = data.newDiagonal.h - this.rect.startY || 0 ;
             }
