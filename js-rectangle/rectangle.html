@@ -162,33 +162,15 @@ function mouseMove(e) {
 
 }
 
+function isIn(val, v0, d) {
+    return (d<0) ? ((val <= v0) && (val>=v0+d)) : ((val>=v0) && (val<=v0+d)) ;
+}
+
 function selectObjects(objects,rectangle) {
     var count = 0 ;
     objects.forEach( function(el) {
-        if (rectangle.w < 0) {
-           if ((el.x<=rectangle.startX) && (el.x>=(rectangle.startX+rectangle.w))) {
-                if (rectangle.h < 0) {
-                    if ((el.y<=rectangle.startY) && (el.y>=(rectangle.startY+rectangle.h))) {
-                        count++ ;
-                    }
-                } else {
-                    if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
-                        count++ ;
-                    }
-                }
-            }     
-        } else {
-            if (rectangle.h < 0) {
-                if ((el.y<=rectangle.startY) && (el.y>=(rectangle.startY+rectangle.h))) {
-                    count++ ;
-                }
-            } else {
-                if ((el.x>=rectangle.startX) && (el.x<=(rectangle.startX+rectangle.w))) {
-                    if ((el.y>=rectangle.startY) && (el.y<=(rectangle.startY+rectangle.h))) {
-                        count++ ;
-                    }
-                }
-            }
+        if (isIn(el.x,rectangle.startX,rectangle.w) && isIn(el.y,rectangle.startY,rectangle.h)) {
+            count++ ;
         }
     }) ;
     
