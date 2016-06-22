@@ -51,17 +51,17 @@ var view = (function(canvas,net) {
         return {
             canvas: canvas,
             net: net,
-            ctx: canvas.getContext('2d'),
+            ctx: this.canvas.getContext('2d'),
 
-            display(x,y,w,h,count) {
+            display(stateRepresentation) {
                 if (this.ctx) {
-                    draw(this.ctx,x,y,w,h) ;
+                    stateRepresentation.rect(this.ctx,this.canvas) ;
                 }
-                if (count>0) {
-                    var fishes = (count>1)? ' fishes!' : ' fish' ;
-                    net.innerHTML = "you caught "+count+fishes ;
+                if (stateRepresentation.fishes>0) {
+                    var fishes = (stateRepresentation.fishes>1)? ' fishes!' : ' fish' ;
+                    this.net.innerHTML = " you caught "+stateRepresentation.fishes+fishes ;
                 } else {
-                    net.innerHTML = "" ;
+                    this.net.innerHTML = "" ;
                 }
             }
         } ;
@@ -75,7 +75,12 @@ var state = (function() {
             
             if (model.rect.startX !== undefined) {
                 
-                view.display(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h,model.selectedFishes) ;
+                var stateRepresentation = {
+                    rect: draw(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h),
+                    fishes: model.selectedFishes
+                }
+                
+                view.display(stateRepresentation) ;
                
             }
             
@@ -127,17 +132,23 @@ var model = (function(state) {
 
 
 
-function draw(ctx, x,y, w,h) {
+function draw(x,y, w,h) {
+    var x0 = x,
+        y0 = y,
+        w0 = w,
+        h0 = h ;
     
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillRect(x,y,w,h);
-    
+    return function(ctx,canvas) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillRect(x0,y0,w0,h0);
+    }
 }
 
 function mouseDown(e) {
     var rect = {} ;
     rect.startX = e.pageX - this.offsetLeft;
     rect.startY = e.pageY - this.offsetTop;
+    
     model.present({newRectangle: rect}) ;
 }
 
@@ -154,14 +165,17 @@ function mouseMove(e) {
 
 }
 
-function isIn(val, v0, d) {
-    return (d<0) ? ((val <= v0) && (val>=v0+d)) : ((val>=v0) && (val<=v0+d)) ;
-}
 
 function selectObjects(objects,rectangle) {
+    
+    function isIn(val, v0, d) {
+      return (d<0) ? ((val <= v0) && (val>=v0+d)) : ((val>=v0) && (val<=v0+d)) ;
+    }
+
+  
     var count = 0 ;
-    objects.forEach( function(loc) {
-        if (isIn(loc.x,rectangle.startX,rectangle.w) && isIn(loc.y,rectangle.startY,rectangle.h)) {
+    objects.forEach( function(el) {
+        if (isIn(el.x,rectangle.startX,rectangle.w) && isIn(el.y,rectangle.startY,rectangle.h)) {
             count++ ;
         }
     }) ;
