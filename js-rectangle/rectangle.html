@@ -160,8 +160,8 @@ function isIn(val, v0, d) {
 
 function selectObjects(objects,rectangle) {
     var count = 0 ;
-    objects.forEach( function(el) {
-        if (isIn(el.x,rectangle.startX,rectangle.w) && isIn(el.y,rectangle.startY,rectangle.h)) {
+    objects.forEach( function(loc) {
+        if (isIn(loc.x,rectangle.startX,rectangle.w) && isIn(loc.y,rectangle.startY,rectangle.h)) {
             count++ ;
         }
     }) ;
