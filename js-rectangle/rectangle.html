@@ -43,8 +43,8 @@ p {
 
     -->
 
-<h1>Gone<br>Fishing!<br><p id="net"></p></h1>
-<canvas id="canvas" width="500" height="500"></canvas>
+<h1>Gone<br>Fishing!<br>
+<p id="net"></p></h1><canvas id="canvas" width="500" height="500"></canvas>
 <script>
 
 var view = (function(canvas,net) {
@@ -76,7 +76,7 @@ var state = (function() {
             if (model.rect.startX !== undefined) {
                 
                 var stateRepresentation = {
-                    rect: draw(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h),
+                    rect: draw(model.rect.startX, model.rect.startY, model.rect.w, model.rect.h,model.color),
                     fishes: model.selectedFishes
                 }
                 
@@ -101,6 +101,7 @@ var model = (function(state) {
         rect: { },
         selectedFishes:0,
         fishes: [] ,
+        color: "#000000",
         countFishes: false,
         
         present(data) {
@@ -124,6 +125,8 @@ var model = (function(state) {
                 this.rect.h = data.newDiagonal.h - this.rect.startY || 0 ;
             }
             
+            this.color = (this.selectedFishes>6) ? "#FF0000" : "#000000" ;
+
             this.state.render(model) ;
         }
     }
@@ -132,14 +135,16 @@ var model = (function(state) {
 
 
 
-function draw(x,y, w,h) {
+function draw(x,y, w,h,c) {
     var x0 = x,
         y0 = y,
         w0 = w,
-        h0 = h ;
+        h0 = h,
+        c0 = c || "#000000" ;
     
     return function(ctx,canvas) {
       ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle(c0) ; 
       ctx.fillRect(x0,y0,w0,h0);
     }
 }
