@@ -38,40 +38,140 @@ p {
 
 <body>
 <!--    inspired from Mike Thomas very elegant example 
-        	
+        
+        http://atomicrobotdesign.com/blog/javascript/draw-a-rectangle-using-the-mouse-on-the-canvas-in-less-than-40-lines-of-javascript/
 
-
+<canvas id="canvas" width="500" height="500"></canvas>
     -->
 
 <h1>Gone<br>Fishing!<br>
-<p id="net"></p></h1><canvas id="canvas" width="500" height="500"></canvas>
+<p id="net"></p></h1>
+    <div id="pond">
+        
+    </div>
 <script>
 
-var view = (function(canvas,net) {
-        return {
-            canvas: canvas,
-            net: net,
-            ctx: this.canvas.getContext('2d'),
+var actions = {
 
+    mouseDown(e)  {
+        var rect = {} ;
+        rect.startX = e.pageX - this.offsetLeft;
+        rect.startY = e.pageY - this.offsetTop;
+        
+        model.present({newRectangle: rect}) ;
+    },
+
+    mouseUp() {
+        model.present({stopDrawing: true}) ;
+    },
+
+    mouseMove(e) {
+        var diag = {} ;
+        diag.w = (e.pageX - this.offsetLeft) ;
+        diag.h = (e.pageY - this.offsetTop) ;
+
+        model.present({newDiagonal: diag}) ;
+
+    },
+
+
+    selectObjects(objects,rectangle) {
+        
+        function isIn(val, v0, d) {
+            return (d<0) ? ((val <= v0) && (val>=v0+d)) : ((val>=v0) && (val<=v0+d)) ;
+        }
+
+        var count = 0 ;
+        objects.forEach( function(el) {
+            if (isIn(el.x,rectangle.startX,rectangle.w) && isIn(el.y,rectangle.startY,rectangle.h)) {
+                count++ ;
+            }
+        }) ;
+        
+        model.present({selectedObjects: count}) ;
+        
+    }
+
+} ;
+
+var theme = {
+
+    canvas: null,
+    ctx: null,
+    // The Theme knows WHAT needs to be dislayed
+
+    // Draw the "net" with fishes if any
+    net(net, fishes) {
+         // draw the net
+        net.rect(this.ctx,this.canvas) ;
+        if (fishes>0) {
+                var _fishes = (fishes>1)? ' fishes!' : ' fish' ;
+                net.caught.innerHTML = " you caught "+fishes+_fishes ;
+            } else {
+                net.caught.innerHTML = "" ;
+        }
+    },
+
+    // draw the pond
+    pond(id,width, height) {
+        // http://stackoverflow.com/questions/4765949/create-html5-canvas-programmatically
+        this.canvas = document.createElement("canvas");
+        this.canvas.id = "canvas";
+        this.canvas.width = width ;
+        this.canvas.height = height ;
+        
+        this.canvas.addEventListener('mousedown', actions.mouseDown, false);
+        this.canvas.addEventListener('mouseup', actions.mouseUp, false);
+        this.canvas.addEventListener('mousemove', actions.mouseMove, false);
+        
+        this.ctx = this.canvas.getContext('2d') ;
+        document.getElementById(id).appendChild(this.canvas);
+    }
+
+}
+
+var view = (function(theme,canvas,net) {
+
+        // The View knows WHERE components can be displayed
+        return {
+            theme: theme,
+            pond: this.theme.pond(canvas,500,500),
+            net: net,
+            
             display(stateRepresentation) {
-                if (this.ctx) {
-                    stateRepresentation.rect(this.ctx,this.canvas) ;
-                }
-                if (stateRepresentation.fishes>0) {
-                    var fishes = (stateRepresentation.fishes>1)? ' fishes!' : ' fish' ;
-                    this.net.innerHTML = " you caught "+stateRepresentation.fishes+fishes ;
-                } else {
-                    this.net.innerHTML = "" ;
-                }
+
+                this.theme.net(
+                    { rect: stateRepresentation.rect, caught: this.net },
+                    stateRepresentation.fishes) ;
             }
         } ;
 
-})(document.getElementById('canvas'),document.getElementById('net')) ;
+})(theme,'pond',document.getElementById('net')) ;
+
+
+function draw(x,y, w,h,c) {
+    var x0 = x,
+        y0 = y,
+        w0 = w,
+        h0 = h,
+        c0 = c || "#000000" ;
     
-var state = (function() {
+    return function(ctx,canvas) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = c0  ; 
+      ctx.fillRect(x0,y0,w0,h0);
+    }
+}
+
+
+
+var state = (function(actions) {
     return {
+        actions: actions,
         render: function(model) {
-            // State Representation
+            // The State keeps track of WHAT components 
+            // need to be displayed, 
+            // It computes the State Representation
             
             if (model.rect.startX !== undefined) {
                 
@@ -84,15 +184,14 @@ var state = (function() {
                
             }
             
-
-            // Next-Action predicate
+            // and invoke possible "Next-Action"
             if (model.countFishes) {
-                selectObjects(model.fishes,model.rect) ; 
+                this.actions.selectObjects(model.fishes,model.rect) ; 
             }
         }
 
     }
-})() ;
+})(actions) ;
 
 
 var model = (function(state) {
@@ -134,65 +233,8 @@ var model = (function(state) {
 })(state) ;
 
 
-
-function draw(x,y, w,h,c) {
-    var x0 = x,
-        y0 = y,
-        w0 = w,
-        h0 = h,
-        c0 = c || "#000000" ;
-    
-    return function(ctx,canvas) {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle(c0) ; 
-      ctx.fillRect(x0,y0,w0,h0);
-    }
-}
-
-function mouseDown(e) {
-    var rect = {} ;
-    rect.startX = e.pageX - this.offsetLeft;
-    rect.startY = e.pageY - this.offsetTop;
-    
-    model.present({newRectangle: rect}) ;
-}
-
-function mouseUp() {
-    model.present({stopDrawing: true}) ;
-}
-
-function mouseMove(e) {
-    var diag = {} ;
-    diag.w = (e.pageX - this.offsetLeft) ;
-    diag.h = (e.pageY - this.offsetTop) ;
-
-    model.present({newDiagonal: diag}) ;
-
-}
-
-
-function selectObjects(objects,rectangle) {
-    
-    function isIn(val, v0, d) {
-      return (d<0) ? ((val <= v0) && (val>=v0+d)) : ((val>=v0) && (val<=v0+d)) ;
-    }
-
-  
-    var count = 0 ;
-    objects.forEach( function(el) {
-        if (isIn(el.x,rectangle.startX,rectangle.w) && isIn(el.y,rectangle.startY,rectangle.h)) {
-            count++ ;
-        }
-    }) ;
-    
-    model.present({selectedObjects: count}) ;
-    
-}
-
 function init() {
-    canvas.addEventListener('mousedown', mouseDown, false);
-    canvas.addEventListener('mouseup', mouseUp, false);
-    canvas.addEventListener('mousemove', mouseMove, false);
+    
 
     // generate some random position 
     for (var i = 0 ; i < 10 ; i++) {
