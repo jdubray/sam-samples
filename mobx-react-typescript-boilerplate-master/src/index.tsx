@@ -79,38 +79,19 @@ class State {
     }
 
     // Derive the current state of the system
-    ready(model) {
-        return ((model.counter === COUNTER_MAX) && !model.started && !model.launched && !model.aborted) ;
-    }
-
-    @computed get readyState() {
+    @computed get ready() {
         return ((this._counter === COUNTER_MAX) && !this._started && !this._launched && !this._aborted);
     }
 
-    counting(model) {
-        var status = ((model.counter <= COUNTER_MAX) && (model.counter >= 0) && model.started && !model.launched && !model.aborted) ;
-        return status ;
-    }
-
-    @computed get countingState() {
+    @computed get counting() {
         return ((this._counter <= COUNTER_MAX) && (this._counter >= 0) && this._started && !this._launched && !this._aborted) ;
     }
 
-    launched(model) {
-        return ((model.counter == 0) && model.started && model.launched && !model.aborted) ;
-    }
-
-    @computed get launchedState() {
+    @computed get launched() {
         return ((this._counter == 0) && this._started && this._launched && !this._aborted) ;
     }
 
-    aborted(model) {
-        return (
-            (  model.counter <= COUNTER_MAX) && (model.counter >= 0) 
-            && model.started && !model.launched && model.aborted ) ;
-    }
-
-    @computed get abortedState() {
+    @computed get aborted() {
         return ( ( this._counter <= COUNTER_MAX) && (this._counter >= 0) 
             && this._started && !this._launched && this._aborted ) ;
     }
@@ -121,21 +102,21 @@ class State {
 // the system is in a (control) state where
 // an action needs to be invoked
 
-    nextAction(model) {
-        if (this.counting(model)) {
-            if (model.counter>0) {
-                actions.decrement({counter: model.counter},model.present) ;
+    nextAction() {
+        if (this.counting) {
+            if (this._counter>0) {
+                actions.decrement({counter: this._counter}) ;
             }
 
-            if (model.counter === 0) {
-                actions.launch({},model.present) ;
+            if (this._counter === 0) {
+                actions.launch({}) ;
             }
         }
     }
 
     render(model) {
         this.representation(model)
-        this.nextAction(model) ;
+        this.nextAction() ;
     }
 }
 
@@ -155,7 +136,7 @@ class Model {
     }
     
     present(data) {        
-        if (this.state.counting(this.model)) {
+        if (this.state.counting) {
             if (this.model.counter === 0) {
                 this.model.launched = data.launched || false ;
             } else {
@@ -163,7 +144,7 @@ class Model {
                 if (data.counter !== undefined) { this.model.counter = data.counter ; }
             }
         } else {
-            if (this.state.ready(this.model)) {
+            if (this.state.ready) {
                 this.model.started = data.started || false ;
             }
         }
@@ -175,7 +156,7 @@ class Model {
 class RocketLauncherView extends React.Component<{stateRepresentation: State}, {}> {
     render() {
         console.log(this.props.stateRepresentation);
-        if (this.props.stateRepresentation.countingState) {
+        if (this.props.stateRepresentation.counting) {
             return (
                 <div>
                     <p>Count down:{this.props.stateRepresentation._counter}</p>
@@ -186,7 +167,7 @@ class RocketLauncherView extends React.Component<{stateRepresentation: State}, {
                 </div>
             );
         }
-        if (this.props.stateRepresentation.abortedState) {
+        if (this.props.stateRepresentation.aborted) {
             return (
                 <div>
                     <p>Aborted at: {this.props.stateRepresentation._counter} s</p>
@@ -194,7 +175,7 @@ class RocketLauncherView extends React.Component<{stateRepresentation: State}, {
                 </div>
             );
         }
-        if (this.props.stateRepresentation.launchedState) {
+        if (this.props.stateRepresentation.launched) {
             return (
                 <div>
                     <p>Launched</p>
@@ -226,18 +207,30 @@ class RocketLauncherView extends React.Component<{stateRepresentation: State}, {
      }
 };
 
+class SAMFactory {
+
+    static  instance(): any {
+
+        function present(model: Model) {
+            let _model = model;
+            return function(data: any) {
+                _model.present(data) ;
+            } 
+        } 
+
+        const actions = new Actions();
+        const state = new State(actions);
+        const model =  new Model(state);
+
+        actions.setPresent(present(model));
+
+        return {state,actions,model} ;
+    }
+
+}
+
+
 // Instantiating the SAM pattern
-const actions = new Actions();
-const state = new State(actions);
-const model =  new Model(state);
-
-function present(model: Model) {
-    let _model = model;
-    return function(data: any) {
-         _model.present(data) ;
-    } 
-} 
-
-actions.setPresent(present(model));
+const {state,actions,model} = SAMFactory.instance() ;
 
 ReactDOM.render(<RocketLauncherView stateRepresentation={state} />, document.getElementById('root'));
