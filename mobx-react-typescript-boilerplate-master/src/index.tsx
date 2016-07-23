@@ -53,6 +53,7 @@ class Actions {
 
 }
 
+// Compute the State Representation 
 class State {
     @observable _counter = COUNTER_MAX;
     @observable _aborted = false;
@@ -120,6 +121,7 @@ class State {
     }
 }
 
+// Single state tree of the Application State
 class Model {
 
     private model: any ;
@@ -218,12 +220,13 @@ class SAMFactory {
             } 
         } 
 
+        // wire SAM's reactive loop
         const actions = new Actions();
         const state = new State(actions);
         const model =  new Model(state);
 
         actions.setPresent(present(model));
-
+        
         return {state,actions,model} ;
     }
 
