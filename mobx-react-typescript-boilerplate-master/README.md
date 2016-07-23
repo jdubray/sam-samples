@@ -1,6 +1,8 @@
 # React-TypeScript
 
-Minimal boilerplate for a single-page app using MobX, React and TypeScript with TSX.
+Minimal boilerplate for a single-page app SAM implementation using MobX, React and TypeScript with TSX.
+
+This sample was adapted from Michel Weststrate's [sample](https://github.com/mobxjs/mobx-react-typescript-boilerplate)
 
 Initial run:
 
