@@ -27,8 +27,16 @@ export class Dashboard {
   }
 
   ngOnInit() {
-      actionsMount.actions.dispatch({__event: 'feedNeedsRefresh'}) ;
-      actionsMount.actions.dispatch({__event: 'chartNeedsRefresh'}) ;
+      actionsMount.actions.compose(
+        [
+          {__event: 'feedNeedsRefresh'}, 
+          {__event: 'chartNeedsRefresh'},
+          {__event: 'piechartNeedsRefresh'},
+          {__event: 'trafficchartNeedsRefresh'},
+          {__event: 'calendarNeedsRefresh'},
+          {__event: 'todoNeedsRefresh'},
+          {__event: 'usersMapNeedsRefresh'}
+        ]) ;
   }
 
 }

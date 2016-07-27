@@ -1,4 +1,5 @@
 import {Component, ViewEncapsulation} from '@angular/core';
+import {State} from "../../../state/app.state";
 
 import {LineChartService} from '../../../services/lineChart.service';
 import {BaAmChart} from '../../../theme/components';
@@ -15,8 +16,13 @@ export class LineChart {
 
   chartData:Object;
 
-  constructor(private _lineChartService:LineChartService) {
+  constructor(private _lineChartService:LineChartService, private _state:State) {
     this.chartData = this._lineChartService.getData();
+
+    this._state.subscribe('dashboard.chartData', (chartData) => {
+        this.chartData = chartData;
+        //this.ref.detectChanges() ;
+      });  
   }
 
   initChart(chart:any) {

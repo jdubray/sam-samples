@@ -1,7 +1,8 @@
 import {Component, ViewEncapsulation} from '@angular/core';
+import {State} from "../../../state/app.state";
 
 import {BaCard} from '../../../theme/components';
-import {PieChartService} from './pieChart.service';
+import {PieChartService} from '../../../services/pieChart.service';
 
 import './pieChart.loader.ts';
 
@@ -19,16 +20,21 @@ export class PieChart {
   public charts: Array<Object>;
   private _init = false;
 
-  constructor(private _pieChartService: PieChartService) {
+  constructor(private _pieChartService: PieChartService, private _state:State) {
     this.charts = this._pieChartService.getData();
+    this._state.subscribe('dashboard.chartData', (charts) => {
+        this.charts = charts;
+        if (!this._init) {
+          this._loadPieCharts();
+          this._updatePieCharts();
+          this._init = true;
+        }
+        //this.ref.detectChanges() ;
+      }); 
   }
 
   ngAfterViewInit() {
-    if (!this._init) {
-      this._loadPieCharts();
-      this._updatePieCharts();
-      this._init = true;
-    }
+    
   }
 
   private _loadPieCharts() {

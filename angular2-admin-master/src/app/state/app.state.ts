@@ -49,7 +49,12 @@ export class State {
   }
 
   _representation(model: any) {
-      this._onEvent({event:'dashboard.feed',data:model.feed});
+      console.log(model) ;
+      if (model.feed) this._onEvent({event:'dashboard.feed',data:model.feed});
+      if (model.calendar) this._onEvent({event:'dashboard.calendar',data:model.calendar});
+      if (model.chartData) this._onEvent({event:'dashboard.chartData',data:model.chartData});
+      if (model.piechartData) this._onEvent({event:'dashboard.doughnutData',data:model.piechartData});
+      if (model.usersMaptData) this._onEvent({event:'dashboard.mapData',data:model.usersMaptData});
   }
 
   _nextAction(model: any) {

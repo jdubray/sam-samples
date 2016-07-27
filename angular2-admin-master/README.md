@@ -10,12 +10,12 @@ Admin template made with :heart:  by [Akveo team](http://akveo.com/). Follow us 
 ## How is the SAM pattern implemented
 
 This is work in progress, so currently, only the following components have been converted to use the SAM pattern:
-* /app/pages/dashboard/feed/feed.component
+* /app/pages/dashboard/*
 
 
-The SAM pattern elements (actions, state, model) are instantiated from the SamFactory (/app/services/sam.service) in the app.component
+The [SAM pattern](http://sam.js.org) elements (actions, state, model) are instantiated from the SamFactory (/app/services/sam.service) in the app.component
 
-* The Actions are mounted in a global variable `actionsMount` (index.html). This global variable is visible from a component when you use the following statement:
+* The Actions are mounted in a global variable `actionsMount` (index.html). This global variable is visible from any component and wired to the component's events when you use the following statement:
 ```
 declare var actionsMount: any;
 ```
@@ -26,7 +26,8 @@ There are better ways to achieve the same result (such as creating a dispatcher 
 
 * The State Representation function is implemented in /app/state/app.state. At present, the components subsbscribe to changes to the State Representation. For instance the feed component's subscription looks like this:
 ```
-this._state.subscribe('dashboard.feed', (feed) => {
+this._state.subscribe('dashboard.feed', 
+     (feed) => {
         this._feed = feed;
         this.ref.detectChanges() ;
       });

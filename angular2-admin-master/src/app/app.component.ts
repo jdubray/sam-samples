@@ -9,10 +9,13 @@ import {layoutPaths} from "./theme/theme.constants";
 // SAM Implementation
 import { SamFactory }     from './services/sam.service';
 
-// Data Services
-import {FeedService}      from './services/feed.service';
-import {LineChartService} from './services/lineChart.service'
-
+import {FeedService}          from './services/feed.service';
+import {LineChartService}     from './services/lineChart.service';
+import {CalendarService}      from './services/calendar.service';
+import {PieChartService}      from './services/pieChart.service';
+import {TodoService}          from './services/todo.service';
+import {UsersMapService}      from './services/usersMap.service';
+import {TrafficChartService}  from './services/trafficChart.service';
 declare var actionsMount: any;
 
 /*
@@ -23,7 +26,8 @@ declare var actionsMount: any;
   selector: 'app',
   pipes: [],
   directives: [BaThemeRun],
-  providers: [BaThemeConfigProvider, BaThemeConfig, BaImageLoaderService, BaThemeSpinner,FeedService,LineChartService],
+  providers: [BaThemeConfigProvider, BaThemeConfig, BaImageLoaderService, BaThemeSpinner,
+    FeedService,LineChartService,CalendarService,PieChartService,TodoService,UsersMapService,TrafficChartService],
   encapsulation: ViewEncapsulation.None,
   styles: [require('normalize.css'), require('./app.scss')],
   template: `
@@ -47,7 +51,12 @@ export class App {
     
     // SAM
     private myFeedService : FeedService,
-    private myLineChartService : LineChartService
+    private myLineChartService : LineChartService,
+    private myCalendarService : CalendarService,
+    private myPieChartService : PieChartService,
+    private myTodoService : TodoService,
+    private myUsersMapService : UsersMapService,
+    private myTrafficChartService: TrafficChartService
     
     ) {
 
@@ -57,7 +66,12 @@ export class App {
             actionsMount
             ,[
               {type:"actions", serviceName:'Feed', service:myFeedService, init: true},
-              {type:"actions", serviceName:'LineChart', service:myLineChartService, init: true}
+              {type:"actions", serviceName:'LineChart', service:myLineChartService, init: true},
+              {type:"actions", serviceName:'Calendar', service:myCalendarService, init: true},
+              {type:"actions", serviceName:'PieChart', service:myPieChartService, init: true},
+              {type:"actions", serviceName:'TrafficChart', service:myTrafficChartService, init: true},
+              {type:"actions", serviceName:'ToDo', service:myTodoService, init: true},
+              {type:"actions", serviceName:'UsersMap', service:myUsersMapService, init: true},
             ]
       );    
 

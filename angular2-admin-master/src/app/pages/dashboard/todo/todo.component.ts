@@ -1,7 +1,9 @@
 import {Component, ViewEncapsulation} from '@angular/core';
+import {State} from "../../../state/app.state";
+
 import {BaThemeConfigProvider} from '../../../theme';
 
-import {TodoService} from './todo.service';
+import {TodoService} from '../../../services/todo.service';
 
 @Component({
   selector: 'todo',
@@ -17,8 +19,13 @@ export class Todo {
   public todoList:Array<any>;
   public newTodoText:string = '';
 
-  constructor(private _baConfig:BaThemeConfigProvider, private _todoService:TodoService) {
+  constructor(private _baConfig:BaThemeConfigProvider, private _todoService:TodoService, private _state:State) {
     this.todoList = this._todoService.getTodoList();
+
+    this._state.subscribe('dashboard.todoList', (todoList) => {
+        this.todoList = todoList;
+        //this.ref.detectChanges() ;
+      }); 
 
     this.todoList.forEach((item) => {
       item.color = this._getRandomColor();

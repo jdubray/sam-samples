@@ -1,4 +1,5 @@
 import {Component, ViewEncapsulation} from '@angular/core';
+import {State} from "../../../state/app.state";
 
 import {BaAppPicturePipe} from '../../../theme/pipes';
 

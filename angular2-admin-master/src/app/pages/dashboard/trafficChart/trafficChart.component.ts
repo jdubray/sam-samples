@@ -1,7 +1,8 @@
 import {Component, ViewEncapsulation, ElementRef} from '@angular/core';
+import {State} from "../../../state/app.state";
 
 import {Chart} from './trafficChart.loader.ts';
-import {TrafficChartService} from './trafficChart.service';
+import {TrafficChartService} from '../../../services/trafficChart.service';
 
 @Component({
   selector: 'traffic-chart',
@@ -16,12 +17,18 @@ export class TrafficChart {
 
   public doughnutData: Array<Object>;
 
-  constructor(private trafficChartService:TrafficChartService) {
+  constructor(private trafficChartService:TrafficChartService, private _state:State) {
     this.doughnutData = trafficChartService.getData();
+
+     this._state.subscribe('dashboard.doughnutData', (doughnutData) => {
+        this.doughnutData = doughnutData;
+        this._loadDoughnutCharts();
+        //this.ref.detectChanges() ;
+      }); 
   }
 
   ngAfterViewInit() {
-    this._loadDoughnutCharts();
+    //this._loadDoughnutCharts();
   }
 
   private _loadDoughnutCharts() {

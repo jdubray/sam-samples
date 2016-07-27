@@ -22,7 +22,7 @@ export class Feed {
 
       this._state.subscribe('dashboard.feed', (feed) => {
         this._feed = feed;
-        this.ref.detectChanges() ;
+        //this.ref.detectChanges() ;
       });
   }
 
