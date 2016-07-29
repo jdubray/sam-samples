@@ -1,0 +1,306 @@
+<!--
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+-->
+<html>
+<body>
+
+<div id="parent">
+	<blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote><br>
+	- Andy Weir, The Martian
+</div>
+
+<script type="text/javascript">
+
+var child = {
+
+    init() {
+        this.view.display(this.view.init(this.model)) ;
+    }
+
+} ;
+
+////////////////////////////////////////////////////////////////////////////////
+// child Model 
+//
+
+child.model = {
+	
+    value: 50, 
+
+    present(data) {		
+	
+        if (data.value) {
+            this.model.value = data.value;
+        } 
+
+	    this.state.render(this.model) ;
+    }
+} ;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Child View
+//
+child.view = {
+
+    // Initial State
+    init(model) {
+	    return this.ready(model) ;
+    },
+
+    // State representation of the ready state
+	ready(model) {
+        return (
+                `
+                <form onsubmit="return child.actions.submitToParent({});">
+                <label for="weight">Weight</label>
+                <br><input type="range" id="weight" min="0" value="${model.value}" max="120" step="1" oninput="x.value=parseInt(weight.value)">
+                <output id="x" for="weight">${model.value}</output>
+                <br><input type="submit" value="Return value to parent">
+                </form>`
+            ) ;
+
+    },
+
+    //display the state representation
+    display(representation) {
+        var stateRepresentation = document.getElementById("child");
+        stateRepresentation.innerHTML = representation;
+    }
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// State
+//
+child.state =  { 
+
+    representation(model) {
+        var representation = 'oops... something went wrong, the system is in an invalid state' ;
+
+        if (state.ready(model)) {
+            representation = state.view.ready(model) ;
+        } 
+
+        this.view.display(representation) ;
+    },
+
+    ready(model) {
+	    return true ;
+    },    
+
+    // Next action predicate, derives whether
+    // the system is in a (control) state where
+    // an action needs to be invoked
+
+    nextAction(model) {
+	
+    },
+
+    render(model) {
+        this.state.representation(model)
+        this.state.nextAction(model) ;
+    }
+
+} ;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Actions
+//
+
+child.actions = {
+
+    submitToParent(data, present) {
+        // model is the parent model
+        // would require some wiring
+        present = present || parent.model.present ;
+        data.value = document.querySelector('#x').value ;
+        console.log(data);
+        present(data) ;
+        return false ;
+    }
+} ;
+
+
+var parent = {
+
+    init() {
+        var stateRepresentation = this.view.init(this.model) ;
+        parent.view.display(stateRepresentation) ;
+    },
+
+////////////////////////////////////////////////////////////////////////////////
+// Parent Model 
+//
+
+    model : {
+        
+        childCreated: false, 
+        
+
+        present(data) {		
+        
+            if (data.child) {
+                parent.model.childCreated = true;
+            } else {
+                parent.model.childCreated = false;
+                parent.model.value = data.value;
+            }
+
+            parent.state.render(parent.model) ;
+        }
+    }, 
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Parent View
+//
+    view : {
+
+        // Initial State
+        init(model) {
+            return parent.view.ready(model) ;
+        },
+
+        // State representation of the ready state
+        ready(model) {
+            return (
+                    `
+                    <p>Child has submitted the following value: ${parent.model.value ? parent.model.value : 'N/A'}</p>
+                    <form onSubmit="return parent.actions.createChild({});\">
+                        <input type="submit" value="Create SAM Child">
+                    </form>`
+                ) ;
+
+        },
+
+        // State representation of the counting state
+        child(model) {
+
+            return (
+                    `<div id="child">
+                    <blockquote>In the face of overwhelming odds, I'm left with only one option, I'm gonna have to science the shit out of this.</blockquote>
+                    - Mark Watney, the Martian
+                    </div>`
+                ) ;
+
+        },
+
+
+        //display the state representation
+        display(representation) {
+            var stateRepresentation = document.getElementById("parent");
+            stateRepresentation.innerHTML = representation;
+        }
+
+    },
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// State
+//
+    state : { 
+    
+        // Derive the state representation as a function of the systen
+        // control state
+        representation(model) {
+            var representation = 'oops... something went wrong, the system is in an invalid state' ;
+
+            if (parent.state.ready(model)) {
+                representation = parent.view.ready(model) ;
+            } 
+
+            if (parent.state.child(model)) {
+                representation = parent.view.child(model) ;
+            }
+
+            
+
+            parent.view.display(representation) ;
+        },
+
+        // Derive the current state of the system
+        ready(model) {
+            return !model.childCreated ;
+        },
+
+        child(model) {
+            return model.childCreated ;
+        },
+
+
+
+        // Next action predicate, derives whether
+        // the system is in a (control) state where
+        // an action needs to be invoked
+
+        nextAction(model) {
+            if (model.childCreated) {
+                // Display initial state of the child instance
+                child.init();
+            }
+        },
+
+        render(model) {
+            parent.state.representation(model)
+            parent.state.nextAction(model) ;
+        }
+    },
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Actions
+//
+
+    actions : {
+
+        createChild(data, present) {
+            present = present || parent.model.present ;
+            data.child = true ;
+            present(data) ;
+            return false ;
+        }
+    } 
+};
+
+// Display initial state
+// parent.state.view = parent.view ;
+// parent.actions.model = parent.model;
+// parent.model.state = parent.state;
+parent.init() ; 
+
+
+
+
+</script>
+
+
+</body>
+</html> 
