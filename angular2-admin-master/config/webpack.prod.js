@@ -16,14 +16,14 @@ const WebpackMd5Hash = require('webpack-md5-hash');
  * Webpack Constants
  */
 const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
-const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 8080;
+const HOST = process.env.HOST || 's3-us-west-2.amazonaws.com';
+const PORT = process.env.PORT || 80;
 const METADATA = webpackMerge(commonConfig.metadata, {
   host: HOST,
   port: PORT,
   ENV: ENV,
   HMR: false,
-  baseUrl: ''
+  baseUrl: '/admin-template'
 });
 
 module.exports = webpackMerge(commonConfig, {
