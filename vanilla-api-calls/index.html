@@ -53,7 +53,7 @@ model.present = function(data) {
     if (data.start) {
         if (model.status !== 'started') {
             model.status = 'starting';
-            $.put("http://cloudsentinel.com:3099/server/start",
+            $.post("http://cloudsentinel.com:3099/server/start",
             {},
             function(data, status){
                 console.log("Data: " + data + "\nStatus: " + status);
@@ -64,10 +64,10 @@ model.present = function(data) {
     if (data.stop) {
         if (model.status !== 'stopped') {
             model.status = 'stopping';
-            $.put("http://cloudsentinel.com:3099/server/stop",
+            $.post("http://cloudsentinel.com:3099/server/stop",
             {},
             function(data, status){
-                console.log("Data: " + data + "\nStatus: " + status);
+                console.log("Data: " + JSON.stringify(data) + "\nStatus: " + status);
             });
         }
     }
@@ -77,7 +77,7 @@ model.present = function(data) {
             $.put("http://cloudsentinel.com:3099/server/stop",
             {},
             function(data, status){
-                console.log("Data: " + data + "\nStatus: " + status);
+                console.log("Data: " + JSON.stringify(data) + "\nStatus: " + status);
             });
         }
     }
@@ -191,7 +191,7 @@ state.changingState = function(model) {
 // an action needs to be invoked
 
 state.nextAction = function (model) {
-	if (state.stochangingStatepped(model)) {
+	if (state.changingState(model)) {
 		actions.getStatus({},model.present) ;
     }
 }
@@ -223,10 +223,10 @@ actions.getStatus = function(data, present) {
 	setTimeout(function() {
 		$.get("http://cloudsentinel.com:3099/server/status",
             function(data,status){
-                if (status === 200) {
-                    d.status = data.status || 'error' ;
-                    p(d) ;
-                }
+			
+				d.status = data.status || 'error' ;
+				p(d) ;
+			
             });
 	}, 1000) ;
 }
