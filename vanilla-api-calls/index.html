@@ -67,17 +67,17 @@ model.present = function(data) {
             $.post("http://cloudsentinel.com:3099/server/stop",
             {},
             function(data, status){
-                console.log("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+                console.log("Data: " + data + "\nStatus: " + status);
             });
         }
     }
 
     if (data.abort) {
         if (model.status !== 'starting') {
-            $.put("http://cloudsentinel.com:3099/server/stop",
+            $.post("http://cloudsentinel.com:3099/server/stop",
             {},
             function(data, status){
-                console.log("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+                console.log("Data: " + data + "\nStatus: " + status);
             });
         }
     }
@@ -235,6 +235,7 @@ actions.stop = function(data, present) {
 	present = present || model.present ;
 	data.stop = true ;
 	present(data) ;
+	return false ; 
 }
 
 actions.abort = function(data, present) {
