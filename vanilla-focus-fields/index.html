@@ -1,0 +1,220 @@
+	<!--
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+-->
+<html>
+<body>
+
+<div id="ui">
+	<blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote><br>
+	- Andy Weir, The Martian
+</div>
+
+<script type="text/javascript">
+var model = {};
+	model.items = [];
+
+	model.init = function(data) {
+	  model.items = [];
+	  data = (data instanceof Array) ? data : [];
+	  data[0] = (typeof data[0] == 'undefined') ? {} : data[0];
+	  data[0].notes = (typeof data[0].notes == 'undefined') ? '' : data[0].notes;
+	  data[0].createDate = (typeof data[0].createDate == 'undefined') ? new Date() : data[0].createDate;
+	  data[0].timeIn = (typeof data[0].timeIn == 'undefined') ? '9:00 AM' : data[0].timeIn;
+	  data[0].timeOut = (typeof data[0].timeOut == 'undefined') ? '5:00 PM' : data[0].timeOut;
+	  model.items = data;
+	}
+
+	model.present = function(data) {
+	  data = data || {};
+
+	  // add row
+	  if (data.addItemID !== undefined) {
+	    var item = data.item;
+	    item.notes = (typeof item.notes == 'undefined') ? '' : item.notes;
+	    item.createDate = (typeof item.createDate == 'undefined') ? new Date() : item.createDate;
+	    item.timeIn = (typeof item.timeIn == 'undefined') ? '9:00 AM' : item.timeIn;
+	    item.timeOut = (typeof item.timeOut == 'undefined') ? '5:00 PM' : item.timeOut;
+
+	    model.items.push(item);
+	  }
+
+	  // delete row
+	  if (data.deletedItemId !== undefined) {
+	    deleted = model.items.splice(data.deletedItemId, 1)[0];
+
+	  }
+
+	  // save row
+	  if (data.saveitemID !== undefined) {
+
+	    for (var key in data.item) {
+	      model.items[data.saveitemID][key] = data.item[key];
+	    }
+
+	  }
+
+	  // focus being fired
+	  if (data.focus) {
+	    model.focus = data.focus;
+        var currentIndex = 0; // need to find the currentIndex
+        if (data.timeIn) model.items[currentIndex].timeIn = data.timeIn;
+        if (data.timeOut) model.items[currentIndex].timeOut = data.timeOut;
+	  }
+
+	  state.render(model);
+	  model.persist();
+
+	};
+
+	model.persist = function() {
+
+	};
+
+
+	/* Actions */
+	var actions = {};
+
+	actions.addRow = function(data) {
+	  model.present({
+	    addItemID: 1,
+	    item: {}
+	  });
+	  return false;
+	}
+	actions.removeRow = function(data) {
+	  model.present({
+	    deletedItemId: data
+	  });
+	  return false;
+	}
+	actions.save = function(data) {
+	  // var notes = document.getElementById("notes" + data).value
+	  var formData = {
+	    notes: document.getElementById("notes" + data).value,
+	    timeIn: document.getElementById("timeIn" + data).value,
+	    timeOut: document.getElementById("timeOut" + data).value
+	  }
+
+	  model.present({
+	    saveitemID: data,
+	    item: formData
+	  });
+	  return false;
+	}
+	actions.setFocus = function(data) {
+	  console.log(data);
+	  //  document.getElementById(data).focus() ;
+	  // cant't do this model.focus = data.id;
+	  model.present({
+	    focus: data.id, value: data.value
+	  });
+	  return false;
+	}
+
+
+	/* state */
+	var state = {};
+
+	state.render = function(model) {
+	  state.representation(model)
+	  state.nap(model);
+	};
+
+	state.nap = function(model) {
+	  if (model.focus) {
+	    console.log('refocusing query field ' + model.focus);
+	    setTimeout(function() {
+	      var el = document.getElementById(model.focus);
+	      if (el) {
+	        el.focus();
+	        var val = el.value; //store the value of the element
+	        el.value = ''; //clear the value of the element
+	        el.value = val; //set that value back.  
+            console.log(val) ;
+	      }
+
+	    }, 20);
+	  }
+	};
+
+	state.representation = function(model) {
+	  var representation = view.ready(model.items);
+	  view.display(representation);
+
+	}
+
+	// view 
+	var view = {};
+
+	view.display = function(view) {
+	  var ui = document.getElementById("ui");
+	  ui.innerHTML = view;
+
+	}
+
+	view.ready = function(model, intents) {
+
+	  return '<h2>Enter Hours:</h2>' + 
+      '<h3>' + model[0].createDate + '</h3>' + 
+      '<table border="0" id="tblTimesheet" style="border-collapse: collapse; font-size: 8pt; font-family: Tahoma" cellpadding="0" cellspacing="0">' + '<tbody><tr>' + 
+      '<td height="8" colspan="4" style="padding:3px;">' + 
+      '<form id="editForm" name="editForm">' + 
+      '<input type="hidden" name="ignite" value="1">' + 
+      '<input type="hidden" id=createDate name="createDate" value="' + model[0].createDate + '">' + 
+      '<table style="font-family:tahoma;font-size:8pt;" cellpadding="1" cellspacing="1">' + 
+      '<tbody>' + view.addRows(model) + '  <tr>' + 
+      '    <td colspan="2"><a href="#" id="addRow" name="addRow" class="addRow" onclick="JavaScript:actions.addRow();" >make another entry</a></td>' + '  </tr>' + '  </tbody></table>' + '   </form>' + ' </td>' + ' </tr>' + ' </tbody></table>';
+
+	}
+
+	view.addRows = function(model) {
+	  var result = model.map(function(ele, i) {
+	    return view.addRow(ele, i);
+	  });
+	  return result.join('');
+	}
+
+	view.addRow = function(data, i) {
+
+	  var deleteIcon = function(i) {
+	    return i ? '&nbsp;<a href="#" onclick="JavaScript:actions.removeRow(\'' + i + '\');">delete' : '';
+	  }
+
+	  return '' + '  <tr>' + '    <td><label for="timeIn">Time In:</label></td>' + 
+      '    <td><input type="text" class="timein" id="timeIn' + i + '" name="timeIn' + i + '" value="' + data.timeIn + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeIn' + i + '\', \'timeIn\':document.getElementById("timeIn'+i+'").value});" autofocus></td>' + '  </tr>' + '  <tr>' + '    <td>Time Out:</td>' + '    <td><input type="text" class="timeout" id="timeOut' + i + '" name="timeOut' + i + '" value="' + data.timeOut + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeOut' + i + '\', \'timeOut\':document.getElementById("timeOut'+i+'").value});" ></td>' + '  </tr>' + '  <tr>' + '     <td>Notes:</td>' + '    <td><textarea id="notes' + i + '"  name="notes' + i + '" style="width: 370px;" onBlur="JavaScript:actions.save(\'' + i + '\');">' + data.notes + '</textarea>' + deleteIcon(i) + '</td>' + '  </tr>'
+
+
+	}
+
+
+	model.init([{}]);
+	state.render(model);
+
+</script>
+
+
+</body>
+</html> 
