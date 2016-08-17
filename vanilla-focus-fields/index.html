@@ -36,34 +36,39 @@ For more information, please refer to <http://unlicense.org/>
 var model = {};
 	model.items = [];
 
-	model.init = function(data) {
-	  model.items = [];
-	  data = (data instanceof Array) ? data : [];
-	  data[0] = (typeof data[0] == 'undefined') ? {} : data[0];
-	  data[0].notes = (typeof data[0].notes == 'undefined') ? '' : data[0].notes;
-	  data[0].createDate = (typeof data[0].createDate == 'undefined') ? new Date() : data[0].createDate;
-	  data[0].timeIn = (typeof data[0].timeIn == 'undefined') ? '9:00 AM' : data[0].timeIn;
-	  data[0].timeOut = (typeof data[0].timeOut == 'undefined') ? '5:00 PM' : data[0].timeOut;
-	  model.items = data;
+    model.init = function(data) {
+	    data = data || [];
+        if (data.length<1) {
+            var item = {
+                notes: '',
+                createDate: new Date(),
+                timeIn: '8:00 AM',
+                timeOut: '5:00 PM'
+            } ;
+            data.push(item) ;    
+         }
+      
+	    model.items = data;
+        model.currentIndex = 0;
 	}
 
 	model.present = function(data) {
 	  data = data || {};
 
 	  // add row
-	  if (data.addItemID !== undefined) {
-	    var item = data.item;
-	    item.notes = (typeof item.notes == 'undefined') ? '' : item.notes;
-	    item.createDate = (typeof item.createDate == 'undefined') ? new Date() : item.createDate;
-	    item.timeIn = (typeof item.timeIn == 'undefined') ? '9:00 AM' : item.timeIn;
-	    item.timeOut = (typeof item.timeOut == 'undefined') ? '5:00 PM' : item.timeOut;
+	  if (data.newItem) {
+	    var item = data.newItem;
+	    item.notes = item.notes || '' ;
+	    item.createDate = item.createDate || new Date() ;
+	    item.timeIn = item.timeIn || '8:00 AM' ;
+	    item.timeOut = item.timeOut || '5:00 PM' ;
 
 	    model.items.push(item);
 	  }
 
 	  // delete row
 	  if (data.deletedItemId !== undefined) {
-	    deleted = model.items.splice(data.deletedItemId, 1)[0];
+	    model.deleted = model.items.splice(data.deletedItemId, 1)[0];
 
 	  }
 
@@ -79,19 +84,16 @@ var model = {};
 	  // focus being fired
 	  if (data.focus) {
 	    model.focus = data.focus;
-        var currentIndex = 0; // need to find the currentIndex
-        if (data.timeIn) model.items[currentIndex].timeIn = data.timeIn;
-        if (data.timeOut) model.items[currentIndex].timeOut = data.timeOut;
+        model.currentIndex = data.index;
+        if (data.timeIn) model.items[cmodel.urrentIndex].timeIn = data.timeIn;
+        if (data.timeOut) model.items[model.currentIndex].timeOut = data.timeOut;
 	  }
 
 	  state.render(model);
-	  model.persist();
+	  
 
 	};
 
-	model.persist = function() {
-
-	};
 
 
 	/* Actions */
@@ -99,11 +101,11 @@ var model = {};
 
 	actions.addRow = function(data) {
 	  model.present({
-	    addItemID: 1,
-	    item: {}
+	    newItem: {}
 	  });
 	  return false;
 	}
+
 	actions.removeRow = function(data) {
 	  model.present({
 	    deletedItemId: data
@@ -124,12 +126,10 @@ var model = {};
 	  });
 	  return false;
 	}
+
 	actions.setFocus = function(data) {
-	  console.log(data);
-	  //  document.getElementById(data).focus() ;
-	  // cant't do this model.focus = data.id;
 	  model.present({
-	    focus: data.id, value: data.value
+	    focus: data.id, index: data.index, value: data.value
 	  });
 	  return false;
 	}
@@ -145,7 +145,6 @@ var model = {};
 
 	state.nap = function(model) {
 	  if (model.focus) {
-	    console.log('refocusing query field ' + model.focus);
 	    setTimeout(function() {
 	      var el = document.getElementById(model.focus);
 	      if (el) {
@@ -177,40 +176,54 @@ var model = {};
 
 	view.ready = function(model, intents) {
 
-	  return '<h2>Enter Hours:</h2>' + 
+	  return ('<h2>Enter Hours:</h2>' + 
       '<h3>' + model[0].createDate + '</h3>' + 
-      '<table border="0" id="tblTimesheet" style="border-collapse: collapse; font-size: 8pt; font-family: Tahoma" cellpadding="0" cellspacing="0">' + '<tbody><tr>' + 
+      '<table border="0" id="tblTimesheet" style="border-collapse: collapse; font-size: 8pt; font-family: Tahoma" cellpadding="0" cellspacing="0">' + 
+      '<tbody><tr>' + 
       '<td height="8" colspan="4" style="padding:3px;">' + 
-      '<form id="editForm" name="editForm">' + 
-      '<input type="hidden" name="ignite" value="1">' + 
-      '<input type="hidden" id=createDate name="createDate" value="' + model[0].createDate + '">' + 
-      '<table style="font-family:tahoma;font-size:8pt;" cellpadding="1" cellspacing="1">' + 
-      '<tbody>' + view.addRows(model) + '  <tr>' + 
-      '    <td colspan="2"><a href="#" id="addRow" name="addRow" class="addRow" onclick="JavaScript:actions.addRow();" >make another entry</a></td>' + '  </tr>' + '  </tbody></table>' + '   </form>' + ' </td>' + ' </tr>' + ' </tbody></table>';
+        '<form id="editForm" name="editForm">' + 
+            '<input type="hidden" name="ignite" value="1">' + 
+            '<input type="hidden" id=createDate name="createDate" value="' + model[0].createDate + '">' + 
+            '<table style="font-family:tahoma;font-size:8pt;" cellpadding="1" cellspacing="1">' + 
+                '<tbody>' + view.addRows(model) + 
+                '  <tr>' + 
+                '    <td colspan="2"><a href="#" id="addRow" name="addRow" class="addRow" onclick="actions.addRow();" >make another entry</a></td>' + 
+                '  </tr>' + 
+                '  </tbody></table>' + 
+        '</form>' + 
+    '</td>' + 
+    '</tr>' + 
+    '</tbody></table>');
 
 	}
 
 	view.addRows = function(model) {
-	  var result = model.map(function(ele, i) {
-	    return view.addRow(ele, i);
-	  });
-	  return result.join('');
+        var result = model.map(function(ele, i) {
+	        var row = view.addRow(ele, i);
+            return row;
+	    });
+	    return result.join('\n');
 	}
 
 	view.addRow = function(data, i) {
 
 	  var deleteIcon = function(i) {
-	    return i ? '&nbsp;<a href="#" onclick="JavaScript:actions.removeRow(\'' + i + '\');">delete' : '';
+	    return i ? '&nbsp;<a href="#" onclick="actions.removeRow(\'' + i + '\');">delete' : '';
 	  }
 
-	  return '' + '  <tr>' + '    <td><label for="timeIn">Time In:</label></td>' + 
-      '    <td><input type="text" class="timein" id="timeIn' + i + '" name="timeIn' + i + '" value="' + data.timeIn + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeIn' + i + '\', \'timeIn\':document.getElementById("timeIn'+i+'").value});" autofocus></td>' + '  </tr>' + '  <tr>' + '    <td>Time Out:</td>' + '    <td><input type="text" class="timeout" id="timeOut' + i + '" name="timeOut' + i + '" value="' + data.timeOut + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeOut' + i + '\', \'timeOut\':document.getElementById("timeOut'+i+'").value});" ></td>' + '  </tr>' + '  <tr>' + '     <td>Notes:</td>' + '    <td><textarea id="notes' + i + '"  name="notes' + i + '" style="width: 370px;" onBlur="JavaScript:actions.save(\'' + i + '\');">' + data.notes + '</textarea>' + deleteIcon(i) + '</td>' + '  </tr>'
+	  return (
+        '  <tr>' + 
+        '    <td><label for="timeIn">Time In:</label></td>' + 
+        '    <td><input type="text" class="timein" id="timeIn' + i + '" name="timeIn' + i + '" value="' + data.timeIn + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeIn' + i + '\', \'index\':\'' + i + '\', \'timeIn\':document.getElementById("timeIn'+i+'").value});" autofocus></td>' + '  </tr>' + '  <tr>' + '    <td>Time Out:</td>' + 
+        '    <td><input type="text" class="timeout" id="timeOut' + i + '" name="timeOut' + i + '" value="' + data.timeOut + '" data-id="' + i + '" oninput="actions.setFocus({\'id\':\'timeOut' + i + '\', \'index\':\'' + i + '\', \'timeOut\':document.getElementById("timeOut'+i+'").value});" ></td>' + '  </tr>' + '  <tr>' +   '    <td>Notes:</td>' + 
+        '    <td><textarea id="notes' + i + '"  name="notes' + i + '" style="width: 370px;" onBlur="actions.save(\'' + i + '\');">' + data.notes + '</textarea>' + deleteIcon(i) + '</td>' + 
+        '  </tr>') ;
 
 
 	}
 
 
-	model.init([{}]);
+	model.init([]);
 	state.render(model);
 
 </script>
