@@ -114,16 +114,18 @@ var model = {};
 	}
 	actions.save = function(data) {
 	  // var notes = document.getElementById("notes" + data).value
-	  var formData = {
-	    notes: document.getElementById("notes" + data).value,
-	    timeIn: document.getElementById("timeIn" + data).value,
-	    timeOut: document.getElementById("timeOut" + data).value
-	  }
+        var formData = {
+            notes: document.getElementById("notes" + data).value,
+            timeIn: document.getElementById("timeIn" + data).value,
+            timeOut: document.getElementById("timeOut" + data).value
+        }
 
-	  model.present({
-	    saveitemID: data,
-	    item: formData
-	  });
+        setTimeout(function() {  
+            model.present({
+                saveitemID: data,
+                item: formData
+            });
+            },200) ;
 	  return false;
 	}
 
