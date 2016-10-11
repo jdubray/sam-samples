@@ -112,8 +112,9 @@ var model = {};
 	  });
 	  return false;
 	}
-	actions.save = function(data) {
-	  // var notes = document.getElementById("notes" + data).value
+	
+    actions.save = function(data) {
+	   
         var formData = {
             notes: document.getElementById("notes" + data).value,
             timeIn: document.getElementById("timeIn" + data).value,
