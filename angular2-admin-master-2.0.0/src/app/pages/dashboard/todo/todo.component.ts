@@ -17,17 +17,18 @@ export class Todo {
 
   public todoList:Array<any>;
   public newTodoText:string = '';
-
+  
   constructor(private _baConfig:BaThemeConfigProvider, private _todoService:TodoService, public _state:State) {
     //this.todoList = this._todoService.getTodoList();
 
-    this._state.subscribe('dashboard.todoList', (todoList) => {
-        if (todoList) { 
-          this.todoList = todoList;
-
-        this.todoList.forEach((item) => {
-          item.color = this._getRandomColor();
-        });
+    this._state.subscribe('dashboard.todoList', (todo) => {
+        if (todo) { 
+          todo.todoList = todo.todoList || [] ;
+          this.todoList = todo.todoList;
+          
+          this.todoList.forEach((item) => {
+            item.color = this._getRandomColor();
+          });
         }
         //this.ref.detectChanges() ;
     }); 
@@ -41,16 +42,23 @@ export class Todo {
     })
   }
 
-  addToDoItem($event) {
-    console.log($event);
-    if (($event.which === 1 || $event.which === 13) && this.newTodoText.trim() != '') {
+  checkTodo($event) {
+    console.log($event.target.id) ;
+    this._state.actions().todo.done({id:$event.target.id}) ;
+  }
 
-      this.todoList.unshift({
-        text: this.newTodoText,
-        color: this._getRandomColor(),
-      });
-      this.newTodoText = '';
-    }
+
+  addToDoItem($event) {
+    this._state.actions().todo.save({text:this.newTodoText}) ;
+
+    // if (($event.which === 1 || $event.which === 13) && this.newTodoText.trim() != '') {
+
+    //   this.todoList.unshift({
+    //     text: this.newTodoText,
+    //     color: this._getRandomColor(),
+    //   });
+    //   this.newTodoText = '';
+    // }
   }
 
   delete($event) {

@@ -1,5 +1,5 @@
 <div class="task-todo-container">
-  <input type="text" value="" class="form-control task-todo" placeholder="Task to do.." (keyup)="addToDoItem($event)" [(ngModel)]="newTodoText"/>
+  <input type="text" value="" class="form-control task-todo" placeholder="Task to do.." [(ngModel)]="newTodoText"/>
   <i (click)="addToDoItem($event)" class="add-item-icon ion-plus-round"></i>
   <div class="box-shadow-border"></div>
 
@@ -9,8 +9,8 @@
 
       <div class="blur-container"><div class="blur-box"></div></div>
       <i class="mark" [ngStyle]="{ 'background-color': item.color }"></i>
-      <label class="todo-checkbox custom-checkbox custom-input-success">
-        <input type="checkbox" [(ngModel)]="item.isChecked">
+      <label class="todo-checkbox custom-checkbox custom-input-success" >
+        <input type="checkbox" [(ngModel)]="item.isChecked" (click)="checkTodo($event)"  id="{{item.id}}"    >
         <span class="cut-with-dots">{{ item.text }}</span>
       </label>
       <i class="remove-todo ion-ios-close-empty" (click)="delete($event)"></i>

@@ -2,12 +2,12 @@
 // Actions
 //
 
-export var todo = {} ;
+export var todo: any = {} ;
 
 let dispatch = "dispatch({__event:";
 let namespace = "todo";
 
-function applyDispath(action,ns) {
+function applyDispath(action: string,ns?:string):any {
     ns = ns || namespace ;
     if (dispatch) {
         action = dispatch+`'${ns}.${action}'`
@@ -45,7 +45,7 @@ todo.edit = (data, present) => {
 
 todo.save = (data, present) => {
     present = present || todo.present ;
-    data.item = {name: data.name, description: data.description, id: data.id || null} ;
+    data.item = {text: data.text, id: data.id || null} ;
     // next step of the reactive loop: present values to the model        
     present(data) ;
     return false ;

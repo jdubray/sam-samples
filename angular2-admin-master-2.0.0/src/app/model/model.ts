@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 //  Model
 // 
-
+import { todo } from './todo.model';
 // Initialize the model 
 
 export function Model() {
@@ -50,9 +50,8 @@ export function Model() {
             }
 
             if (data.todoList !== undefined) {
-                
-                _data.todoList = data.todoList;
-        
+                _data.todo = _data.todo || {} ;
+                _data.todo.todoList = data.todoList;
             }
 
             if (data.usersMap !== undefined) {
@@ -61,26 +60,28 @@ export function Model() {
         
             }
 
-            // delete completed item(s)
-                if (data.deletedItemId !== undefined) {
-                    if (data.deletedItemId < 0) {
-                        // delete all completed items
-                        _data.todoList.forEach(function(el,index) {
-                            _data.todoList[index].deleted = _data.todoList[index].deleted || _data.todoList[index].checked ;
-                        });
-                    } else {
-                        // delete spectific item
-                        _data.todoList.forEach(function(el,index) {
-                            if (el.id !== undefined) {
-                                if (el.id == data.deletedItemId) {
-                                    _data.lastDeleted = _data.todoList[index] ;
-                                    _data.todoList[index].deleted = true ;      
-                                }
-                            }
-                        });
-                    }
-                }
-                console.log(JSON.stringify(_data.todoList,null,4)) ;
+            todo(_data,data) ;
+
+            // // delete completed item(s)
+            //     if (data.deletedItemId !== undefined) {
+            //         if (data.deletedItemId < 0) {
+            //             // delete all completed items
+            //             _data.todoList.forEach(function(el,index) {
+            //                 _data.todoList[index].deleted = _data.todoList[index].deleted || _data.todoList[index].checked ;
+            //             });
+            //         } else {
+            //             // delete spectific item
+            //             _data.todoList.forEach(function(el,index) {
+            //                 if (el.id !== undefined) {
+            //                     if (el.id == data.deletedItemId) {
+            //                         _data.lastDeleted = _data.todoList[index] ;
+            //                         _data.todoList[index].deleted = true ;      
+            //                     }
+            //                 }
+            //             });
+            //         }
+            //     }
+            //     console.log(JSON.stringify(_data.todoList,null,4)) ;
             console.log('returning from CRUD') ;
         } ;
 

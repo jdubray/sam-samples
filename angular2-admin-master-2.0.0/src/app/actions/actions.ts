@@ -5,7 +5,7 @@
 import { todo } from './todo.actions';
  
 
-export function Actions(mount: string, conf?: any) { ;
+export function Actions(mount: string, conf?: any):any { ;
     let _present : (data: any) => void ;
     const _services : any = { } ;
     const _mount = mount ;

@@ -69,7 +69,7 @@ export class State {
       if (model.pieChart) this._onEvent({event:'dashboard.piechartData',data:model.pieChart});
       if (model.trafficChart) this._onEvent({event:'dashboard.doughnutData',data:model.trafficChart});
       if (model.usersMap) this._onEvent({event:'dashboard.mapData',data:model.usersMap});
-      if (model.todoList) this._onEvent({event:'dashboard.todoList',data:model.todoList});
+      if (model.todo) this._onEvent({event:'dashboard.todoList',data:model.todo});
   }
 
   _nextAction(model: any) {
