@@ -18,9 +18,10 @@ export class Todo {
   public todoList:Array<any>;
   public newTodoText:string = '';
   
-  constructor(private _baConfig:BaThemeConfigProvider, private _todoService:TodoService, public _state:State) {
-    //this.todoList = this._todoService.getTodoList();
-
+  constructor(private _baConfig:BaThemeConfigProvider, 
+              private _todoService:TodoService, 
+              public _state:State) {
+    
     this._state.subscribe('dashboard.todoList', (todo) => {
         if (todo) { 
           todo.todoList = todo.todoList || [] ;
@@ -30,10 +31,7 @@ export class Todo {
             item.color = this._getRandomColor();
           });
         }
-        //this.ref.detectChanges() ;
     }); 
-
-    
   }
 
   getNotDeleted() {
@@ -43,38 +41,16 @@ export class Todo {
   }
 
   checkTodo($event) {
-    console.log($event.target.id) ;
     this._state.actions().todo.done({id:$event.target.id}) ;
   }
 
 
   addToDoItem($event) {
     this._state.actions().todo.save({text:this.newTodoText}) ;
-
-    // if (($event.which === 1 || $event.which === 13) && this.newTodoText.trim() != '') {
-
-    //   this.todoList.unshift({
-    //     text: this.newTodoText,
-    //     color: this._getRandomColor(),
-    //   });
-    //   this.newTodoText = '';
-    // }
   }
 
   delete($event) {
-    let deletedElement = $event.target.parentElement.innerText;
-    let self = this;
-    
-    this.todoList.forEach(function(item,index) {
-      if (item.text === deletedElement) {
-        //item.deleted = true ;
-        if (self._state) { 
-          let actions = self._state.actions()
-          if (actions) { actions.todo.delete({id:index}); } else { console.log('actions is undefined')}
-          } 
-      }
-    });
-
+    this._state.actions().todo.delete({id: $event.target.id}) ;
   }
 
   private _getRandomColor() {
