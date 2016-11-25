@@ -17,7 +17,7 @@ The project uses [Google traceur](https://github.com/google/traceur-compiler) to
  |--data.js           Initial value of the model, when served from node
  ```
 
- ## Files
+## Install
 
  ```
  npm install
