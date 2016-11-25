@@ -8,18 +8,20 @@ The project uses [Google traceur](https://github.com/google/traceur-compiler) to
 
 ## Files
 
-`|
+```
+ |
  |--/sam              the basic SAM structure
  |--/components       the application / site components
  |--/plugins          back-end plugins
  |--server-model.js   node as a Web server (can host APIs as well)
- |--data.js           Initial value of the model, when served from node`
+ |--data.js           Initial value of the model, when served from node
+ ```
 
  ## Files
 
- `
+ ```
  npm install
  node server-model.js
- `
+ ```
 
  Open [http://localhost:5425/html](http://localhost:5425/html)
