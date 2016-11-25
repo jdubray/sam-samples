@@ -6,6 +6,8 @@ This project provides a basic SAM structure (actions, model, state, view) and a 
 
 The project uses [Google traceur](https://github.com/google/traceur-compiler) to automatically transpile E6 to ES5, an node.js as a Web server. The initial value of the model can be imported from a file (./component/model.data.js) or served from node.js (as a dynamically built javascript file).
 
+The index.html code uses JQuery, but this is optional.
+
 ## Files
 
 ```
