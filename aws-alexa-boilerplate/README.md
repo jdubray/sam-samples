@@ -4,13 +4,13 @@
 The documentation for the Alexa Skills Kit is available on the [Amazon Apps and Services Developer Portal](https://developer.amazon.com/appsandservices/solutions/alexa/alexa-skills-kit/).
 
 ## Sample
-The sample is based on the AWS [ChemistryFlashCards](samples/ChemistryFlashCards) sample (A skill that quizzes you on chemistry with flash cards). 
+The sample is based on the AWS [HelloWorld](https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/helloWorld) sample. 
 
-The handler wires the Skill's Lambda to the SAM implementation. The entry point of the pattern is the dispatch function which selects an action based on the Alexa intent.
+The handler wires the Skill's Lambda to the SAM actions. The intentHandler selects an action based on Alexa's intent.
 
-Since Lambda's are stateless, the model is implemented as the lambda's session. Every action prepares a proposal that is presented to the model (via the present function). 
+Since Lambda's are stateless, the model is implemented as the lambda's session. Every action prepares a proposal that is presented to the model (via the present method). 
 
-The lambda's response is built from the state representation (render function) which is "displayed" in the Alexa response format and returned by the handler.
+The lambda's response is built from the state function. State Representations come in two flavors: ask and tell.
 
 Due to Alexa's architecture, next-actions need to be handled synchronously in the model (present function).
 
