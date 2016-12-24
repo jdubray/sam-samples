@@ -1,7 +1,7 @@
 {
 
     "domain" : "your_domain",
-    "adminDirectory" : "./asana-html",
+    "adminDirectory" : "./html",
     "adminEmail": "jdubray@gmail.com",
     "port": 5425,
     "dbPath" : "./dbs/",

@@ -30,7 +30,7 @@ export var data = {
                         content: "Our customer support services are the best in the business. They’re standing by to help you.", 
                         address: "3600 136th Pl SE #300", 
                         city: "Bellevue, WA 98006", 
-                        telephone: "+1-866-873-2484",
+                        telephone: "+1-866-555-1212",
                         email: "info@yourdomain.com",
                         lat: 47.578592, lng:-122.1542519,
                         thankyou: "Thank you! Your message has been received"
