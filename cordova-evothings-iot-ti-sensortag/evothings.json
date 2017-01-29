@@ -1,0 +1,29 @@
+{
+  "name": "tng-collection",
+  "version": "1.0.0",
+  "title": "SensorTag CC2650 & CC2541 Acc",
+  "description": "App to use the accelerometer in the TI SensorTag to Control an On-Screen Object.",
+  "tags": [
+    {
+      "label": "ti-sensortag",
+      "type": "platform"
+    },
+    {
+      "label": "ble",
+      "type": "comm"
+    }
+  ],
+  "libraries": [],
+  "plugins": [
+    {
+      "name": "cordova-plugin-ble",
+      "version": "2.0.0"
+    }
+  ],
+  "index-file": "index.html",
+  "uuid": "e5c8d8d4-5bf1-44d6-a9a8-ff862c083728",
+  "icon": "app-icon.png",
+  "doc-url": "http://evothings.com/2.2/doc/examples/ble-ti-sensortag-accelerometer.html",
+  "long-description": "App to use the accelerometer in the TI SensorTag to Control an On-Screen Object.",
+  "cordova-id": "com.evothings.examples.bletisensortagaccelerometer"
+}

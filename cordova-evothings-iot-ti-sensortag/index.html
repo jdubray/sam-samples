@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!--
+Demonstration of the TI SensorTag accelerometer.
+-->
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, user-scalable=no,
+		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+	<title>TI SensorTag CC2650 &amp; CC2541 Accelerometer</title>
+	<script src="libs/fusion/bower_components/mathbox/build/mathbox-bundle.js"></script>
+    <link rel="stylesheet" href="libs/fusion/bower_components/mathbox/build/mathbox.css">
+    
+	<style>
+	@import 'ui/css/evothings-app.css';
+
+	#sprite
+	{
+		position: absolute;
+		width: 300px;
+		height: auto;
+		top: 0px;
+		left: 0px;
+		z-index: 1000;
+		display: none;
+	}
+	</style>
+
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script>
+
+</head>
+
+<body>
+
+	<header>
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg" />
+		</button>
+
+		<img class="logotype" src="ui/images/logo.svg" alt="Evothings" />
+
+		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+	</header>
+
+	<h1>TNG-Data Collector CC2650 &amp; CC2541 Accelerometer</h1>
+
+	<img src="TISensorTagCC2650.png"
+		style="float:right;width:120px;height:auto;"/>
+
+	<p>
+		Posting CC2560 data to custom server
+	</p>
+
+	<p id="upgradeNotice" class="hidden">
+		<span class="color_softred">Please upgrade the firmware of your SensorTag.</span>
+	</p>
+
+	<button onclick="connect()" class="green">
+		Connect
+	</button>
+
+	<button onclick="disconnect()" class="charcoal">
+		Disconnect
+	</button>
+
+	<p><strong>Status:</strong> <span id="status">Initializing</span></p>
+
+	<div id="movement"></div>
+
+	<script src="cordova.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/ui/ui.js"></script>
+	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+	<script src="SpriteManager.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	
+	<script src="libs/fusion/bower_components/cbuffer/cbuffer.js"></script>
+    <script src="libs/fusion/util.js"></script>
+    <script src="libs/fusion/sensor-sample.js"></script>
+    <script src="libs/fusion/complementary-filter.js"></script>
+    <script src="libs/fusion/pose-predictor.js"></script>
+    <script src="libs/fusion/complementary-orientation.js"></script>
+    <script src="libs/fusion/plot-object.js"></script>
+	<!-- script src="plot-sensors.js"></script -->
+
+	<script>
+	// Globals.
+	var sensortag
+	var movement
+	var model = {
+			position : {x: 0, y:0, z: 0},
+			disconnected: true,	
+			sensorStatus: 'initializing',
+
+			// config
+			period: 200,
+			sensor: evothings.tisensortag.CC2650_BLUETOOTH_SMART,
+			host: 'YOUR_HOST:YOUR_PORT'
+		} ;
+
+	function initialise()
+	{
+		initialiseSensorTag()
+	}
+
+
+	function initialiseSensorTag()
+	{
+		// Create SensorTag CC2650 instance.
+		sensortag = evothings.tisensortag.createInstance(model.sensor)
+
+		// Uncomment to use SensorTag CC2541.
+		//sensortag = evothings.tisensortag.createInstance(
+		//	evothings.tisensortag.CC2541_BLUETOOTH_SMART)
+
+		// Set up callbacks and sensors.
+
+		sensortag.activateSensorsImpl() 
+
+		sensortag
+			.statusCallback(statusHandler)
+			.errorCallback(errorHandler)
+			.accelerometerCallback(movementHandler, model.period)
+
+		model.present({status: 'ready'});
+	}
+
+	function connect()
+	{
+		if (sensortag) { 
+			sensortag.connectToNearestDevice()
+			model.present({status: 'connecting'})
+		}
+	}
+
+	function disconnect()
+	{
+		sensortag.disconnectDevice()
+		model.present({status: 'disconnecting'}) 
+	}
+
+	function statusHandler(status)
+	{
+		model.present({status: status})
+
+		if (evothings.tisensortag.ble.status.SENSORTAG_ONLINE == status)
+		{
+			// display something useful
+		}
+	}
+
+	function errorHandler(error)
+	{
+		if (evothings.easyble.error.DISCONNECTED == error)
+		{
+			model.present({disconnected: true}) 
+		}
+		else
+		{
+			model.present({status: 'Error ' + error})
+		}
+	}
+
+	function movementHandler(data) {
+		var gyro = sensortag.getGyroscopeValues(data) 
+		var mag = sensortag.getMagnetometerValues(data)
+		var acc = sensortag.getAccelerometerValues(data)
+		var timeStamp = Date.now();
+
+		// The position / orientation is computed with the Google WebVR Sensor Fusion library
+		co.onDeviceMotionChange_({timeStamp: timeStamp, rotationRate: gyro, mag: mag, accelerationIncludingGravity: acc}) ;
+		var orientation = co.getOrientation() ;
+		model.present({timeStamp: timeStamp, position:orientation, status: 'collecting'}) ;
+		
+	}
+
+	function displayPosition(position)
+	{
+		document.getElementById('movement').innerHTML = position
+	}
+
+	function displayStatus(status)
+	{
+		document.getElementById('status').innerHTML = status
+	}
+
+	document.addEventListener(
+		'deviceready',
+		function() { evothings.scriptsLoaded(initialise) },
+		false)
+	</script>
+
+	<!-- SAM Section / Author: Jean-Jacques Dubray, jdubray@xgen.io -->
+
+	<!--
+		This is free and unencumbered software released into the public domain.
+
+		Anyone is free to copy, modify, publish, use, compile, sell, or
+		distribute this software, either in source code form or as a compiled
+		binary, for any purpose, commercial or non-commercial, and by any
+		means.
+
+		In jurisdictions that recognize copyright laws, the author or authors
+		of this software dedicate any and all copyright interest in the
+		software to the public domain. We make this dedication for the benefit
+		of the public at large and to the detriment of our heirs and
+		successors. We intend this dedication to be an overt act of
+		relinquishment in perpetuity of all present and future rights to this
+		software under copyright law.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+		EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+		MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+		OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+		ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+		OTHER DEALINGS IN THE SOFTWARE.
+
+		For more information, please refer to <http://unlicense.org/>
+		-->
+
+
+		<script type="text/javascript">
+
+		////////////////////////////////////////////////////////////////////////////////
+		// Model 
+		//
+		
+
+		// var model = {
+				
+		// 		position : {x: 0, y:0, z: 0},
+		// 		disconnected: true,	
+		// 		sensorStatus: null
+		// 	} ;
+
+		model.present = function(data) {		
+			//console.log('present '+JSON.stringify(data))
+			model.sensorStatus = data.status ||  model.sensorStatus ;
+			model.position = data.position ||  model.position ;
+			model.timestamp = data.timeStamp || model.timestamp ;
+			state.render(model) ;
+		}
+
+
+		////////////////////////////////////////////////////////////////////////////////
+		// View
+		//
+		var view = {} ;
+
+		// Initial State
+		view.init = function(model) {
+			return view.ready(model) ;
+		}
+
+		// State representation of the ready state
+		view.ready = function(model) {
+			return "<p></p>"
+
+		}
+
+		// State representation of the collecting state
+		view.collecting = function(position) {
+
+			var output = '<table><tbody>'
+			output += '<tr><td>acc.x</td><td>'+position._x+'</td></tr>'
+			output += '<tr><td>acc.y</td><td>'+position._y+'</td></tr>'
+			output += '<tr><td>acc.z</td><td>'+position._z+'</td></tr>'
+			output += '<tr><td>acc.w</td><td>'+position._w+'</td></tr>'
+			output += '</tbody></table>'
+			return output
+
+		}
+
+		// State representation of the disconnected state
+		view.disconnected = function(model) {
+
+			return "<p></p>"
+		}
+
+		//display the state representation
+		view.display = function(representation) {
+			displayStatus(representation.status)
+			displayPosition(representation.position) 
+			render()
+		}
+
+		////////////////////////////////////////////////////////////////////////////////
+		// State
+		//
+		var state =  { view: view} ;
+
+		model.state = state ;
+
+		// Derive the state representation as a function of the systen
+		// control state
+		state.representation = function(model) {
+			var representation = { status: model.sensorStatus, position: ""} 
+
+			if (state.ready(model)) {
+				representation.position = view.ready(model) 
+				representation.status = model.sensorStatus 
+			} 
+
+			if (state.collecting(model)) {
+				
+				representation.position = view.collecting(model.position)  
+				representation.status = model.sensorStatus 
+			}
+
+
+			if (state.disconnected(model)) {
+				representation.position = view.disconnected(model)  
+				representation.status = model.sensorStatus 
+			}
+
+			state.view.display(representation) 
+		}
+
+		// Derive the current state of the system
+		state.ready = function(model) {
+			return (model.sensorStatus === 'ready') 
+		}
+
+		state.collecting = function(model) {
+			return (model.sensorStatus === 'collecting') || (model.sensorStatus === 'SENSORTAG_ONLINE')
+		}
+
+		state.disconnected = function(model) {
+			return (model.sensorStatus !== 'collecting') && (model.sensorStatus !== 'SENSORTAG_ONLINE') && (model.sensorStatus !== 'ready')
+		}
+
+		state.disconnecting = function(model) {
+			return (model.sensorStatus === 'disconnecting') 
+		}
+
+
+		// Next action predicate, derives whether
+		// the system is in a (control) state where
+		// an action needs to be invoked
+
+		state.nextAction = function (model) {
+			if (state.collecting(model)) {
+				//actions.collect(model)
+				console.log(model.timestamp)
+				$.ajax({
+					type: "POST", 
+					url: 'http://'+model.host+'/api/v1/device',
+					data: {timestamp: model.timestamp, x: model.position._x, y: model.position._y, z: model.position._z, w: model.position._w},
+					success: function (response) {
+						// console.log(response)
+					}
+				});
+			} 
+
+			if (state.disconnecting(model)) {
+				setTimeout(function() {
+					model.present({status: 'ready'})
+				}, 1000)
+			}
+		}
+
+		state.render = function(model) {
+			state.representation(model)
+			state.nextAction(model) ;
+		}
+
+
+		////////////////////////////////////////////////////////////////////////////////
+		// Actions
+		//
+
+		var actions = {} ;
+
+		// actions such as connect/disconnect/movementHandler were implemented as part of the EvoThings sample
+
+
+		// Display initial state
+		state.render(model) ;
+		
+		</script>
+
+</body>
+
+</html>

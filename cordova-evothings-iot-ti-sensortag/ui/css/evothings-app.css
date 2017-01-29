@@ -1,0 +1,768 @@
+/* Common styles for Evothings examples and client. */
+
+@import '../fonts/ProximaNova.css';
+
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+
+	font-family: 'Proxima Nova Regular', sans-serif;
+	font-weight: normal;
+
+	background: rgb(255,255,255);
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+body {
+	margin: 0 0.9em 0 0.9em;
+	font-size: 150%;
+	font-size: 7.5vw;
+}
+
+/* Add a top margin to the content corresponding to the height of the header. */
+body::before,
+section::before {
+	display: block;
+	width: 100%;
+	height: 1.1em; /* Should correspond to header's height. */
+	margin-bottom: 0.4em;
+
+	content: '\0000a0'; /* Non-breaking space (&nbsp;) */
+	font-size: 180%; /* Same as the header's font size. */
+	line-height: 200%; /* Slighly more than the header's line-height. */
+}
+
+/* Add a bottom margin. */
+body::after,
+section::after {
+	display:block;
+	content: '';
+	height: 1em;
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								GENERAL
+	---------------------------------------------------------- */
+
+.hidden {
+	display: none;
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								HEADER
+	---------------------------------------------------------- */
+
+/* The header's height is determined by the contained text's font size. */
+header {
+	box-sizing: border-box; /* Width & height includes padding & border. */
+
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+
+	width: 100%;
+	height: 1.1em;
+
+	/* Left and right margins should correspond to body margins. */
+	margin: 0 0 3.45% 0;
+	/* Left padding should correspond to the back button's width. */
+	padding: 1% 2% 1% 2%;
+
+	font-size: 180%;
+	line-height: 100%;
+	text-align: center;
+	vertical-align: middle;
+
+	background: #f3f3f3;
+
+	z-index: 1000;
+}
+header button {
+	display: block;
+	position: absolute;
+	top: 50%;
+	max-height: 70%;
+
+	margin: 0;
+
+	font-size: 30%;
+
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+header button.back {
+	position: absolute;
+	left: 0;
+
+	height: 100%;
+	margin: 0;
+	padding: 0 0.9em;
+
+	/* Font size is percentage of the header's font size. */
+	font-size: 50%;
+	color: #000;
+
+	text-align: left;
+
+	background: none;
+
+	border-radius: 0;
+	border: none;
+
+	box-shadow: none;
+}
+header button.back img {
+	height: 0.5em;
+}
+header img.logotype {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+
+	height: 60%;
+
+	margin: 0 auto;
+
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								MENU
+	---------------------------------------------------------- */
+
+header button#menu-button {
+	position: absolute;
+	right: 0;
+
+	width: 3em;
+	height: 100%;
+	max-height: 100%;
+	margin: 0;
+	padding: 0 0.9em;
+
+	/* Font size is percentage of the header's font size. */
+	font-size: 50%;
+	color: #000;
+
+	text-align: right;
+
+	background: none;
+
+	border-radius: 0;
+	border: none;
+
+	box-shadow: none;
+}
+header button#menu-button img {
+	height: 34%;
+}
+header button#menu-button:focus {
+	pointer-events: none;
+	outline: none;
+}
+header button#menu-button:focus::-moz-focus-inner {
+	border: 0;
+}
+header button#menu-button:focus + menu {
+	opacity: 1;
+	visibility: visible;
+}
+header menu {
+	display: block;
+	position: absolute;
+	top: 100%;
+	right: 0;
+
+	margin: 0;
+	padding: 0;
+
+	background: #f3f3f3;
+
+	opacity: 0;
+	visibility: hidden;
+	transition: visibility 0.5s;
+}
+
+header menu > * {
+	display: block;
+
+	padding: 0 1em 0 1em;
+
+	font-family: 'Proxima Nova Bold';
+	font-size: 35%;
+	text-align: right;
+}
+header menu a {
+	color: #000;
+	text-decoration: none;
+}
+
+header h1 {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+
+	font-size: inherit;
+	line-height: inherit;
+	font-weight: normal;
+	text-align: center;
+	vertical-align: middle;
+	color: #eee;
+
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								SECTIONS
+	---------------------------------------------------------- */
+
+main {
+	z-index: 0;
+}
+
+main footer {
+	box-sizing: border-box; /* Width & height includes padding & border. */
+
+	position: fixed;
+	bottom: 0;
+
+	width: 100%;
+
+	margin: 0 -5% 0 -5%;
+	padding: 0 5% 0 5%;
+
+	background-color: #fff;
+
+	box-shadow: inset 0 5px 9px -9px #000;
+
+	z-index: 2;
+}
+
+section {
+	display: none;
+
+	box-sizing: border-box; /* Width & height includes padding & border. */
+
+	position: absolute;
+
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	width: 100%;
+
+	padding: 0 0.9em 0 0.9em;
+
+	background-color: #fff;
+
+	z-index: 2;
+
+}
+
+section:target {
+	display: block;
+}
+
+
+
+/*  ----------------------------------------------------------
+							INPUT FIELDS
+	---------------------------------------------------------- */
+
+input {
+	margin: 0;
+	padding: 0;
+
+	border: none;
+
+	font-family: inherit;
+	font-size: 63%;
+}
+
+input[type="text"],input[type="url"],input[type="tel"],input[type="password"],
+input[type="email"],input[type="search"],input[type="number"],
+input[type="date"],input[type="month"],input[type="week"],input[type="time"] {
+	width: 50%;
+
+	padding: 7px 14px 7px 14px;
+
+	font-family: inherit;
+	font-size: 63%;
+	color: #000;
+
+	border-radius: 4px;
+	border: none;
+
+	background-color: #f3f3f3; /* Default color: "Arctic". */
+}
+
+textarea {
+	box-sizing: border-box; /* Width & height includes padding & border. */
+	width: 100%;
+
+	padding: 7px 14px 7px 14px;
+
+	border-radius: 4px;
+	border: none;
+
+	font-family: inherit;
+	font-size: 63%;
+	line-height: 1.5;
+
+	background-color: #f3f3f3; /* Default color: "Arctic". */
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								BUTTONS
+	---------------------------------------------------------- */
+
+button.clear {
+	margin-left: 1%;
+	background-color: #e15a64; /* Default color: "Soft Red". */
+}
+
+button,
+input.btn-group + label,
+.button {
+	display: inline-block;
+	box-sizing: border-box; /* Width & height includes padding & border. */
+
+	font-family: 'Proxima Nova Black';
+	font-size: inherit;
+	line-height: 100%;
+	text-align: center;
+	text-transform: uppercase;
+
+	color: #fff;
+
+	margin: 0.5em 0 0.5em 0;
+	padding: 9px 13px 8px 13px;
+
+	border-radius: 4px;
+	border: none;
+
+	box-shadow: none;
+
+	background-color: #b9b9b9; /* Default color: "Charcoal" */
+}
+body > button,
+body > input.btn-group + label,
+main > button,
+main > input.btn-group + label {
+	font-size: 63% !important;
+}
+button:active, button.pressed,
+input.btn-group:active + label, input.btn-group + label:active,
+input.btn-group:checked + label {
+	box-shadow: inset 0 8px 9px -9px #000;
+	background-color: #9d9d9d; /* Default color: "Charcoal" */
+}
+button:focus,
+input.btn-group:focus {
+	outline: none;
+}
+
+button.half,
+input.btn-group.half + label,
+input.btn-group + label.half {
+	float: left;
+	width: 50%; /* Fallback in case calc() is unsupported. */
+	width: calc(50% - 4px);
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+button.third,
+input.btn-group.third + label,
+input.btn-group + label.third {
+	float: left;
+	width: 33%; /* Fallback in case calc() is unsupported. */
+	width: calc(33% - 4px);
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+button.quarter,
+input.btn-group.quarter + label,
+input.btn-group + label.quarter {
+	float: left;
+	width: 25%; /* Fallback in case calc() is unsupported. */
+	width: calc(25% - 4px);
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+button.wide,
+input.btn-group.wide + label,
+input.btn-group + label.wide {
+	width: 100%;
+}
+
+button.big,
+input.btn-group.big + label,
+input.btn-group + label.big {
+	font-size: 150%;
+	line-height: 3.0;
+}
+
+/*  Input with class btn-group should be accompanied by a label acting as a
+	button. */
+input.btn-group {
+	display: none;
+}
+
+
+
+
+/*  ----------------------------------------------------------
+							VARIOUS ELEMENTS
+	---------------------------------------------------------- */
+
+canvas {
+	padding: 7px;
+
+	border-radius: 4px;
+	border: none;
+
+	background-color: #f3f3f3; /* Default color: "Arctic" */
+}
+
+figcaption {
+	font-size: 63%;
+}
+
+h1 {
+	padding: 0;
+	margin: 1em 0 0 0;
+
+	font-family: 'Proxima Nova Black';
+	font-size: 100%;
+	line-height: 1.5;
+
+	vertical-align: middle;
+}
+header + h1, body h1:first-child, main h1:first-child, article h1:first-child {
+	margin-top: 0;
+}
+
+h2,h3,h4,h5,h6 {
+	margin: 1em 0 0 0;
+	padding: 0;
+
+	font-family: 'Proxima Nova Bold';
+	font-size: 63%;
+
+	line-height: 1.5;
+
+	vertical-align: middle;
+}
+
+a {
+	color: #52afb8; /* Default color: "Blue Hue" (dark variant) */
+}
+
+p {
+	margin: 0.4em 0 0.4em 0;
+	padding: 0;
+
+	font-size: 63%;
+	line-height: 1.5;
+}
+
+table {
+	table-layout: fixed;
+	width: 100%;
+	font-size: 63%;
+	text-align: left;
+}
+thead {
+	font-family: 'Proxima Nova Bold';
+}
+
+strong {
+	font-family: 'Proxima Nova Bold';
+}
+
+code {
+	font-size: inherit;
+}
+
+ol,ul {
+	list-style-type: none;
+	list-style-position: inside;
+	counter-reset: item;
+
+	margin: 0.5em 0 0 0;
+	padding: 0;
+
+	font-size: 63%;
+}
+ol li, ul li {
+	padding: 0.5em 0 0.5em 0;
+
+	font-size: inherit;
+	line-height: 1.5;
+}
+ol li:before {
+	content: counter(item) ". ";
+	counter-increment: item;
+	font-family: 'Proxima Nova Bold';
+}
+ul.dynamic {
+	list-style-type: none;
+	padding: 0;
+}
+ul.dynamic li {
+	padding: 4% 15% 4% 4%;
+
+	border-radius: 4px;
+	border: none;
+
+	box-shadow: inset 0 -7px 12px -12px #000;
+
+	background-color: #f3f3f3;
+}
+ul.dynamic li:last-child {
+	box-shadow: none;
+}
+ul.dynamic li a {
+	color: #000;
+}
+ul.dynamic.arrow li,
+ul.dynamic li.arrow {
+	background-image: url('../images/arrow-right.svg');
+	background-position: 94% center; /* CSS 2 fallback */
+	background-position: right 5% center; /* requires CSS 3 */
+	background-size: 1em auto;
+	background-repeat: no-repeat;
+}
+
+article {
+	display: none;
+	z-index: 2;
+
+	font-size: 100%;
+}
+
+
+
+
+/*  ----------------------------------------------------------
+								COLORS
+	---------------------------------------------------------- */
+
+/*  Color: "Soft Red"
+	Class name: red
+    ---------------- */
+.color_softred { color: #e15a64; }
+.bg_red, input.red, button.red, ul.red li, label.red,
+input.red + label {
+	background-color: #e15a64;
+}
+/* Downpressed button. */
+button.red:active, button.red.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.red,
+input.btn-group.red:active + label,
+input.btn-group:checked + label.red,
+input.btn-group.red:checked + label {
+	background-color: #cb414b;
+}
+
+/*  Color: "Bright Light"
+	Class name: yellow
+    -------------------- */
+.color_brightlight { color: #ecd53b; }
+.bg_yellow, input.yellow, button.yellow, ul.yellow li, label.yellow,
+input.yellow + label {
+	background-color: #ecd53b;
+}
+/* Downpressed button. */
+button.yellow:active, button.yellow.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.yellow,
+input.btn-group.yellow:active + label,
+input.btn-group:checked + label.yellow,
+input.btn-group.yellow:checked + label {
+	background-color: #d9c022;
+}
+
+/*  Color: "Wave Green"
+	Class name: green
+    ------------------ */
+.color_wavegreen { color: #54dfb3; }
+.bg_green, input.green, button.green, ul.green li, label.green,
+input.green + label {
+	background-color: #54dfb3;
+}
+/* Downpressed button. */
+button.green:active, button.green.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.green,
+input.btn-group.green:active + label,
+input.btn-group:checked + label.green,
+input.btn-group.green:checked + label {
+	background-color: #3aca9c;
+}
+
+/*  Color: "Blue Hue"
+	Clas name: blue
+    ------------------ */
+.color_bluehue { color: #6bc6ce; }
+.bg_blue, input.blue, button.blue, ul.blue li, label.blue,
+input.blue + label {
+	background-color: #6bc6ce;
+}
+/* Downpressed button. */
+button.blue:active, button.blue.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.blue,
+input.btn-group.blue:active + label,
+input.btn-group:checked + label.blue,
+input.btn-group.blue:checked + label {
+	background-color: #52afb8;
+}
+
+/*  Color: "Indigo"
+	Class name: indigo
+    ------------------ */
+.color_indigo { color: #b48b9b; }
+.bg_indigo, input.indigo, button.indigo, ul.indigo li, label.indigo,
+input.indigo + label {
+	background-color: #b48b9b;
+}
+/* Downpressed button. */
+button.indigo:active, button.indigo.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.indigo,
+input.btn-group.indigo:active + label,
+input.btn-group:checked + label.indigo,
+input.btn-group.indigo:checked + label {
+	background-color: #9c7283;
+}
+
+/*  Color: "Arctic"
+	Class name: arctic
+    ------------------ */
+.color_arctic { color: #f3f3f3; }
+.bg_arctic, input.arctic, button.arctic, ul.arctic li,
+input.arctic + label {
+	background-color: #f3f3f3;
+}
+/* Downpressed button. */
+button.arctic:active, button.arctic.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.arctic,
+input.btn-group.arctic:active + label,
+input.btn-group:checked + label.arctic,
+input.btn-group.arctic:checked + label {
+	background-color: #656565;
+}
+
+/*  Color: "Aluminium"
+	Class name: aluminium
+    ------------------ */
+.color_aluminium { color: #e2e2e2 }
+.bg_aluminium, input.aluminium, button.aluminium, ul.aluminium li,
+input.aluminium + label {
+	background-color: #e2e2e2;
+}
+/* Downpressed button. */
+button.aluminium:active, button.aluminium.pressed,
+ /* Input element with adjacent label. */
+input.btn-group:active + label.aluminium,
+input.btn-group.aluminium:active + label,
+input.btn-group:checked + label.aluminium,
+input.btn-group.aluminium:checked + label {
+	background-color: #c0c0c0;
+}
+
+/*  Color: "Charcoal"
+	Class name: charcoal
+    ------------------ */
+.color_charcoal { color: #b9b9b9; }
+.bg_charcoal, input.charcoal, button.charcoal, ul.charcoal li,
+input.charcoal + label {
+	background-color: #b9b9b9;
+}
+/* Downpressed button. */
+button.charcoal:active, button.charcoal.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.charcoal,
+input.btn-group.charcoal:active + label,
+input.btn-group:checked + label.charcoal,
+input.btn-group.charcoal:checked + label {
+	background-color: #9d9d9d;
+}
+
+/*  Color: "Stone"
+	Class name: stone
+    ------------------ */
+.color_stone { color: #777777 }
+.bg_stone, input.stone, button.stone, ul.stone li,
+input.stone + label {
+	background-color: #777777;
+}
+/* Downpressed button. */
+button.stone:active, button.stone.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.stone,
+input.btn-group.stone:active + label,
+input.btn-group:checked + label.stone,
+input.btn-group.stone:checked + label {
+	background-color: #656565;
+}
+
+/*  Color: "Jet Black"
+	Class name: jetblack
+    ------------------ */
+.color_black { color: #070707 }
+.bg_black, input.black, button.black, ul.black li,
+input.black + label {
+	background-color: #070707;
+}
+/* Downpressed button. */
+button.black:active, button.black.pressed,
+/* Input element with adjacent label. */
+input.btn-group:active + label.black,
+input.btn-group.black:active + label,
+input.btn-group:checked + label.black,
+input.btn-group.black:checked + label {
+	background-color: #000000;
+}
+
+@media	screen and (orientation: landscape) and (-webkit-min-device-pixel-ratio : 2),
+		screen and (orientation: landscape) and (min--moz-device-pixel-ratio: 2),
+		screen and (orientation: landscape) and (min-device-pixel-ratio : 2) {
+	body { font-size: 4.5vw; }
+}
