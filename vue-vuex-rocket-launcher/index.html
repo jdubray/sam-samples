@@ -1,148 +1,151 @@
 <html>
+
 <body>
-<script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vue"></script>
 
-<div id="launcher">
-  <div v-if="readyState">
-    <p>Counter: {{ counter }} </p>
-    
+  <div id="launcher">
+    <div v-if="readyState">
+      <p>Counter: {{ counter }} </p>
+
       <button type="submit" v-on:click="start()" value="Start">Start</button>
-    
-  </div>
 
-  <div v-if="countingState">
-    <p>Count down: {{ counter }}</p>
-    
+    </div>
+
+    <div v-if="countingState">
+      <p>Count down: {{ counter }}</p>
+
       <button type="submit" v-on:click="abort()" value="Abort">Abort</button>
-    
+
+    </div>
+
+    <div v-if="abortedState">
+      <p>Aborted at: {{ counter }}</p>
+    </div>
+
+    <div v-if="launchedState">
+      <p>Launched</p>
+    </div>
+
+
   </div>
 
-  <div v-if="abortedState">
-    <p>Aborted at: {{ counter }}</p>
-  </div>
+  <script>
+    var COUNTER_MAX = 10;
 
-  <div v-if="launchedState">
-    <p>Launched</p>
-  </div>
+    new Vue({
+      el: '#launcher',
 
-
-</div>
-
-<script>
-  var COUNTER_MAX = 10;
-
-  new Vue({
-    el: '#launcher',
-
-    // Model
-    data: {
-      counter: COUNTER_MAX, 
-      started: false,      
-      launched: false, 
-      aborted: false,
-    },
-
-    
-    methods: {
-      // actions
-      start: function (data) {
-        data = data || {started : true} ;
-        this.present(data);
-      },
-
-      abort: function (data) {
-        data = data || {aborted : true} ;
-        this.present(data);
-      },
-
-      launch: function (data) {
-        data = data || {launched : true} ;
-        this.present(data);
-      },
-
-      decrement: function(data) {
-        
-          data = data || {by:1} ;
-          var by = data.by ;
-          var self = this ;
-          
-          setTimeout(function () { 
-              self.present({by:by}) 
-            } , 1000) ;
+      // Model
+      data: {
+        counter: COUNTER_MAX,
+        started: false,
+        launched: false,
+        aborted: false,
       },
 
 
-      present: function(proposal) {
-          console.log('present') ;
+      methods: {
+        // actions
+        start: function (data) {
+          data = data || { started: true };
+          this.present(data);
+        },
+
+        abort: function (data) {
+          data = data || { aborted: true };
+          this.present(data);
+        },
+
+        launch: function (data) {
+          data = data || { launched: true };
+          this.present(data);
+        },
+
+        decrement: function (data) {
+
+          data = data || { by: 1 };
+          var by = data.by;
+          var self = this;
+
+          setTimeout(function () {
+            self.present({ by: by })
+          }, 1000);
+        },
+
+
+        present: function (proposal) {
+          console.log('present');
           if (proposal.started !== undefined) {
-              this.started = proposal.started ;
+            this.started = proposal.started;
           }
 
           if (proposal.launched !== undefined) {
-              this.launched = proposal.launched ;
+            this.launched = proposal.launched;
           }
 
           if (proposal.aborted !== undefined) {
-              this.aborted = proposal.aborted ;
+            this.aborted = proposal.aborted;
           }
 
           if (proposal.by !== undefined) {
             if (!this.aborted) {
-              this.counter -= proposal.by ;
+              this.counter -= proposal.by;
             }
-          } 
-
-          this.state() ;
-      },
-
-      // State Function
-      state: function () {
-        // no state representation, it's the Vue template
-        
-        this.nextAction() ;
-        
-        return '' ;
-      },
-
-      nextAction: function() {
-        console.log('nextAction')
-        
-        if (this.countingState) {
-          if (this.counter>0) {
-            // next action is count down (decrement)
-            this.decrement({by:1}) ;
-          } else {
-            // next action is launch
-            this.launch({launched : true}) ;
           }
-        } else {
-          // no next action
-          console.log('that\'s all folks') ;
-        }
-      },
-    },
 
-    computed: {
-      
-      // State
-      readyState: function() {
-        return ((this.counter === COUNTER_MAX) && !this.started && !this.launched && !this.aborted) ;
+          this.state();
+        },
+
+        // State Function
+        state: function () {
+          // no state representation, it's the Vue template
+
+          this.nextAction();
+
+          return '';
+        },
+
+        nextAction: function () {
+          console.log('nextAction')
+
+          if (this.countingState) {
+            if (this.counter > 0) {
+              // next action is count down (decrement)
+              this.decrement({ by: 1 });
+            } else {
+              // next action is launch
+              this.launch({ launched: true });
+            }
+          } else {
+            // no next action
+            console.log('that\'s all folks');
+          }
+        },
       },
 
-      countingState: function() {
-        return ((this.counter <= COUNTER_MAX) && (this.counter >= 0) && this.started && !this.launched && !this.aborted) ;
-      },
+      computed: {
 
-      launchedState: function() {
-        return ((this.counter == 0) && this.started && this.launched && !this.aborted) ;
-      },
+        // State
+        readyState: function () {
+          return ((this.counter === COUNTER_MAX) && !this.started && !this.launched && !this.aborted);
+        },
 
-      abortedState: function() {
-        return (( this.counter <= COUNTER_MAX) && (this.counter >= 0) && this.started && !this.launched && this.aborted ) ;
-      },
-    
-    }
-  })
-</script>
+        countingState: function () {
+          return ((this.counter <= COUNTER_MAX) && (this.counter >= 0) && this.started && !this.launched && !this.aborted);
+        },
+
+        launchedState: function () {
+          return ((this.counter == 0) && this.started && this.launched && !this.aborted);
+        },
+
+        abortedState: function () {
+          return ((this.counter <= COUNTER_MAX) && (this.counter >= 0) && this.started && !this.launched && this.aborted);
+        },
+
+      }
+    })
+
+  </script>
 </body>
+
 </html>

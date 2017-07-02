@@ -7,61 +7,61 @@
 // the model following the expression:
 // C = f(M.part)
 
-export var theme = { } ;
- 
+export var theme = {};
+
 // Component 1: Item list ///////////////////////////////////////////
 
 theme.list = (todos, displayActive, displayCompleted, intents) => {
 
     // generate the item list
-    var items = todos.map( function(todo) {
+    var items = todos.map(function (todo) {
 
-        const deleted = todo.deleted || false ;
-        const checked = todo.checked || false ;
+        const deleted = todo.deleted || false;
+        const checked = todo.checked || false;
 
-        if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' ; }
- 
-        const label = `<label ondblclick="return ${intents['edit']}({'id':'${todo.id}'});">${todo.name}</label>` ;
+        if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return ''; }
+
+        const label = `<label ondblclick="return ${intents['edit']}({'id':'${todo.id}'});">${todo.name}</label>`;
 
         // if the item is in edit mode we return an input field instead 
         const input = `<input  id="edit-todo" class="new-todo"
                         onchange="return ${intents['save']}({'id':'${todo.id}','name':document.getElementById('edit-todo').value});"
-                        value="${todo.name}"  autofocus></input>` ;
-         
-        return `
-                        <li ${(checked ? 'class="completed"' : '')}>
-                            <div class="view">
-                                <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
-                                        onclick="return ${intents['done']}({'id':'${todo.id}'});">
-                                ${(todo.edited ? input : label)}
-                                <button class="destroy" onclick="return ${intents['delete']}({'id':'${todo.id}'});"></button>
-                            </div>
-                            <input class="edit" value="${todo.description}">
-                        </li>` ;
-    }) ;
+                        value="${todo.name}"  autofocus></input>`;
 
-    var showToggleCheckbox = false ;
+        return `
+                <li ${(checked ? 'class="completed"' : '')}>
+                    <div class="view">
+                        <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
+                                onclick="return ${intents['done']}({'id':'${todo.id}'});">
+                        ${(todo.edited ? input : label)}
+                        <button class="destroy" onclick="return ${intents['delete']}({'id':'${todo.id}'});"></button>
+                    </div>
+                    <input class="edit" value="${todo.description}">
+                </li>` ;
+    });
+
+    var showToggleCheckbox = false;
     const toggleCheckbox = `
                 <input class="toggle-all" type="checkbox" onclick="return ${intents['toggleAll']}({});">
                 <label for="toggle-all">Mark all as complete</label>` ;
 
-    todos.forEach(function(item) {
-        item.deleted = item.deleted || false ;
+    todos.forEach(function (item) {
+        item.deleted = item.deleted || false;
         if (!item.deleted) {
-            showToggleCheckbox = true ;
+            showToggleCheckbox = true;
         }
     })
 
-    return  `${(showToggleCheckbox ? toggleCheckbox : '')}
+    return `${(showToggleCheckbox ? toggleCheckbox : '')}
              <ul class="todo-list" id="todo-list">
                 ${items.join('\n')}
-             </ul>` ;    
+             </ul>` ;
 
-} ;
+};
 
 // Component 2: Filters /////////////////////////////////////////// 
 
-theme.filters = (displayActive,displayCompleted,count,completedCount,intents) => {
+theme.filters = (displayActive, displayCompleted, count, completedCount, intents) => {
     const displaySelectedClass = (displayActive && displayCompleted) ? 'class="selected" ' : '';
     const displayActiveClass = (displayActive && !displayCompleted) ? 'class="selected" ' : '';
     const displayCompletedClass = (!displayActive && displayCompleted) ? 'class="selected" ' : '';
@@ -85,13 +85,12 @@ theme.filters = (displayActive,displayCompleted,count,completedCount,intents) =>
                 <a ${displayCompletedClass} href="#/completed" onclick="return ${intents['displayCompleted']}({});">Completed</a>
             </li>
         </ul>
-        ${((completedCount > 0) ? clearCompleted : '' )}`
-        ) ;
-} ;
+        ${((completedCount > 0) ? clearCompleted : '')}`
+    );
+};
 
 
 theme.header = (intents) => `<h1>todos</h1>
                       <input     id="new-todo"  class="new-todo"  
                               onchange="return ${intents['save']}({'name':document.getElementById('new-todo').value});" 
                               placeholder="What needs to be done?" autofocus></input>`
-                              

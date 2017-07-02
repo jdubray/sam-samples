@@ -1,38 +1,38 @@
 //
-var labels = {} ;
+var labels = {};
 
-labels.app = 'My App' ;
+labels.app = 'My App';
 
-labels.signin = 'Please Sign In' ;
-labels.login = 'Login' ;
-labels.logout = 'Logout' ;
-labels.rememberMe = 'Remember me' ;
+labels.signin = 'Please Sign In';
+labels.login = 'Login';
+labels.logout = 'Logout';
+labels.rememberMe = 'Remember me';
 
-labels.search = 'Search...' ;
-labels.settings = 'Settings' ;
-labels.support = 'Support' ;
-labels.userProfile = 'User Profile' ;
+labels.search = 'Search...';
+labels.settings = 'Settings';
+labels.support = 'Support';
+labels.userProfile = 'User Profile';
 
-labels.title = labels.app+' | Admin Console' ;
+labels.title = labels.app + ' | Admin Console';
 
 
-var etiquettes = {} ;
+var etiquettes = {};
 
-etiquettes.app = 'Mon Application' ;
+etiquettes.app = 'Mon Application';
 
-etiquettes.signin = 'Veuillez vous identifier' ;
-etiquettes.login = 'Login' ;
-etiquettes.logout = 'Logout' ;
-etiquettes.rememberMe = 'Remember me' ;
+etiquettes.signin = 'Veuillez vous identifier';
+etiquettes.login = 'Login';
+etiquettes.logout = 'Logout';
+etiquettes.rememberMe = 'Remember me';
 
-etiquettes.search = 'Rechercher...' ;
-etiquettes.settings = 'Configuration' ;
-etiquettes.support = 'Support' ;
-etiquettes.userProfile = 'Profil Utilisateur' ;
+etiquettes.search = 'Rechercher...';
+etiquettes.settings = 'Configuration';
+etiquettes.support = 'Support';
+etiquettes.userProfile = 'Profil Utilisateur';
 
-etiquettes.title = labels.app+' | Console ' ;
+etiquettes.title = labels.app + ' | Console ';
 
 module.exports = {
-    en : labels,
-    fr : etiquettes
-} ;
+    en: labels,
+    fr: etiquettes
+};
