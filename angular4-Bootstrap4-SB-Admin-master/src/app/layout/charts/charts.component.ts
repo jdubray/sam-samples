@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 
-import { State } from '../../state/state';
+import { SamService } from 'app/services/sam.service';
 
 @Component({
     selector: 'app-charts',
@@ -11,9 +11,8 @@ import { State } from '../../state/state';
 })
 export class ChartsComponent implements OnInit {
 
-    constructor(public _state: State) {
-
-        this._state.subscribe('dashboard.chartData' , (data) => { this.bind(data) } )
+    constructor(private sam: SamService) {
+        this.sam.state.subscribe('dashboard.chartData', data => this.bind(data));
     }
 
     // bar chart
@@ -22,30 +21,30 @@ export class ChartsComponent implements OnInit {
         responsive: true
     };
     public barChartLabels: string[] = [];
-    public barChartType: string = 'bar';
-    public barChartLegend: boolean = true;
+    public barChartType = 'bar';
+    public barChartLegend = true;
 
     public barChartData: any[] = [];
     // Doughnut
     public doughnutChartLabels: string[] = [];
     public doughnutChartData: number[] = [];
-    public doughnutChartType: string = 'doughnut';
+    public doughnutChartType = 'doughnut';
     // Radar
     public radarChartLabels: string[] = [];
     public radarChartData: any = [];
-    public radarChartType: string = 'radar';
+    public radarChartType = 'radar';
     // Pie
     public pieChartLabels: string[] = [];
     public pieChartData: number[] = [];
-    public pieChartType: string = 'pie';
+    public pieChartType = 'pie';
     // PolarArea
     public polarAreaChartLabels: string[] = [];
     public polarAreaChartData: number[] = [];
-    public polarAreaLegend: boolean = true;
+    public polarAreaLegend = true;
 
-    public polarAreaChartType: string = 'polarArea';
+    public polarAreaChartType = 'polarArea';
     // lineChart
-    public lineChartData: Array<any> =  [];
+    public lineChartData: Array<any> = [];
     public lineChartLabels: Array<any> = [];
     public lineChartOptions: any = {
         responsive: true
@@ -76,8 +75,8 @@ export class ChartsComponent implements OnInit {
             pointHoverBorderColor: 'rgba(148,159,177,0.8)'
         }
     ];
-    public lineChartLegend: boolean = true;
-    public lineChartType: string = 'line';
+    public lineChartLegend = true;
+    public lineChartType = 'line';
 
     // events
     public chartClicked(e: any): void {
@@ -111,12 +110,12 @@ export class ChartsComponent implements OnInit {
     }
 
     public bind(stateRepresentation: any) {
-        
-        let data = stateRepresentation.dataProvider ;
+
+        const data = stateRepresentation.dataProvider;
 
         if (data) {
 
-           
+
             if (data.barChartData) {
                 this.barChartData = data.barChartData;
             }
@@ -167,19 +166,18 @@ export class ChartsComponent implements OnInit {
         }
     }
 
-    
     ngOnInit() {
         // There at least three ways the component could be initialized
 
         // 1/ The state representation could be ready, but that's an optimization
-        //this.bind(this._state.stateRepresentation("dashboard.charts")) ;
+        // this.bind(this.sam.state.stateRepresentation("dashboard.charts")) ;
 
         // But we recommend triggering an "init" action which will update the the component's properties
-        
+
         // 2/ These actions could be statically defined in the Actions class
-        //this._state.actions().chartsInit({}) ;
+        // this.sam.state.actions().chartsInit({}) ;
 
         // 3/ Or they can be dispatched to the chart.actions module
-        this._state.actions().dispatch({__event: 'charts.initCharts', chartService: this._state.getService('Chart')})
+        this.sam.actions.dispatch({ type: 'charts.initCharts', payload: { chartService: this.sam.actions.getService('Chart') } })
     }
 }

@@ -2,44 +2,39 @@
 // Actions
 //
 
-export var charts: any = {} ;
+import { Presenter } from 'app/actions/actions';
 
-let dispatch = "dispatch({__event:";
-let namespace = "chart";
+export class ChartsActions {
 
-function applyDispath(action: string,ns?:string):any {
-    ns = ns || namespace ;
-    if (dispatch) {
-        action = dispatch+`'${ns}.${action}'`
-    } else {
-        action = `actions.${action}`;
+    private static dispatch = 'dispatch({__event:';
+    private static namespace = 'chart';
+
+    // TODO: not really used...
+    public intents = {
+        initCharts: ChartsActions.applyDispath('initCharts'),
+        // save: ChartsActions.applyDispath("save"),
+        // done: ChartsActions.applyDispath("done"),
+        // displayAll: ChartsActions.applyDispath("displayAll"),
+        // displayActive: ChartsActions.applyDispath("displayActive"),
+        // displayCompleted: ChartsActions.applyDispath("displayCompleted"),
+        // toggleAll: ChartsActions.applyDispath("toggleAll"),
+        // delete: ChartsActions.applyDispath("delete")
     }
-    return  action;
+
+    private static applyDispath(action: string, ns?: string): any {
+        ns = ns || ChartsActions.namespace;
+        if (ChartsActions.dispatch) {
+            action = ChartsActions.dispatch + `'${ns}.${action}'`
+        } else {
+            action = `actions.${action}`;
+        }
+        return action;
+    }
+
+    initCharts(event: { type: string, payload?: any }, presenter: Presenter) {
+        const _data: any = { charts: event.payload.chartService.getData() };
+        // next step of the reactive loop: present values to the model
+        presenter.present(_data);
+        return false;
+    }
 }
-
-charts.init = (present) => {
-     charts.present = present ;
-} ;
-
-// Intents enable a further decoupling between 
-// the view components and the actions
-charts.intents = {
-    initCharts: applyDispath("initCharts"),
-    // save: applyDispath("save"),
-    // done: applyDispath("done"),
-    // displayAll: applyDispath("displayAll"),
-    // displayActive: applyDispath("displayActive"),
-    // displayCompleted: applyDispath("displayCompleted"),
-    // toggleAll: applyDispath("toggleAll"),
-    // delete: applyDispath("delete")
-
-} ;
-
-charts.initCharts = (data, present) => {
-    present = present || charts.present ;
-    let _data : any = {charts: data.chartService.getData()} ;
-    // next step of the reactive loop: present values to the model        
-    present(_data) ;
-    return false ;
-} ;
-
