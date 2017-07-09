@@ -7,8 +7,6 @@ import { LayoutRoutingModule } from './layout-routing.module';
 import { LayoutComponent } from './layout.component';
 import { HeaderComponent, SidebarComponent } from '../shared';
 
-import { State } from '../state/state' ;
-
 @NgModule({
     imports: [
         CommonModule,
@@ -20,9 +18,6 @@ import { State } from '../state/state' ;
         LayoutComponent,
         HeaderComponent,
         SidebarComponent,
-    ],
-    providers: [
-        State
     ]
 })
 export class LayoutModule { }

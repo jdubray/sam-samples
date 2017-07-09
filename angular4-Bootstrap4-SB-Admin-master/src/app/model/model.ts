@@ -1,76 +1,66 @@
 //////////////////////////////////////////////////////////////////////
 //  Model
-// 
+//
 
-// Initialize the model 
+import { SamService } from 'app/services/sam.service';
+import { Presenter } from 'app/actions/actions';
 
-export function Model() {
-        var _render : (data: any) => void ;
-        var _services : any = { } ;
-        var _data: any = { } ;
+export interface Renderer {
+    render(data: any): void
+}
 
-        var _applyFilters = (data: any) => {
-            // filter data
-        
-            return data ;
-        } ;
+export class Model implements Presenter {
 
-        var _CRUD = (data: any) => {
-            console.log(data);
-            // CRUD    
+    private services: any = {};
+    private data: any = {};
 
-            if (data.charts !== undefined) {
-                
-                _data.charts = data.charts;   
-        
-            }
+    constructor(private sam: SamService) { }
 
-            console.log('returning from CRUD') ;
-        } ;
-
-        var _postProcessing = () => {
-            // perform ancillary assignments
-            
-        } ; 
-
-        
-        return {
-            data: _data,
-      
-	        init(render: (data: any) => void) {
-                _render = render ;
-            },
-
-            addService (name: string, service: any, init: boolean) {
-                console.log('adding service:',name) ;
-                _services[name] = service ;
-                if (init) {
-                    console.log('init service:\n',this.present) ;
-                    // _service.getContacts().then( function(contacts: any) {
-                        
-                    //       this.present({init:true,newData:contacts}) ;
-
-                    //   }
-                    // ) ;
-                }
-            },
-
-            present(data: any, render?: (data: any) => void) {
-                console.log('Model presented with Data') ;
-                console.log(data) ;
-                render = render || _render ;
-
-                data = data || {} ;
-                
-                _applyFilters(data) ;
-
-                    _CRUD(data) ;    
-
-                _postProcessing() ;
-                console.log('model has been updated');
-                // next step of the reactive loop: compute the state representation  
-                render(_data) ;
-            } 
+    addService(name: string, service: any, init: boolean) {
+        console.log('adding service:', name);
+        this.services[name] = service;
+        if (init) {
+            console.log('init service:\n', this.present);
+            // _service.getContacts().then( function(contacts: any) {
+            //       this.present({init:true,newData:contacts}) ;
+            //   }
+            // ) ;
+        }
     }
 
-} ;
+    present(data: any, renderer?: Renderer) {
+        console.log('Model presented with Data');
+        console.log(data);
+        renderer = renderer || this.sam.state;
+
+        data = data || {};
+
+        this._applyFilters(data);
+        this._CRUD(data);
+        this._postProcessing();
+
+        console.log('model has been updated');
+
+        // next step of the reactive loop: compute the state representation
+        renderer.render(this.data);
+    }
+
+    private _applyFilters(data: any) {
+        // filter data
+        return data;
+    }
+
+    private _CRUD(data: any) {
+        console.log(data);
+
+        if (data.charts !== undefined) {
+            this.data.charts = data.charts;
+        }
+
+        console.log('returning from CRUD');
+    }
+
+    private _postProcessing() {
+        // perform ancillary assignments
+    }
+}

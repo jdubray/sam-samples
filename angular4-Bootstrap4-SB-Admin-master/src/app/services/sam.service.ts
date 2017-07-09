@@ -1,70 +1,39 @@
 //
 
-import {Component, Injectable} from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 
-import {State}                          from '../state/state' ;
-import {Model}                          from '../model/model' ;
-import {Actions}                        from '../actions/actions' ;
-import {View}                           from '../views/view' ;
+import { State } from '../state/state';
+import { Model } from '../model/model';
+import { Actions } from '../actions/actions';
+import { View } from '../views/view';
 
 @Injectable()
-export class SamFactory {
-    
-    static instance(
-        app: any, 
-        mount: string, actionsMount?: any, 
-        services?: any[] 
-        ) : any {
+export class SamService {
 
-        let view: any = View() ;
-        let actions: any = Actions(mount) ;
-        
+    public readonly actions: Actions;
+    public readonly model: Model;
+    public readonly state: State;
+
+    constructor() {
+        // view stuffs are handled directly via subscriptions to state in components
+        // const view = new View();
+        this.actions = new Actions(this);
         // ********** Migrate Model to Server ************
-        let model: any = Model() ;
-        //let model: any = ModelServer() ;
-        
-        
+        this.model = new Model(this);
+        // let model: any = ModelServer() ;
+        this.state = new State(this);
+        // view.init(sr => app.render(sr, actions.dispatcher))
+    }
 
-        let state: any = new State() ; //view,actions.intents
-        
-        state.init({actions});
-        //state.init(view, actions.intents) ;
-
-        function render(state) {
-            let _state = state;
-
-            return function(model) {
-                _state.render(model);
-            }
-        }
-
-        model.init(render(state)) ;
-        actions.init(model.present) ;
-
-        view.display = (sr: any) => app.render(sr,actions.dispatcher) ;
-
-        // Mount SAM actions into the DOM
-        actionsMount.actions = actions ;
-        
-        services = services || [] ;
-        services.forEach( function(service) {
-            service.type = service.type || 'actions' ;
-            service.init = service.init || false ;
-            if (service.service) {
-                if (service.type === 'model') { model.addService(service.serviceName, service.service, service.init) ; }
-                if (service.type === 'actions') { actions.addService(service.serviceName, service.service, service.init) ; }
-                if (service.type === 'state') { actions.addService(service.serviceName, service.service, service.init) ; }
-            }
-        }) ;
-
-        console.log('sam instance is ready') ;
-        
-        return { 
-            view,
-            actions,
-            model,
-            state
-        }
+    init(services: { type?: 'actions' | 'model' | 'state', serviceName: string, service: any, init?: boolean }[]) {
+        services.forEach(service => {
+            service.type = service.type || 'actions';
+            service.init = service.init || false;
+            if (service.type === 'model') { this.model.addService(service.serviceName, service.service, service.init); }
+            if (service.type === 'actions') { this.actions.addService(service.serviceName, service.service, service.init); }
+            if (service.type === 'state') { this.actions.addService(service.serviceName, service.service, service.init); }
+        });
+        console.log('sam service is ready');
     }
 
 }
