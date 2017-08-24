@@ -1,0 +1,215 @@
+<html>
+<!--
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+-->
+<head>
+    <meta charset="utf-8">
+    <title>SAM Pattern Implementation with Picodom and Functional JSX Components</title> 
+    <style>
+        $color: MintCream;
+        $bgcolor: DodgerBlue;
+
+        * {
+        box-sizing: box-border;
+        margin: 0;
+        padding: 0;
+        }
+
+        body {
+        align-items: center;
+        background-color: $bgcolor;
+        color: $color;
+        display: flex;  
+        height: 100vh;
+        justify-content: center;
+        text-align: center;
+        
+        font-family: Helvetica Neue, sans-serif;
+        font-size: 1.5em;
+        font-weight: 200;
+        letter-spacing: .5px;
+        }
+
+        h1 {
+        font-weight: 100;
+        font-size: 4.8em;
+        font-family: Sarina;
+        }
+
+        h1 + input {
+        margin-top: 20px;
+        }
+
+        span {
+        background-color: $bgcolor;
+        color: $color;
+        
+        opacity: 1;  
+        outline: 0;
+        
+        padding: 15px 20px;
+        
+        max-width: 450px;
+        min-width: 50px;
+        
+        width: 60vw;
+
+        transition: all .2s ease-in-out;
+        
+        &:hover, &:focus {
+            transform: scale(1.1);
+        }
+        }
+
+        button {
+        
+        opacity: 1;  
+        outline: 0;
+        
+        padding: 10px 10px;
+        
+        transition: all .2s ease-in-out;
+        
+        &:hover, &:focus {
+            transform: scale(1.1);
+        }
+        }
+
+    </style>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <script src="https://unpkg.com/picodom"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+    <script type="text/babel">
+        var { h, patch } = picodom
+        /** @jsx h */
+        
+        let element, oldNode
+        
+        const view = (model, update) => {
+          const increase = () => update({intent: 'increase'})
+          
+          return (
+            <div>
+              <span>Temperature: {model.value}&deg;C </span>
+              <button className="btn btn-default"
+                onclick={increase}>Increase</button>
+              <br/><br/>
+              <p>{model.warning}</p>
+            </div>
+          );
+        };
+        
+        function render(newNode) {
+          return element = patch(
+            oldNode, 
+            oldNode = newNode, 
+            element
+          )
+        }
+        
+        const initialModel = {
+          value: 20,
+          warning: ''
+        };
+        
+        
+        // Starting the SAM Reactive Loop
+        // 1. Convert the Intent into Action
+        // 2. Present the resulting action's proposal to the model
+        function dispatch({intent}) {
+          model.present(actions[intent]())
+        }
+        
+        // Actions are functions that create 
+        // a proposal to mutate the model
+        // based on the user's intent
+        let actions = {
+          init: () => ({}),
+          increase: () => ({incrementBy: 1})
+        }
+        
+        let model = {
+          data: initialModel,
+          
+          // 3. The model processes proposals
+          // and decides to "accept" or "reject" 
+          // the mutation(s)
+          // The model's logic is often organized
+          // around acceptors
+          present(proposal) {
+            // IncrementBy Acceptor
+            if (proposal.incrementBy) {
+              this.data.value += proposal.incrementBy
+            }
+            
+            // Warning Acceptor
+            if (this.data.value > 25) {
+                this.data.warning = 'your setting is too hot!!'
+              } else {
+                this.data.warning = ''
+            }
+            
+            // Invoke State (representation) function
+            state.render(model.data)
+          }
+        }
+        
+        // const element = document.getElementById("app");
+        
+        
+        // Credit to Fred Daoud @foxdonut for suggesting 
+        // how to use React as a simple view engine
+        
+        // 4. The State function creates the state representation
+        // and renders it
+        let state = {
+          render: function(model) {
+            if (this.nap(model)) {
+                render(view(model,dispatch))
+            }
+          },
+          // no next action in this sample
+          nap: (model) => true
+        }
+        
+        // Init
+        dispatch({intent: 'init'})
+        
+    </script>
+        
+
+</body>
+</html>
