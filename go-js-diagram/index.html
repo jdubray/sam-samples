@@ -1,0 +1,261 @@
+<html>
+<!--
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+-->
+<head>
+<meta charset="utf-8">
+<title>SAM Pattern gojs Implementation with ReactDOM and Functional JSX Components</title> 
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h3>SAM Pattern / GoJS Implementation with React Functional Components</h3>
+    <div id="myDiagramDiv" style="border: solid 1px black; width: 100%; height: 600px"></div>
+    <p>
+      <em>Sequential function charts</em> are used for programmable logic controllers (PLCs) and other control systems.
+    </p>
+    <div id="app"></div>
+    <footer class="footer">
+        Using the
+        <a href="http://sam.js.org" target="_blank">SAM Pattern</a>
+        &bullet;
+        <a href="https://facebook.github.io/react/" target="_blank">React</a>
+        &bullet;
+        <a href="https://gojs.net/latest/samples/sequentialFunction.html" target="_blank">Go.js</a>
+    </footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.7.19/go.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
+<script type="text/babel">
+
+    const $ = go.GraphObject.make;
+    
+    let myDiagram = $(go.Diagram, "myDiagramDiv", // must be the ID or reference to an HTML DIV
+        {
+            // start everything in the middle of the viewport
+            initialContentAlignment: go.Spot.Center,
+            layout: $(go.LayeredDigraphLayout, { direction: 90, layerSpacing: 10, setsPortSpots: false }),
+            "undoManager.isEnabled": true  // enable undo & redo
+        }
+    );
+
+    // define the step Node template
+    myDiagram.nodeTemplateMap.add("step",
+        $(go.Node, "Spot",
+        { locationSpot: go.Spot.Center },
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Shape, "Rectangle",
+            {
+            fill: "whitesmoke",
+            stroke: "gray",
+            strokeWidth: 2,
+            desiredSize: new go.Size(160, 60),
+            portId: "",  // so that links connect to the Shape, not to the whole Node
+            fromSpot: go.Spot.BottomSide,
+            toSpot: go.Spot.TopSide,
+            alignment: go.Spot.Center
+            }),
+        $(go.TextBlock,
+            {
+            font: "bold 16px sans-serif",
+            alignment: go.Spot.Center,
+            wrap: go.TextBlock.WrapFit,
+            editable: true
+            },
+            new go.Binding("text", "text").makeTwoWay())
+        ));
+        // define the transition Node template.
+        myDiagram.nodeTemplateMap.add("transition",
+        $(go.Node, "Horizontal",
+        { locationSpot: go.Spot.Center, locationObjectName: "BAR" },
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Shape, "Rectangle",
+            {
+            name: "BAR",
+            fill: "black",
+            stroke: null,
+            desiredSize: new go.Size(60, 8),
+            portId: "",
+            fromSpot: go.Spot.BottomSide,
+            toSpot: go.Spot.TopSide
+            }),
+        $(go.TextBlock,
+            { editable: true, margin: 3 },
+            new go.Binding("text", "text").makeTwoWay())
+        ));
+        // define the parallel Node template.
+        myDiagram.nodeTemplateMap.add("parallel",
+        $(go.Node,
+        { locationSpot: go.Spot.Center },
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Shape, "Rectangle",
+            {
+            fill: "whitesmoke",
+            stroke: "black",
+            fromSpot: go.Spot.BottomCenter,
+            toSpot: go.Spot.TopCenter,
+            desiredSize: new go.Size(200, 6),
+            portId: "",
+            fromSpot: go.Spot.BottomSide,
+            toSpot: go.Spot.TopSide
+            })
+        ));
+        // define the Link template
+        myDiagram.linkTemplate =
+        $(go.Link,
+            { routing: go.Link.Orthogonal },
+            $(go.Shape,
+                { stroke: "black", strokeWidth: 2 })
+            );
+    // create the graph by reading the JSON data saved in "mySavedModel" textarea element
+    
+
+    const chart = { "nodeDataArray": [
+                        {"key":"S1", "category":"step", "text":"Step 1"},
+                        {"key":"TR1", "category":"transition", "text":"Transition 1"},
+                        {"key":"S2", "category":"step", "text":"Step 2"},
+                        {"key":"TR2", "category":"transition", "text":"Transition 2"},
+                        {"key":"BAR1", "category":"parallel" },
+                        {"key":"S3", "category":"step", "text":"Step 3"},
+                        {"key":"S4", "category":"step", "text":"Step 4"},
+                        {"key":"BAR2", "category":"parallel" },
+                        {"key":"TR3", "category":"transition", "text":"Transition 3"},
+                        {"key":"S5", "category":"step", "text":"Step 5"}
+                        ],
+                    "linkDataArray": [
+                        {"from":"S1", "to":"TR1"},
+                        {"from":"TR1", "to":"S2"},
+                        {"from":"S2", "to":"TR2"},
+                        {"from":"TR2", "to":"BAR1"},
+                        {"from":"BAR1", "to":"S3"},
+                        {"from":"BAR1", "to":"S4"},
+                        {"from":"S3", "to":"BAR2"},
+                        {"from":"S4", "to":"BAR2"},
+                        {"from":"BAR2", "to":"TR3"},
+                        {"from":"TR3", "to":"S5"}
+                    ]
+                }
+         
+    
+
+    const initialModel = {
+        chart
+        };
+
+    const view = (model, update) => {
+    
+        const save = () => update({intent: 'save'})
+        const load = () => update({intent: 'load'})
+
+        return (
+            <div>
+            <div>
+                <button id="SaveButton" onClick={save}>Save</button>
+                <button onClick={load}>Load</button>
+                Diagram Model saved in JSON format:
+            </div>
+            <textarea id="mySavedModel"  defaultValue={JSON.stringify(model.chart, null, 4)} >
+               
+            </textarea>
+            </div>
+        );
+    };
+
+    // Starting the SAM Reactive Loop
+    // 1. Convert the Intent into Action
+    // 2. Present the resulting action's proposal to the model
+    function dispatch({intent}) {
+        model.present(actions[intent]())
+    }
+
+    // Actions are functions that create 
+    // a proposal to mutate the model
+    // based on the user's intent
+    let actions = {
+        init: () => ({}),
+        load: function() {
+            let chart = document.getElementById("mySavedModel").value
+            myDiagram.model = go.Model.fromJson(chart);
+            return {chart: JSON.parse(chart)}
+        },
+        save: function() {
+            document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+            myDiagram.isModified = false;
+            return {}
+        }
+    }
+
+    let model = {
+        data: initialModel,
+
+        // 3. The model processes proposals
+        // and decides to "accept" or "reject" 
+        // the mutation(s)
+        // The model's logic is often organized
+        // around acceptors
+        present(proposal) {
+            // IncrementBy Acceptor
+            if (proposal.chart) {
+                this.data.chart = proposal.chart
+            }
+
+
+            // Invoke State (representation) function
+            state.render(model)
+        }
+    }
+
+    const element = document.getElementById("app");
+
+    // Credit to Fred Daoud @foxdonut for suggesting 
+    // how to use React as a simple view engine
+
+    // 4. The State function creates the state representation
+    // and renders it
+    let state = {
+        render: function(model) {
+            if (this.nap()) {
+                ReactDOM.render(view(model.data, dispatch), element)
+            }
+        },
+        // no next action in this sample
+        nap: (model) => true
+    }
+
+    // Init
+    dispatch({intent: 'init'})
+    </script>
+</body>
+</html>
