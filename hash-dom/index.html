@@ -1,0 +1,197 @@
+<html>
+    <!--
+    This is free and unencumbered software released into the public domain.
+    
+    Anyone is free to copy, modify, publish, use, compile, sell, or
+    distribute this software, either in source code form or as a compiled
+    binary, for any purpose, commercial or non-commercial, and by any
+    means.
+    
+    In jurisdictions that recognize copyright laws, the author or authors
+    of this software dedicate any and all copyright interest in the
+    software to the public domain. We make this dedication for the benefit
+    of the public at large and to the detriment of our heirs and
+    successors. We intend this dedication to be an overt act of
+    relinquishment in perpetuity of all present and future rights to this
+    software under copyright law.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+    
+    For more information, please refer to <http://unlicense.org/>
+    -->
+<head>
+    <meta charset="utf-8">
+    <title>SAM Pattern Implementation with ReactDOM and Functional JSX Components</title> 
+    <style>
+        .container {
+        font-size: 15pt;
+        }
+        .footer {
+        font-size: 11pt;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 40px;
+        }
+    </style>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h3 id="header"></h3>
+        <div id="app"></div>
+        <footer id="footer" class="footer"></footer>
+    </div>
+    
+
+    <!-- script scr="/hash-dom.js"></script -->
+
+        
+	<script>
+        //////////////////////////////////////////////////////////////////
+        // Hash DOM    
+        var hashCode = function(s){
+            // from http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+            // or your favorite hashing algorithm
+            var hash = 0
+            if (!s || s.length == 0) { 
+                return hash
+            }
+            for (let i = 0; i < s.length; i++) {
+                let char = s.charCodeAt(i)
+                hash = ((hash<<5)-hash)+char
+                hash = hash & hash
+            }
+            return hash
+        }
+
+        var hashRepresentation = function(representation) {
+
+            let hashedRepresentation = {}
+
+            Object.keys(representation || {}).forEach( function (key) {
+                hashedRepresentation[key] = hashCode(representation[key])
+            })
+
+            return hashedRepresentation
+
+        }
+
+        var trim = function(representation, priorHash) {
+
+            let newHashedValues = hashRepresentation(representation)
+            let trim = {}
+
+            Object.keys(representation).forEach( function (key) {
+                if (newHashedValues[key] !== priorHash[key]) {
+                    console.log('updating: ' + key)
+                    document.getElementById(key).innerHTML = representation[key]
+                }
+            })
+
+            return newHashedValues
+        }
+
+        //////////////////////////////////////////////////////////////////
+        // SAM Implementation
+        // 
+        const initialModel = {
+            value: 20,
+            warning: ''
+        }
+
+        const view = (model) => {
+            
+            return { 
+                header: "The Hash-DOM",
+                
+                app: `<div>
+                        <span id="temp">Temperature: ${model.value}&deg;C </span>
+                        <button className="btn btn-default"
+                        onclick="return dispatch({'intent': 'increase'});"> + </button>
+                        <p>${model.warning}</p>
+                    </div>`,
+
+                footer: `<a href="http://sam.js.org" target="_blank">SAM Pattern</a>`
+            }
+        }
+    
+        // Starting the SAM Reactive Loop
+        // 1. Convert the Intent into Action
+        // 2. Present the resulting action's proposal to the model
+        function dispatch({intent}) {
+            model.present(actions[intent]())
+        }
+    
+        // Actions are functions that create 
+        // a proposal to mutate the model
+        // based on the user's intent
+        let actions = {
+            init: () => ({}),
+            increase: () => ({incrementBy: 1})
+        }
+    
+        let model = {
+            data: initialModel,
+    
+            // 3. The model processes proposals
+            // and decides to "accept" or "reject" 
+            // the mutation(s)
+            // The model's logic is often organized
+            // around acceptors
+            present(proposal) {
+            // IncrementBy Acceptor
+                if (proposal.incrementBy) {
+                    this.data.value += proposal.incrementBy
+                }
+                
+                // Warning Acceptor
+                if (this.data.value > 25) {
+                    this.data.warning = 'your setting is too hot!!'
+                    } else {
+                    this.data.warning = ''
+                }
+                
+                // Invoke State (representation) function
+                state.render(model)
+            }
+        }
+    
+        let priorHash = {}
+        
+        // Credit to Fred Daoud @foxdonut for suggesting 
+        // how to use React as a simple view engine
+
+        // 4. The State function creates the state representation
+        // and renders it
+        let state = {
+            render: function(model) {
+                if (this.nap()) {
+                    priorHash = trim(view(model.data), priorHash)
+                }
+            },
+            // no next action in this sample
+            nap: (model) => true
+        }
+    
+        // Init
+        dispatch({intent: 'init'})
+        </script>
+    </body>
+    </html>
+    
+    
+    
