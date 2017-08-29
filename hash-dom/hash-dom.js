@@ -1,7 +1,13 @@
 'use strict' ;
 
-var hashCode = function(s){
-    var hash = 0
+//////////////////////////////////////////////////////////////////
+//
+// Hash DOM    
+//
+var hashCode = function (s) {
+    // from http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+    // or your favorite hashing algorithm
+    let hash = 0
     if (!s || s.length == 0) { 
         return hash
     }
@@ -12,30 +18,33 @@ var hashCode = function(s){
     }
     return hash
 }
-    
-var hashRepresentation = function(representation) {
-    
+
+var hashedRepresentation = function (representation) {
+
     let hashedRepresentation = {}
-    
+
     Object.keys(representation || {}).forEach( function (key) {
-        hashedRepresentation[key] = hashCode(representation[key])
+        hashedRepresentation[key] = (typeof representation[key] === 'string') ? hashCode(representation[key]) : window.hashedRepresentation(representation[key])
     })
-    
+
     return hashedRepresentation
-    
+
 }
-    
-var trim = function(representation, priorHash) {
-    
-    let newHashedValues = hashRepresentation(representation)
-    let trim = {}
-    
-    Object.keys(representation).forEach( function (key) {
-        if (newHashedValues[key] !== priorHash[key]) {
-            document.getElementById(key).innerHTML = representation[key]
+
+var trim = function (representation, priorHash) {
+
+    let newHashedValues = hashedRepresentation(representation)
+
+    Object.keys(representation || {}).forEach( function (key) {
+        if (typeof newHashedValues[key] === 'number') {
+            if (newHashedValues[key] !== priorHash[key]) {
+                (document.getElementById(key) || {}).innerHTML = representation[key]
+            }
+        } else {
+            window.trim(representation[key],(priorHash[key] || {}))
         }
     })
-    
+
     return newHashedValues
 }
 

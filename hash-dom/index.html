@@ -52,7 +52,10 @@
 <body>
     <div class="container">
         <h3 id="header"></h3>
-        <div id="app"></div>
+        <div id="app">
+            <div id="setting"></div>
+            <div id="warning"></div>
+        </div>
         <footer id="footer" class="footer"></footer>
     </div>
     
@@ -61,12 +64,15 @@
 
         
 	<script>
+
         //////////////////////////////////////////////////////////////////
+        //
         // Hash DOM    
-        var hashCode = function(s){
+        //
+        var hashCode = function (s) {
             // from http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
             // or your favorite hashing algorithm
-            var hash = 0
+            let hash = 0
             if (!s || s.length == 0) { 
                 return hash
             }
@@ -78,27 +84,30 @@
             return hash
         }
 
-        var hashRepresentation = function(representation) {
+        var hashedRepresentation = function (representation) {
 
             let hashedRepresentation = {}
 
             Object.keys(representation || {}).forEach( function (key) {
-                hashedRepresentation[key] = hashCode(representation[key])
+                hashedRepresentation[key] = (typeof representation[key] === 'string') ? hashCode(representation[key]) : window.hashedRepresentation(representation[key])
             })
 
             return hashedRepresentation
 
         }
 
-        var trim = function(representation, priorHash) {
+        var trim = function (representation, priorHash) {
 
-            let newHashedValues = hashRepresentation(representation)
-            let trim = {}
+            let newHashedValues = hashedRepresentation(representation)
 
-            Object.keys(representation).forEach( function (key) {
-                if (newHashedValues[key] !== priorHash[key]) {
-                    console.log('updating: ' + key)
-                    document.getElementById(key).innerHTML = representation[key]
+            Object.keys(representation || {}).forEach( function (key) {
+                if (typeof newHashedValues[key] === 'number') {
+                    if (newHashedValues[key] !== priorHash[key]) {
+                        console.log('updating: ' + key);
+                        (document.getElementById(key) || {}).innerHTML = representation[key]
+                    }
+                } else {
+                    window.trim(representation[key],(priorHash[key] || {}))
                 }
             })
 
@@ -118,12 +127,15 @@
             return { 
                 header: "The Hash-DOM",
                 
-                app: `<div>
+                app: { 
+                    setting: `
                         <span id="temp">Temperature: ${model.value}&deg;C </span>
                         <button className="btn btn-default"
-                        onclick="return dispatch({'intent': 'increase'});"> + </button>
-                        <p>${model.warning}</p>
-                    </div>`,
+                        onclick="return dispatch({'intent': 'increase'});"> + </button>`,    
+
+                    // warning is a child of app    
+                    warning: model.warning
+                },
 
                 footer: `<a href="http://sam.js.org" target="_blank">SAM Pattern</a>`
             }
@@ -160,7 +172,7 @@
                 
                 // Warning Acceptor
                 if (this.data.value > 25) {
-                    this.data.warning = 'your setting is too hot!!'
+                    this.data.warning = 'your setting is too high!!'
                     } else {
                     this.data.warning = ''
                 }
@@ -169,8 +181,6 @@
                 state.render(model)
             }
         }
-    
-        let priorHash = {}
         
         // Credit to Fred Daoud @foxdonut for suggesting 
         // how to use React as a simple view engine
@@ -178,9 +188,11 @@
         // 4. The State function creates the state representation
         // and renders it
         let state = {
+            priorHash: {},
+
             render: function(model) {
                 if (this.nap()) {
-                    priorHash = trim(view(model.data), priorHash)
+                    this.priorHash = trim(view(model.data), this.priorHash)
                 }
             },
             // no next action in this sample
