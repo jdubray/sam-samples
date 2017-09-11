@@ -1,0 +1,29 @@
+{
+
+    "domain" : "your_domain",
+    "adminDirectory" : "./html",
+    "distDirectory" : "./dist",
+    "adminEmail": "jdubray@gmail.com",
+    "port": 5425,
+    "dbPath" : "./dbs/",
+    "googleMapsAPIKey" : "your_google_maps_api_key",
+
+     "log4js": {
+        "level": "TRACE",
+        "appenders": [
+            {"type": "file","filename":"logs/out.log","category":"std", "maxLogSize": 20480,"backups": 3},
+            {"type": "file","filename":"logs/errors.log","category":"err", "maxLogSize": 20480,"backups": 3},
+            {"type": "file","filename":"logs/express.log","category":"exp", "maxLogSize": 20480,"backups": 3}
+        ],
+        "replaceConsole": false
+    },
+    "mailServer": {
+        "host": "smtp.gmail.com",
+        "port": 465,
+        "secure": true,  
+        "auth": {
+            "user": "myemail@gmail.com",
+            "pass": "1234"
+        }
+    }
+}

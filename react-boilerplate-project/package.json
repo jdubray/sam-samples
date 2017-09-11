@@ -1,0 +1,52 @@
+{
+  "name": "jessie",
+  "description": "sam-safe middleware with blog sample harness",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack --watch"
+  },
+  "dependencies": {
+    "@google/maps": "^0.3.0",
+    "body-parser": "*",
+    "chai": "^3.5.0",
+    "config": "^1.24.0",
+    "cookie-parser": "",
+    "cors": "^2.8.1",
+    "express": "4.13.x",
+    "jquery-autocomplete": "^1.2.1",
+    "log4js": "^1.0.1",
+    "morgan": "1.6.x",
+    "node-uuid": "*",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
+    "tingodb": "^0.4.2",
+    "webpack-dev-server": "^2.7.1"
+  },
+  "preferGlobal": false,
+  "private": true,
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.24.1",
+    "clean-webpack-plugin": "^0.1.16",
+    "es6-transpiler": "^0.7.18",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-es6-transpiler": "^1.0.1",
+    "gulp-sourcemaps": "^2.2.0",
+    "gulp-uglify": "^2.0.0",
+    "html-webpack-plugin": "^2.30.1",
+    "jsx-loader": "^0.13.2",
+    "nodemailer": "^2.7.2",
+    "pump": "^1.0.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-jsx": "^1.0.0",
+    "webpack": "^3.5.5"
+  }
+}
