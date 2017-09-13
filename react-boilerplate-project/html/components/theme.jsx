@@ -1,5 +1,7 @@
 
-'use strict';
+
+import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom'; 
 
 let cssPath = 'css/' ;
 let jsPath = 'js/' ;
