@@ -25,13 +25,12 @@ export class SamService {
         // view.init(sr => app.render(sr, actions.dispatcher))
     }
 
-    init(services: { type?: 'actions' | 'model' | 'state', serviceName: string, service: any, init?: boolean }[]) {
+    init(services: { type?: 'actions' | 'model', serviceName: string, service: any, init?: boolean }[]) {
         services.forEach(service => {
             service.type = service.type || 'actions';
             service.init = service.init || false;
             if (service.type === 'model') { this.model.addService(service.serviceName, service.service, service.init); }
             if (service.type === 'actions') { this.actions.addService(service.serviceName, service.service, service.init); }
-            if (service.type === 'state') { this.actions.addService(service.serviceName, service.service, service.init); }
         });
         console.log('sam service is ready');
     }

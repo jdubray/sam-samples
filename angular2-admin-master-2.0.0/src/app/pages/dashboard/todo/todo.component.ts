@@ -1,5 +1,5 @@
 import {Component, ViewEncapsulation} from '@angular/core';
-import {BaThemeConfigProvider} from '../../../theme';
+// import {BaThemeConfigProvider} from '../../../theme';
 
 import {TodoService} from '../../../services/todo.service';
 
@@ -18,7 +18,7 @@ export class Todo {
   public todoList:Array<any>;
   public newTodoText:string = '';
   
-  constructor(private _baConfig:BaThemeConfigProvider, 
+  constructor(//private _baConfig:BaThemeConfigProvider, 
               private _todoService:TodoService, 
               public _state:State) {
     
