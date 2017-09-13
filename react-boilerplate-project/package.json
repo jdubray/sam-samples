@@ -21,6 +21,8 @@
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "tingodb": "^0.4.2",
+    "todomvc-app-css": "^2.1.0",
+    "todomvc-common": "^1.0.4",
     "webpack-dev-server": "^2.7.1"
   },
   "preferGlobal": false,

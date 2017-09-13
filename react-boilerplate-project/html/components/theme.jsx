@@ -26,10 +26,9 @@ let _theme = {
         let menu = this.menu(params.menu) ;
         return ( 
             <div>
-                <p>This is where the header goes</p>
-                <pre>
-                
-                </pre>
+                 <h1>todos</h1>
+                 
+                <input className="new-todo" placeholder="What needs to be done?" autofocus/>
             </div>)
         },
     
@@ -58,10 +57,13 @@ let _theme = {
         
         return (
             <div>
-                <p>This is where the footer goes</p>
-                <pre>
-               
-                </pre>
+                <p>Double-click to edit a todo</p>
+                
+                <p>Written by <a href="http://twitter.com/lukeed05">Luke Edwards</a></p>
+    
+                <p>Refactored by <a href="https://github.com/jdubray">Jean-Jacques Dubray</a></p>
+    
+                <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
             </div>
         ) 
     },
@@ -91,10 +93,42 @@ let _theme = {
         
         
     },
+
+    todo(params) {
+
+        return (
+            <div> 
+                <input className="toggle-all" type="checkbox"/>
+
+                <label for="toggle-all">Mark all as complete</label>
+
+                <ul className="todo-list"></ul>
+
+                <footer className="footer">
+
+                    <span className="todo-count"></span>
+
+                    <div className="filters">
+
+                        <a href="#/" className="selected">All</a>
+
+                        <a href="#/active">Active</a>
+
+                        <a href="#/completed">Completed</a>
+
+                    </div>
+
+                    <button className="clear-completed">Clear completed</button>
+
+                </footer>
+            </div>       
+        )
+
+    },
     
     page(params) {
         if (params.menuItem === 'home') {
-            return this.home(params.home) ;
+            return this.todo(params.home) ;
         } else {
             if (params.menuItem === 'contactus') {
                 return this.contactus(params[params.menuItem]) ;
@@ -115,3 +149,4 @@ var theme = function (conf) {
     }
 
 export { theme } ;
+

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 	<head>
-		<title>SAM Pattern | ES6 Boiler Plate Project</title>
+		<title>SAM Pattern | React Boiler Plate Project</title>
 		<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 		<!--[if lte IE 8]>
@@ -14,31 +14,29 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
 		
 		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+		<link rel="stylesheet" href="css/todomvc-app-css/index.css">
 	</head>
 
 <body>
-	<header id="header">
-		<div id="header-representation">
-		</div>
-	</header>
+	<section class="todoapp">
+		<header id="header-representation" class="header">
+		</header>
 
-	<section class="container">
-		<div id="page-representation">
-		</div>
+		<section id="page-representation" style="display:none" class="main">
+		</section>
 	</section>
-	
-	<footer id="footer" class="clear">
-		<div id="footer-representation">
-		</div>
+
+	<footer id="footer-representation" class="info">
 	</footer>
 
-	<div id="other">
-		<!-- for instance, mobile menu -->
-	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js"></script>
 	
 	<script type="text/javascript" src="bundle.js"></script>
+	
+	<script src="css/todomvc-common/base.js"></script>
+
+	<link rel="stylesheet" href="css/todomvc-common/base.css">
 
 	<!-- script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
     <script src="https://google.github.io/traceur-compiler/bin/BrowserSystem.js"></script>
