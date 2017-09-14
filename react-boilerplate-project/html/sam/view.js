@@ -6,23 +6,21 @@
 let view = {
  
     // Initial State
-    init(model, theme, intents) {
-        this.intents = intents || this.intents || {} ;
+    init(model, theme) {
         this.theme = theme || {};
         
         return view.ready(model) ;
     },
 
     // State representation of the ready state
-    ready(model, theme, intents) { 
+    ready(model, theme) { 
         model.lastEdited = model.lastEdited || {} ;
-        intents = intents || this.intents ;
         theme = theme || this.theme ;
-        console.log(model) ;
+        
         var output = {
-            header: model.update.h ? theme.header(model.data.header) : null,
-            footer: model.update.f ? theme.footer(model.data.footer) : null,
-            page: model.update.p ? theme.page(model.data) : null
+            header: theme.header(model.data.header),
+            footer: theme.footer(model.data.footer),
+            page: theme.page(model.data) 
         }
         
         return output ;

@@ -37,65 +37,53 @@ var model = {
         update: {},
 
 
-    init(state, components, options) {
+    init({state, components, options}) {
         this.state = state ;
         this.components = components ;
         this.host = options ;
         this.data = components.data ;
-
-        this.update.h = true ;
-        this.update.p = true ;
-        this.update.f = true ;
-        
     },
 
     applyFilters(data) {
     
         // filters
-
-        // provide some hints as to what changed 
-        // in the model to render the view
-        this.update.h = false ;
-        this.update.p = false ;
-        this.update.f = false ;
-        this.update.render = true ;
-
-        this.components.filters.forEach(function(filter) {
-            filter(this,data) ;
-        }).bind(this) ;
+        // this.components.filters.forEach(function(filter) {
+        //     filter(this,data) ;
+        // }).bind(this) ;
 
     },
 
     CRUD(data) {
 
         // CRUD
-
-       this.components.acceptors.forEach( function(accept) {
-           accept(this,data) ;
-       }).bind(this) ;
+        console.log('processing CRUD ['+this.components.acceptors.length+']')
+        this.components.acceptors.forEach( function(accept) {
+            accept.update(model.data,data) ;
+        })
         
     },
 
 
     postProcessing(){
 
-        // perform ancillary assignments
-        
-        this.components.reactors.forEach(function(compute) {
-            compute(this,data) ;
-        }).bind(this) ;
+        // perform ancillary assignments (computed values)
+        this.components.reactors.forEach( function(r) {
+            r.compute(model.data) ;
+        })
     },
                 
     present(data,next) {
         data = data || {} ;
-    
-        this.presentFilters(data) ;
+        console.log('presenting data')
+        console.log(data)
+
+        this.applyFilters(data) ;
 
         this.CRUD(data) ;    
 
         this.postProcessing() ;
     
-        if (this.update.render) { this.state.render(model,next) ; }
+        this.state.render(model,next) ; 
     }
 
 } 

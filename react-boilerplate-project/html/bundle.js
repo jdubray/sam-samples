@@ -9763,23 +9763,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react_dom__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__sam_state_js__ = __webpack_require__(184);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sam_model_js__ = __webpack_require__(185);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sam_actions_js__ = __webpack_require__(186);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sam_view_js__ = __webpack_require__(187);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_theme_jsx__ = __webpack_require__(188);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_model_data_js__ = __webpack_require__(189);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_theme_jsx__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_menu_component__ = __webpack_require__(185);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_todo_component__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sam_sam__ = __webpack_require__(187);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_model_data__ = __webpack_require__(192);
 // standart SAM  
 
 
 
 
-
-
-
-
-
 // application specific
+
+
+// components
+
+
+
 
 
 // theme = t
@@ -9791,7 +9791,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // import {data}		   from '../app/v1/model.js' 
 
 var display = function (representation) {
-
+  console.log('display');
+  console.log(representation);
   if (representation.header) {
     __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(representation.header, document.getElementById('header-representation'));
   }
@@ -9803,31 +9804,14 @@ var display = function (representation) {
   }
 };
 
-var components = {
-  acceptors: [],
-  reactors: [],
-  filters: [],
-  postProcessings: [],
-  intents: [],
-  states: {
-    "ready": {
-      nextAction: () => {}
-    }
-  },
-  data: __WEBPACK_IMPORTED_MODULE_7__components_model_data_js__["a" /* data */]
-};
-
 var options = {
   host: "http://localhost:5425"
 };
 
 // wire the elements of the pattern
-__WEBPACK_IMPORTED_MODULE_2__sam_state_js__["a" /* state */].init(__WEBPACK_IMPORTED_MODULE_5__sam_view_js__["a" /* view */], __WEBPACK_IMPORTED_MODULE_6__components_theme_jsx__["a" /* theme */], display, components);
-__WEBPACK_IMPORTED_MODULE_3__sam_model_js__["a" /* model */].init(__WEBPACK_IMPORTED_MODULE_2__sam_state_js__["a" /* state */], components, options);
-__WEBPACK_IMPORTED_MODULE_4__sam_actions_js__["a" /* actions */].init(__WEBPACK_IMPORTED_MODULE_3__sam_model_js__["a" /* model */].present, options);
-__WEBPACK_IMPORTED_MODULE_5__sam_view_js__["a" /* view */].init(__WEBPACK_IMPORTED_MODULE_3__sam_model_js__["a" /* model */], Object(__WEBPACK_IMPORTED_MODULE_6__components_theme_jsx__["a" /* theme */])(options));
-// init
-__WEBPACK_IMPORTED_MODULE_2__sam_state_js__["a" /* state */].representation(__WEBPACK_IMPORTED_MODULE_3__sam_model_js__["a" /* model */]);
+let modules = [__WEBPACK_IMPORTED_MODULE_3__components_menu_component__["a" /* menu */], __WEBPACK_IMPORTED_MODULE_4__components_todo_component__["a" /* todo */]];
+
+__WEBPACK_IMPORTED_MODULE_5__sam_sam__["a" /* SAM */].init({ theme: __WEBPACK_IMPORTED_MODULE_2__components_theme_jsx__["a" /* theme */], data: __WEBPACK_IMPORTED_MODULE_6__components_model_data__["a" /* data */], modules, display, options });
 
 /***/ }),
 /* 84 */
@@ -22450,6 +22434,693 @@ module.exports = ReactDOMInvalidARIAHook;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return theme; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react_dom__);
+
+
+
+
+
+let cssPath = 'css/';
+let jsPath = 'js/';
+
+function hasClass(element, cls) {
+    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+}
+
+let _theme = {
+
+    dispatch(event) {
+        console.log('dispatching');
+        console.log(event);
+        this._actions.dispatch(event);
+    },
+
+    // onKeyDown={
+    //     (e) => {
+    //       /**
+    //        * Note: Pressing enter in some input in a browser forms
+    //        *  triggers onClick on the first child button
+    //        *
+    //        * So, prevent `enter` from triggering `onClick` on any buttons
+    //        *  and instead trigger onSubmit
+    //        */
+    //       if (e.key === 'Enter') {
+    //         e.preventDefault();
+    //         onSubmit();
+    //       }
+    //     }
+    //   }
+
+    //   onSubmit={
+    //     (e) => {
+    //       /**
+    //        * Prevent submit from reloading the page
+    //        */
+    //       e.preventDefault();
+    //       e.stopPropagation();
+    //       onSubmit();
+    //     }
+    //   }
+
+    menu(items) {
+        items = items || [];
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'menu'
+            )
+        );
+    },
+
+    header(params) {
+        const addItem = e => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.dispatch({ name: "addItem", title: document.getElementById('newItem').value });
+            document.getElementById('newItem').value = '';
+        };
+
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'h1',
+                null,
+                'todos'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'form',
+                { name: 'todo', onSubmit: addItem },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { id: 'newItem', className: 'new-todo', placeholder: 'What needs to be done?', autoFocus: true })
+            )
+        );
+    },
+
+    home(params) {
+        let img = params.img || 'images/content/bg-classes.jpg';
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'div',
+                { className: 'container' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'row' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'col-md-8' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'p',
+                            null,
+                            'This is where the main page goes'
+                        ),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
+                    )
+                )
+            )
+        );
+    },
+
+    footer(params) {
+
+        params = params || {};
+
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'Double-click to edit a todo'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'Written by ',
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'a',
+                    { href: 'http://twitter.com/lukeed05' },
+                    'Luke Edwards'
+                )
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'Refactored by ',
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'a',
+                    { href: 'https://github.com/jdubray' },
+                    'Jean-Jacques Dubray'
+                )
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'From ',
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'a',
+                    { href: 'http://todomvc.com' },
+                    'TodoMVC'
+                )
+            )
+        );
+    },
+
+    fullPage(params) {
+        // {JSON.stringify(params,null,4)}
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'This is where a full page goes'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
+        );
+    },
+
+    contactus(params) {
+
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'div',
+            null,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'p',
+                null,
+                'This is where the contact page goes'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
+        );
+    },
+
+    todo(params) {
+
+        const removeItem = e => {
+            e.preventDefault();
+            this.dispatch({ name: "removeItem", removedItem: e.target.value });
+        };
+
+        const check = e => {
+            e.preventDefault();
+            let cb = document.getElementById('cb-' + e.target.name);
+            cb.checked = !cb.checked;
+            this.dispatch({ name: "toggleItem", toggleItem: e.target.name });
+        };
+
+        const display = e => {
+            e.preventDefault();
+            this.dispatch({ name: "display", filter: e.target.name });
+        };
+
+        const clearCompleted = e => {
+            e.preventDefault();
+            let outstandingItems = params.items.map(item => item.completed ? null : item).filter(value => value != null);
+            this.dispatch({ name: "clearCompleted", newItems: outstandingItems });
+        };
+
+        if (params.items.length > 0) {
+            let displayAll = params.filter === 'all' ? 'selected' : null;
+            let displayActive = params.filter === 'active' ? 'selected' : null;
+            let displayCompleted = params.filter === 'completed' ? 'selected' : null;
+            return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'div',
+                null,
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'toggle-all', type: 'checkbox' }),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'label',
+                    { htmlFor: 'toggle-all' },
+                    'Mark all as complete'
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'ul',
+                    { className: 'todo-list' },
+                    params.items.map(function (item, index) {
+                        let completed = item.completed ? 'completed' : null;
+                        let itemCompleted = item.completed ? item.completed : false;
+                        let filter = params.filter || 'all';
+                        if (filter === 'all' || filter === 'completed' && item.completed === true || filter === 'active' && item.completed !== true) {
+                            return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                'li',
+                                { key: index, className: completed },
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'toggle', type: 'checkbox', id: 'cb-' + index, checked: !!itemCompleted, onChange: check, name: index }),
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                    'label',
+                                    null,
+                                    item.title
+                                ),
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('button', { className: 'destroy', onClick: removeItem, value: index })
+                            );
+                        }
+                    })
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'footer',
+                    { className: 'footer' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'span',
+                        { className: 'todo-count' },
+                        params.openItems || '0'
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'filters' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'a',
+                            { className: displayAll, onClick: display },
+                            'All'
+                        ),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'a',
+                            { className: displayActive, name: 'active', onClick: display },
+                            'Active'
+                        ),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'a',
+                            { className: displayCompleted, name: 'completed', onClick: display },
+                            'Completed'
+                        )
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'button',
+                        { className: 'clear-completed', onClick: clearCompleted },
+                        'Clear completed'
+                    )
+                )
+            );
+        } else {
+            return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', null);
+        }
+    },
+
+    page(params) {
+        console.log(params);
+        if (params.menuItem === 'home') {
+            return this.todo(params.home);
+        } else {
+            if (params.menuItem === 'contactus') {
+                return this.contactus(params[params.menuItem]);
+            } else {
+                return this.fullPage(params[params.menuItem]);
+            }
+        }
+    }
+
+};
+
+var theme = function (actions, conf) {
+    cssPath = cssPath || conf.cssPath;
+    jsPath = jsPath || conf.jsPath;
+    console.log('actions');
+    console.log(actions);
+    _theme._dispatch = actions.dispatch;
+    console.log('dispatch');
+    console.log(_theme._dispatch);
+    _theme._actions = actions;
+    return _theme;
+};
+
+
+
+/***/ }),
+/* 185 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return menu; });
+// 
+
+
+let menu = {
+
+    actions: [],
+
+    acceptors: [{
+        name: "addItem",
+        order: 0,
+        update: function (model, data) {
+            // change menu item
+            if (data.menuItem) {
+
+                model.data.menuItem = data.menuItem;
+                model.data.header.menu.map(item => item.active = item.href === data.menuItem);
+                model.update.p = true;
+                model.update.h = true;
+                model.update.f = true;
+            }
+        }
+    }],
+
+    reactors: []
+
+};
+
+
+
+/***/ }),
+/* 186 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return todo; });
+// 
+
+// let dispatch = "dispatch({__event:";
+// let namespace = "todo";
+
+// function applyDispath(action: string,ns?:string):any {
+//     ns = ns || namespace ;
+//     if (dispatch) {
+//         action = dispatch+`'${ns}.${action}'`
+//     } else {
+//         action = `actions.${action}`;
+//     }
+//     return  action;
+// }
+
+// todo.init = (present) => {
+//      todo.present = present ;
+// } ;
+
+// // Intents enable a further decoupling between 
+// // the view components and the actions
+// todo.intents = {
+//     edit: applyDispath("edit"),
+//     save: applyDispath("save"),
+//     done: applyDispath("done"),
+//     displayAll: applyDispath("displayAll"),
+//     displayActive: applyDispath("displayActive"),
+//     displayCompleted: applyDispath("displayCompleted"),
+//     toggleAll: applyDispath("toggleAll"),
+//     delete: applyDispath("delete")
+
+// } ;
+
+// todo.edit = (data, present) => {
+//     present = present || todo.present ;
+//     data = {editItemId: data.id} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.save = (data, present) => {
+//     present = present || todo.present ;
+//     data.item = {text: data.text, id: data.id || null} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.done = (data, present) => {
+//     present = present || todo.present ;
+//     data = {selectItemId: data.id} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.displayAll = (data, present) => {
+//     present = present || todo.present ;
+//     data = {displayCompleted: true, displayActive: true} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.displayActive = (data, present) => {
+//     present = present || todo.present ;
+//     data = {displayCompleted: false, displayActive: true} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.displayCompleted = (data, present) => {
+//     present = present || todo.present ;
+//     data = {displayCompleted: true, displayActive: false} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.toggleAll = (data, present) => {
+//     present = present || todo.present ;
+//     data = {toggleAll: true} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+// todo.delete = (data, present) => {
+//     present = present || todo.present ;
+//     if (data.id !== 0) { data.id = data.id || -1 ; }
+//     data = {deletedItemId: data.id} ;
+//     // next step of the reactive loop: present values to the model        
+//     present(data) ;
+//     return false ;
+// } ;
+
+let todo = {
+
+    actions: [
+    // add item
+    {
+        name: "addItem",
+        implementation: function (data, present, model) {
+            data.__action = 'addItem';
+            console.log('in action AddItem');
+            if (model) {
+                model.present(data);
+            } else {
+                present(data);
+            }
+            return false;
+        }
+    },
+    // edit item save
+
+    // edit item cancel
+
+    // remove item
+    {
+        name: "removeItem",
+        implementation: function (data, present, model) {
+            data.__action = 'removeItem';
+            console.log('in action removeItem');
+            if (model) {
+                model.present(data);
+            } else {
+                present(data);
+            }
+            return false;
+        }
+    },
+    // remove completed item
+    {
+        name: "clearCompleted",
+        implementation: function (data, present, model) {
+            data.__action = 'clearCompleted';
+            console.log('in action clearCompleted');
+            if (model) {
+                model.present(data);
+            } else {
+                present(data);
+            }
+            return false;
+        }
+    },
+
+    // toggle completed
+    // togger all
+    {
+        name: "display",
+        implementation: function (data, present, model) {
+            data.__action = 'display';
+            console.log('in action display');
+            if (model) {
+                model.present(data);
+            } else {
+                present(data);
+            }
+            return false;
+        }
+    },
+
+    // toggle item
+
+    {
+        name: "toggleItem",
+        implementation: function (data, present, model) {
+            data.__action = 'toggleItem';
+            console.log('in action toggleItem');
+            if (model) {
+                model.present(data);
+            } else {
+                present(data);
+            }
+            return false;
+        }
+    }],
+
+    acceptors: [
+
+    // add item
+    {
+        name: "addItem",
+        order: 0,
+        update: function (model, data) {
+            if (data.title) {
+                model.home.items.push({ title: data.title });
+            }
+        }
+    },
+
+    // edit item save
+
+    // edit item cancel
+
+    // remove item
+    {
+        name: "removeItem",
+        order: 0,
+        update: function (model, data) {
+            if (data.removedItem !== undefined) {
+                model.home.items = model.home.items.map((item, index) => index == data.removedItem ? null : item).filter(value => value != null);
+            }
+        }
+    },
+
+    // remove completed item
+    {
+        name: "newItemSet",
+        order: 0,
+        update: function (model, data) {
+            if (data.newItems !== undefined) {
+                model.home.items = data.newItems;
+            }
+        }
+    },
+
+    // toggle completed
+    // togger all
+    {
+        name: "display",
+        order: 0,
+        update: function (model, data) {
+            if (data.filter !== undefined) {
+                model.home.filter = data.filter;
+            }
+        }
+    },
+
+    // toggle item
+
+    {
+        name: "toggleItem",
+        order: 0,
+        update: function (model, data) {
+            if (data.toggleItem !== undefined) {
+                model.home.items.forEach(function (item, index) {
+                    if (index == data.toggleItem) {
+                        item.completed = !item.completed;
+                    }
+                });
+            }
+        }
+    }],
+
+    reactors: [
+    // count the number of todo(s) left
+    {
+        name: "countOpenItems",
+        order: 0,
+        compute: function (model) {
+            model.home.openItems = model.home.items.map(item => item.completed ? 0 : 1).reduce((a, b) => a + b);
+        }
+    }]
+};
+
+
+
+/***/ }),
+/* 187 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SAM; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__state__ = __webpack_require__(188);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__model__ = __webpack_require__(189);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions__ = __webpack_require__(190);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__view__ = __webpack_require__(191);
+
+
+
+
+
+
+let SAM = {
+    init: function ({ theme, data, modules, display, options }) {
+
+        let components = {
+            actions: [],
+            acceptors: [],
+            reactors: [],
+            filters: [],
+            postProcessings: [],
+            intents: [],
+            states: {
+                "ready": {
+                    nextAction: () => {}
+                }
+            },
+            data: data
+        };
+
+        console.log('processing includes');
+        modules.forEach(function (include) {
+            components.acceptors = components.acceptors.concat(include.acceptors);
+            components.actions = components.actions.concat(include.actions);
+            components.reactors = components.reactors.concat(include.reactors);
+        });
+
+        this.components = components;
+
+        console.log('wiring SAM');
+        this.state.init(this.view, theme, display, components);
+        this.model.init({ state: this.state, components, options });
+        this.actions.init({ model: this.model, components, options });
+        this.view.init(this.model, theme(__WEBPACK_IMPORTED_MODULE_2__actions__["a" /* actions */], options));
+
+        // init
+        console.log('initial rendering');
+        this.state.representation(this.model);
+    },
+
+    state: __WEBPACK_IMPORTED_MODULE_0__state__["a" /* state */],
+
+    model: __WEBPACK_IMPORTED_MODULE_1__model__["a" /* model */],
+
+    actions: __WEBPACK_IMPORTED_MODULE_2__actions__["a" /* actions */],
+
+    view: __WEBPACK_IMPORTED_MODULE_3__view__["a" /* view */]
+};
+
+
+
+/***/ }),
+/* 188 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return state; });
 ////////////////////////////////////////////////////////////////////////////////
 // State
@@ -22531,7 +23202,7 @@ var state = {
     nextAction(model) {},
 
     render(model, next) {
-        console.log(model);
+        console.log(model.data);
         this.representation(model, next);
         this.nextAction(model);
     }
@@ -22540,7 +23211,7 @@ var state = {
 
 
 /***/ }),
-/* 185 */
+/* 189 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -22582,63 +23253,51 @@ var model = {
     data: {},
     update: {},
 
-    init(state, components, options) {
+    init({ state, components, options }) {
         this.state = state;
         this.components = components;
         this.host = options;
         this.data = components.data;
-
-        this.update.h = true;
-        this.update.p = true;
-        this.update.f = true;
     },
 
     applyFilters(data) {
 
         // filters
+        // this.components.filters.forEach(function(filter) {
+        //     filter(this,data) ;
+        // }).bind(this) ;
 
-        // provide some hints as to what changed 
-        // in the model to render the view
-        this.update.h = false;
-        this.update.p = false;
-        this.update.f = false;
-        this.update.render = true;
-
-        this.components.filters.forEach(function (filter) {
-            filter(this, data);
-        }).bind(this);
     },
 
     CRUD(data) {
 
         // CRUD
-
+        console.log('processing CRUD [' + this.components.acceptors.length + ']');
         this.components.acceptors.forEach(function (accept) {
-            accept(this, data);
-        }).bind(this);
+            accept.update(model.data, data);
+        });
     },
 
     postProcessing() {
 
-        // perform ancillary assignments
-
-        this.components.reactors.forEach(function (compute) {
-            compute(this, data);
-        }).bind(this);
+        // perform ancillary assignments (computed values)
+        this.components.reactors.forEach(function (r) {
+            r.compute(model.data);
+        });
     },
 
     present(data, next) {
         data = data || {};
+        console.log('presenting data');
+        console.log(data);
 
-        this.presentFilters(data);
+        this.applyFilters(data);
 
         this.CRUD(data);
 
         this.postProcessing();
 
-        if (this.update.render) {
-            this.state.render(model, next);
-        }
+        this.state.render(model, next);
     }
 
 };
@@ -22646,7 +23305,7 @@ var model = {
 
 
 /***/ }),
-/* 186 */
+/* 190 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -22681,24 +23340,45 @@ var model = {
 
 let actions = {
 
-    init(present, options) {
+    init({ model, components, options }) {
         options = options || {};
-        actions.present = present;
-        actions.host = options.host;
+        this.model = model;
+        this.components = components;
+        this.host = options.host;
+        // let self = this
+        // console.log('processing intents')
+        // this.components.actions.forEach( action => { 
+        //     console.log(action.implementation)
+        //     let impl = action.implementation
+        //     console.log(impl)
+        //     self.intents[action.name] = impl
+        //     console.log(self.intents)
+        // })
+        // console.log(this.intents)
     },
 
     present(data) {
         return false;
     },
 
-    intents: {}
+    intents: {},
+
+    dispatch(event) {
+        let self = this;
+        this.components.actions.forEach(function (action) {
+            if (action.name === event.name) {
+                console.log('calling action: ' + action.name);
+                action.implementation(event, null, self.model);
+            }
+        });
+    }
 
 };
 
 
 
 /***/ }),
-/* 187 */
+/* 191 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -22711,23 +23391,21 @@ let actions = {
 let view = {
 
     // Initial State
-    init(model, theme, intents) {
-        this.intents = intents || this.intents || {};
+    init(model, theme) {
         this.theme = theme || {};
 
         return view.ready(model);
     },
 
     // State representation of the ready state
-    ready(model, theme, intents) {
+    ready(model, theme) {
         model.lastEdited = model.lastEdited || {};
-        intents = intents || this.intents;
         theme = theme || this.theme;
-        console.log(model);
+
         var output = {
-            header: model.update.h ? theme.header(model.data.header) : null,
-            footer: model.update.f ? theme.footer(model.data.footer) : null,
-            page: model.update.p ? theme.page(model.data) : null
+            header: theme.header(model.data.header),
+            footer: theme.footer(model.data.footer),
+            page: theme.page(model.data)
         };
 
         return output;
@@ -22745,224 +23423,7 @@ let view = {
 
 
 /***/ }),
-/* 188 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return theme; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react_dom__);
-
-
-
-
-
-let cssPath = 'css/';
-let jsPath = 'js/';
-
-function hasClass(element, cls) {
-    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
-}
-
-let _theme = {
-
-    menu(items) {
-        items = items || [];
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'menu'
-            )
-        );
-    },
-
-    header(params) {
-        let menu = this.menu(params.menu);
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'h1',
-                null,
-                'todos'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'new-todo', placeholder: 'What needs to be done?', autofocus: true })
-        );
-    },
-
-    home(params) {
-        let img = params.img || 'images/content/bg-classes.jpg';
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'div',
-                { className: 'container' },
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'div',
-                    { className: 'row' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'div',
-                        { className: 'col-md-8' },
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'p',
-                            null,
-                            'This is where the main page goes'
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
-                    )
-                )
-            )
-        );
-    },
-
-    footer(params) {
-
-        params = params || {};
-
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'Double-click to edit a todo'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'Written by ',
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'a',
-                    { href: 'http://twitter.com/lukeed05' },
-                    'Luke Edwards'
-                )
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'Refactored by ',
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'a',
-                    { href: 'https://github.com/jdubray' },
-                    'Jean-Jacques Dubray'
-                )
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'Part of ',
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'a',
-                    { href: 'http://todomvc.com' },
-                    'TodoMVC'
-                )
-            )
-        );
-    },
-
-    fullPage(params) {
-        // {JSON.stringify(params,null,4)}
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'This is where a full page goes'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
-        );
-    },
-
-    contactus(params) {
-
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'p',
-                null,
-                'This is where the contact page goes'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('pre', null)
-        );
-    },
-
-    todo(params) {
-
-        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'toggle-all', type: 'checkbox' }),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'label',
-                { 'for': 'toggle-all' },
-                'Mark all as complete'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('ul', { className: 'todo-list' }),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'footer',
-                { className: 'footer' },
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'todo-count' }),
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'div',
-                    { className: 'filters' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'a',
-                        { href: '#/', className: 'selected' },
-                        'All'
-                    ),
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'a',
-                        { href: '#/active' },
-                        'Active'
-                    ),
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'a',
-                        { href: '#/completed' },
-                        'Completed'
-                    )
-                ),
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'button',
-                    { className: 'clear-completed' },
-                    'Clear completed'
-                )
-            )
-        );
-    },
-
-    page(params) {
-        if (params.menuItem === 'home') {
-            return this.todo(params.home);
-        } else {
-            if (params.menuItem === 'contactus') {
-                return this.contactus(params[params.menuItem]);
-            } else {
-                return this.fullPage(params[params.menuItem]);
-            }
-        }
-    }
-
-};
-
-var theme = function (conf) {
-    cssPath = cssPath || conf.cssPath;
-    jsPath = jsPath || conf.jsPath;
-
-    return _theme;
-};
-
-
-
-/***/ }),
-/* 189 */
+/* 192 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -22971,7 +23432,8 @@ var theme = function (conf) {
 
 var data = {
     menuItem: 'home',
-    header: { menu: [{ active: true, href: "home", label: "Home" }, { href: "whatwedo", label: "What we do" }, { href: "contactus", label: "Contact Us" }],
+    header: {
+        menu: [{ active: true, href: "home", label: "Home" }, { href: "whatwedo", label: "What we do" }, { href: "contactus", label: "Contact Us" }],
         facebook: "https://www.facebook.com/",
         twitter: "https://www.twitter.com",
         linkedin: "https://www.linkedin.com/"
@@ -22987,12 +23449,19 @@ var data = {
     },
 
     home: {
-        imgs: ["img/background1.jpg"],
-        parallax: { img: "img/background2.jpg" },
-        valueProposition: [{ icon: "comments-o", title: "Frequently Asked Questions", description: "" }, { icon: "laptop", title: "Instant Charterbus Quote", description: "" }, { icon: "users", title: "Our Premium Partners", description: "" }]
+        items: [
+            // {
+            //     title: "drink"
+            // },
+            // {
+            //     title: "eat",
+            //     completed: true
+            // }
+        ]
     },
 
-    contactus: { title: "Contact Us",
+    contactus: {
+        title: "Contact Us",
         content: "Our customer support services are the best in the business. They’re standing by to help you.",
         address: "3600 136th Pl SE #300",
         city: "Bellevue, WA 98006",

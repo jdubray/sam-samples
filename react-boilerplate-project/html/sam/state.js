@@ -76,7 +76,7 @@ var state = {
     },
 
     render(model,next) {
-        console.log(model) ;
+        console.log(model.data) ;
         this.representation(model,next) ;
         this.nextAction(model) ;
     }

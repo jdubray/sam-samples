@@ -25,20 +25,40 @@
 // For more information, please refer to <http://unlicense.org/>
 
 'use strict' ;
-
 let actions = {
 
-    init(present, options) {
+    init({model, components, options}) {
         options = options || {};
-        actions.present = present ;
-        actions.host = options.host ;
+        this.model = model
+        this.components = components
+        this.host = options.host ;
+        // let self = this
+        // console.log('processing intents')
+        // this.components.actions.forEach( action => { 
+        //     console.log(action.implementation)
+        //     let impl = action.implementation
+        //     console.log(impl)
+        //     self.intents[action.name] = impl
+        //     console.log(self.intents)
+        // })
+        // console.log(this.intents)
     },
 
     present(data) {
         return false ;
     }, 
 
-    intents : { } 
+    intents : { }, 
+
+    dispatch(event) {
+        let self = this
+        this.components.actions.forEach( function (action) {
+            if (action.name === event.name) {
+                console.log('calling action: ' + action.name)
+                action.implementation(event, null, self.model)
+            } 
+        })
+    }
        
 }
 

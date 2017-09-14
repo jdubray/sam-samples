@@ -12,6 +12,38 @@ function hasClass(element, cls) {
 
 let _theme = {
 
+    dispatch(event) {
+        console.log('dispatching')
+        console.log(event)
+        this._actions.dispatch(event)
+    },
+
+    // onKeyDown={
+    //     (e) => {
+    //       /**
+    //        * Note: Pressing enter in some input in a browser forms
+    //        *  triggers onClick on the first child button
+    //        *
+    //        * So, prevent `enter` from triggering `onClick` on any buttons
+    //        *  and instead trigger onSubmit
+    //        */
+    //       if (e.key === 'Enter') {
+    //         e.preventDefault();
+    //         onSubmit();
+    //       }
+    //     }
+    //   }
+  
+    //   onSubmit={
+    //     (e) => {
+    //       /**
+    //        * Prevent submit from reloading the page
+    //        */
+    //       e.preventDefault();
+    //       e.stopPropagation();
+    //       onSubmit();
+    //     }
+    //   }
 
     menu(items) {
         items = items || [] ;
@@ -23,12 +55,19 @@ let _theme = {
     },
 
     header(params) {
-        let menu = this.menu(params.menu) ;
+        const addItem = (e) => { 
+            e.preventDefault()
+            e.stopPropagation()
+            this.dispatch({name: "addItem", title: document.getElementById('newItem').value})
+            document.getElementById('newItem').value = ''
+        }
+        
         return ( 
             <div>
                  <h1>todos</h1>
-                 
-                <input className="new-todo" placeholder="What needs to be done?" autofocus/>
+                 <form name="todo" onSubmit={addItem}>
+                    <input id="newItem" className="new-todo" placeholder="What needs to be done?" autoFocus={true} />
+                 </form>
             </div>)
         },
     
@@ -63,7 +102,7 @@ let _theme = {
     
                 <p>Refactored by <a href="https://github.com/jdubray">Jean-Jacques Dubray</a></p>
     
-                <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+                <p>From <a href="http://todomvc.com">TodoMVC</a></p>
             </div>
         ) 
     },
@@ -96,37 +135,84 @@ let _theme = {
 
     todo(params) {
 
+        const removeItem = (e) => { 
+            e.preventDefault()
+            this.dispatch({name: "removeItem", removedItem: e.target.value})
+        }
+
+        const check = (e) => { 
+            e.preventDefault()
+            this.dispatch({name: "toggleItem", toggleItem: e.target.name})
+        }
+
+        const display = (e) => {
+            e.preventDefault()
+            this.dispatch({name: "display", filter: e.target.name})
+        }
+
+        const clearCompleted = (e) => {
+            e.preventDefault()
+            let outstandingItems = params.items.map( item => (item.completed) ? null : item).filter( value => value != null)            
+            this.dispatch({name: "clearCompleted", newItems: outstandingItems})
+        }
+
+        if (params.items.length > 0) {
+            let displayAll = (params.filter === 'all') ? 'selected' : null
+            let displayActive = (params.filter === 'active') ? 'selected' : null
+            let displayCompleted = (params.filter === 'completed') ? 'selected' : null
         return (
             <div> 
                 <input className="toggle-all" type="checkbox"/>
 
-                <label for="toggle-all">Mark all as complete</label>
+                <label htmlFor="toggle-all">Mark all as complete</label>
 
-                <ul className="todo-list"></ul>
+                <ul className="todo-list">
+                    {params.items.map(function (item, index) {
+                        let completed = item.completed ? 'completed' : null
+                        let itemCompleted = (item.completed) ? item.completed : false
+                        let filter = params.filter || 'all'
+                        if ((filter === 'all')
+                        || ((filter === 'completed') && (item.completed === true))
+                        || ((filter === 'active') && (item.completed !== true))
+                        ) {
+                            return (
+                                <li key={index} className={completed}>
+                                    <input className="toggle" type="checkbox" id={'cb-'+index} checked={!!itemCompleted} onChange={check} name={index}/>
+                                    <label>{item.title}</label>
+                                    <button className="destroy" onClick={removeItem} value={index}></button>
+                                </li>
+                            ) 
+                        } 
+                    })}
+                </ul>
 
                 <footer className="footer">
 
-                    <span className="todo-count"></span>
+                    <span className="todo-count">{params.openItems || '0'}</span>
 
                     <div className="filters">
 
-                        <a href="#/" className="selected">All</a>
+                        <a className={displayAll} onClick={display}>All</a>
 
-                        <a href="#/active">Active</a>
+                        <a className={displayActive} name='active' onClick={display}>Active</a>
 
-                        <a href="#/completed">Completed</a>
+                        <a className={displayCompleted} name='completed' onClick={display}>Completed</a>
 
                     </div>
 
-                    <button className="clear-completed">Clear completed</button>
+                    <button className="clear-completed" onClick={clearCompleted} >Clear completed</button>
 
                 </footer>
             </div>       
         )
+        } else {
+            return (<div></div>)
+        }
 
     },
     
     page(params) {
+        console.log(params)
         if (params.menuItem === 'home') {
             return this.todo(params.home) ;
         } else {
@@ -141,10 +227,15 @@ let _theme = {
 } ; 
 
 
-var theme = function (conf) {
+var theme = function (actions, conf) {
         cssPath = cssPath || conf.cssPath;
         jsPath = jsPath || conf.jsPath;
-        
+        console.log('actions')
+        console.log(actions)
+        _theme._dispatch = actions.dispatch
+        console.log('dispatch')
+        console.log(_theme._dispatch)
+        _theme._actions = actions
         return _theme ; 
     }
 
