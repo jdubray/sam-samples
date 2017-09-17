@@ -22459,33 +22459,6 @@ let _theme = {
         this._actions.dispatch(event);
     },
 
-    // onKeyDown={
-    //     (e) => {
-    //       /**
-    //        * Note: Pressing enter in some input in a browser forms
-    //        *  triggers onClick on the first child button
-    //        *
-    //        * So, prevent `enter` from triggering `onClick` on any buttons
-    //        *  and instead trigger onSubmit
-    //        */
-    //       if (e.key === 'Enter') {
-    //         e.preventDefault();
-    //         onSubmit();
-    //       }
-    //     }
-    //   }
-
-    //   onSubmit={
-    //     (e) => {
-    //       /**
-    //        * Prevent submit from reloading the page
-    //        */
-    //       e.preventDefault();
-    //       e.stopPropagation();
-    //       onSubmit();
-    //     }
-    //   }
-
     menu(items) {
         items = items || [];
         return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -22630,10 +22603,9 @@ let _theme = {
         };
 
         const check = e => {
-            e.preventDefault();
-            let cb = document.getElementById('cb-' + e.target.name);
-            cb.checked = !cb.checked;
-            this.dispatch({ name: "toggleItem", toggleItem: e.target.name });
+            console.log('checked:' + e.target.name + ' -> ' + e.target.checked);
+            //document.getElementById('cb-' + e.target.name).checked = e.target.checked
+            this.dispatch({ name: "toggleItem", toggleItem: e.target.name, checked: e.target.checked });
         };
 
         const display = e => {
@@ -22665,13 +22637,24 @@ let _theme = {
                     { className: 'todo-list' },
                     params.items.map(function (item, index) {
                         let completed = item.completed ? 'completed' : null;
-                        let itemCompleted = item.completed ? item.completed : false;
+                        let itemCompleted = item.completed ? true : false;
                         let filter = params.filter || 'all';
                         if (filter === 'all' || filter === 'completed' && item.completed === true || filter === 'active' && item.completed !== true) {
+                            {} /* if (itemCompleted) {
+                                  return (
+                                      <li key={index} className={completed}>
+                                          <input className="toggle" type="checkbox" id={'cb-'+index} checked={true} onChange={check} name={index}/>
+                                          <label>{item.title}</label>
+                                          <button className="destroy" onClick={removeItem} value={index}></button>
+                                      </li>
+                                  ) 
+                               } else { */
+                            // <input className="toggle" type="checkbox" id={'cb-'+index} checked={itemCompleted} onChange={check} name={index}/>
+
                             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 'li',
                                 { key: index, className: completed },
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'toggle', type: 'checkbox', id: 'cb-' + index, checked: !!itemCompleted, onChange: check, name: index }),
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'toggle', type: 'checkbox', id: 'cb-' + index, checked: itemCompleted, onChange: check, name: index }),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                     'label',
                                     null,
@@ -22679,6 +22662,7 @@ let _theme = {
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('button', { className: 'destroy', onClick: removeItem, value: index })
                             );
+                            {/* } */}
                         }
                     })
                 ),
@@ -23031,7 +23015,7 @@ let todo = {
             if (data.toggleItem !== undefined) {
                 model.home.items.forEach(function (item, index) {
                     if (index == data.toggleItem) {
-                        item.completed = !item.completed;
+                        item.completed = data.checked;
                     }
                 });
             }

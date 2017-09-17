@@ -239,7 +239,7 @@ let todo = {
                 if (data.toggleItem !== undefined) {
                     model.home.items.forEach( function(item, index) {
                         if (index == data.toggleItem) {
-                            item.completed = !(item.completed)
+                            item.completed = data.checked
                         }
                     })
                 }
