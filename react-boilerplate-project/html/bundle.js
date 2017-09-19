@@ -22603,8 +22603,6 @@ let _theme = {
         };
 
         const check = e => {
-            console.log('checked:' + e.target.name + ' -> ' + e.target.checked);
-            //document.getElementById('cb-' + e.target.name).checked = e.target.checked
             this.dispatch({ name: "toggleItem", toggleItem: e.target.name, checked: e.target.checked });
         };
 
@@ -22640,16 +22638,6 @@ let _theme = {
                         let itemCompleted = item.completed ? true : false;
                         let filter = params.filter || 'all';
                         if (filter === 'all' || filter === 'completed' && item.completed === true || filter === 'active' && item.completed !== true) {
-                            {} /* if (itemCompleted) {
-                                  return (
-                                      <li key={index} className={completed}>
-                                          <input className="toggle" type="checkbox" id={'cb-'+index} checked={true} onChange={check} name={index}/>
-                                          <label>{item.title}</label>
-                                          <button className="destroy" onClick={removeItem} value={index}></button>
-                                      </li>
-                                  ) 
-                               } else { */
-                            // <input className="toggle" type="checkbox" id={'cb-'+index} checked={itemCompleted} onChange={check} name={index}/>
 
                             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 'li',
@@ -22662,7 +22650,6 @@ let _theme = {
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('button', { className: 'destroy', onClick: removeItem, value: index })
                             );
-                            {/* } */}
                         }
                     })
                 ),
@@ -22682,11 +22669,13 @@ let _theme = {
                             { className: displayAll, onClick: display },
                             'All'
                         ),
+                        '\xA0\xA0\xA0',
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'a',
                             { className: displayActive, name: 'active', onClick: display },
                             'Active'
                         ),
+                        '\xA0\xA0\xA0',
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'a',
                             { className: displayCompleted, name: 'completed', onClick: display },
@@ -22706,7 +22695,6 @@ let _theme = {
     },
 
     page(params) {
-        console.log(params);
         if (params.menuItem === 'home') {
             return this.todo(params.home);
         } else {

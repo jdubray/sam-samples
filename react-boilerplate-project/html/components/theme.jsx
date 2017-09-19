@@ -147,25 +147,15 @@ let _theme = {
                         || ((filter === 'completed') && (item.completed === true))
                         || ((filter === 'active') && (item.completed !== true))
                         ) {
-                            {/* if (itemCompleted) {
-                                return (
-                                    <li key={index} className={completed}>
-                                        <input className="toggle" type="checkbox" id={'cb-'+index} checked={true} onChange={check} name={index}/>
-                                        <label>{item.title}</label>
-                                        <button className="destroy" onClick={removeItem} value={index}></button>
-                                    </li>
-                                ) 
-                            } else { */}
-                            // <input className="toggle" type="checkbox" id={'cb-'+index} checked={itemCompleted} onChange={check} name={index}/>
                                         
-                                return (
-                                    <li key={index} className={completed}>
-                                        <input className="toggle" type="checkbox" id={'cb-'+index} checked={itemCompleted} onChange={check} name={index}/>
-                                        <label>{item.title}</label>
-                                        <button className="destroy" onClick={removeItem} value={index}></button>
-                                    </li>
-                                ) 
-                            {/* } */}
+                            return (
+                                <li key={index} className={completed}>
+                                    <input className="toggle" type="checkbox" id={'cb-'+index} checked={itemCompleted} onChange={check} name={index}/>
+                                    <label>{item.title}</label>
+                                    <button className="destroy" onClick={removeItem} value={index}></button>
+                                </li>
+                            ) 
+                            
                         } 
                     })}
                 </ul>
@@ -176,9 +166,9 @@ let _theme = {
 
                     <div className="filters">
 
-                        <a className={displayAll} onClick={display}>All</a>
+                        <a className={displayAll} onClick={display}>All</a>&nbsp;&nbsp;&nbsp;
 
-                        <a className={displayActive} name='active' onClick={display}>Active</a>
+                        <a className={displayActive} name='active' onClick={display}>Active</a>&nbsp;&nbsp;&nbsp;
 
                         <a className={displayCompleted} name='completed' onClick={display}>Completed</a>
 
@@ -196,10 +186,11 @@ let _theme = {
     },
     
     page(params) {
-        console.log(params)
         if (params.menuItem === 'home') {
+            // you can hard code the relationship between model and them
             return this.todo(params.home) ;
         } else {
+            // or make it a bit more dynamic
             if (params.menuItem === 'contactus') {
                 return this.contactus(params[params.menuItem]) ;
             } else {
@@ -212,16 +203,12 @@ let _theme = {
 
 
 var theme = function (actions, conf) {
-        cssPath = cssPath || conf.cssPath;
-        jsPath = jsPath || conf.jsPath;
-        console.log('actions')
-        console.log(actions)
+        cssPath = cssPath || conf.cssPath
+        jsPath = jsPath || conf.jsPath
         _theme._dispatch = actions.dispatch
-        console.log('dispatch')
-        console.log(_theme._dispatch)
         _theme._actions = actions
         return _theme ; 
     }
 
-export { theme } ;
+export { theme } 
 
