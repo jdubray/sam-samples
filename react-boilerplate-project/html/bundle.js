@@ -23016,7 +23016,7 @@ let todo = {
         name: "countOpenItems",
         order: 0,
         compute: function (model) {
-            model.home.openItems = model.home.items.map(item => item.completed ? 0 : 1).reduce((a, b) => a + b);
+            model.home.openItems = model.home.items.map(item => item.completed ? 0 : 1).reduce((a, b) => a + b, 0);
         }
     }]
 };
