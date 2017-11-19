@@ -1,0 +1,445 @@
+<!--
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+-->
+<html>
+    <header>
+        <link  rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"/>
+    </header>
+<body>
+
+    <div class="container-fluid jumbotron">
+        <div class="row">
+            <div class="card" style="width: 20rem">
+                <div class="card-body">
+                <h4 class="card-title">Stateless Component</h4>
+                <hr>
+                <div class="col" id="hello"></div> 
+                <hr>
+                <a href="#" class="card-link">from React Sample #1</a>
+                </div>
+            </div>
+            <div class="card" style="width: 20rem">
+                <div class="card-body">
+                    <h4 class="card-title">Stateful Component</h4>
+                    <hr>
+                    <div class="col" id="timer"></div>
+                    <hr>
+                    <a href="#" class="card-link">from React Sample #2</a>
+                </div>
+            </div>
+            <div class="card" style="width: 20rem">
+                <div class="card-body">
+                    <h4 class="card-title">Composition</h4>
+                    <hr>
+                    <div class="col" id="todo"></div>
+                    <a href="#" class="card-link">from React Sample #3</a>
+                </div>
+            </div>
+            <div class="card" style="width: 20rem">
+                <div class="card-body">
+                    <h4 class="card-title">Markdown</h4>
+                    <hr>
+                    <div class="col" id="markdown"></div>
+                    <a href="#" class="card-link">from React Sample #4</a>
+                </div>
+            </div>
+            <div class="card" style="width: 20rem">
+                <div class="card-body">
+                    <h4 class="card-title">Rocket Launcher</h4>
+                    <hr>
+                    <div class="col" id="rocket-launcher"></div>
+                    <a href="#" class="card-link">base SAM sample</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
+    <script src="https://unpkg.com/yallajs"></script>
+
+    <script type="text/javascript">
+
+    let context = new Context()
+
+    let { html, htmlCollection} = new Context()
+	
+    ///////////////////////////////////////////////////////////////////////////
+    // A React Like Functional HTML Library that supports stateless and stateful 
+    // components as well as component composition in less than 20 lines
+    //    
+    let mount = function (component, initState = {}, mountNode = 'app') {
+        initState.render = function( stateRepresentation, options = {} ) {
+            // const start = (options.focus) ? document.getElementById(options.focus).selectionStart : 0
+            // (document.getElementById(mountNode) || {}).innerHTML = stateRepresentation
+            // if (options.focus) {
+            //     let f = document.getElementById(options.focus)
+            //     f.selectionStart = start
+            //     f.focus()
+            // }
+            if (stateRepresentation) {
+                render(stateRepresentation, document.getElementById(mountNode))
+            } else {
+                console.log( "no state representation")
+            }
+        }
+    
+        let stateRepresentation = component(initState)
+    
+        initState.render((typeof stateRepresentation === 'function' ) ? stateRepresentation() : stateRepresentation)
+    }
+    
+    let intent = function(i, f) {
+        window[i || '_'] = f 
+    }
+    
+    let value = function(el) {
+        return document.getElementById(el).value
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Examples (from http://reactjs.org)
+    //
+    // HelloMessage: Stateless Component
+    //
+    let HelloMessage = ({name}) => html`Hello ${name}`
+    
+    // Timer: Stateful Component (not recommended, use a single-state-tree if possible)
+    let Timer = function({seconds, render}) {
+        let state = {seconds, render}
+    
+        let tick = function () {
+        state.seconds += 1
+        state.render(representation())
+        }
+    
+        let interval = setInterval(() => tick(), 1000)
+    
+        let representation = () => html`Seconds: ${state.seconds}`
+    
+        return representation
+    }
+    
+    // Todo: Stateful Component + Component Composition
+    let TodoApp = function({render}) {
+        let state = { items: [], text:'', render }
+        
+        intent( "addTodo", function(e) {
+            const newItem = {
+                text: value("text"),
+                id: Date.now()
+            }
+            state.items.push(newItem)
+            state.text = ''
+            state.render(representation())
+            return false
+        })
+    
+        let representation = () => html`
+            <div>
+            <h4>TODO</h4>
+            <ul>
+            ${TodoList({items:state.items})}
+            </ul>
+            <form onsubmit="${e => addTodo()}">
+                <input id="text" value=${state.text}>
+                <button>
+                Add #${state.items.length + 1}
+                </button>
+            </form>
+            </div>`
+    
+        return representation
+    }
+    // How easy is it to mount a handler on a child element?
+    // as easy as passing a string! The corresponding intent
+    // can be declared anywhere, yes you can try this at home!
+    let TodoList = ({items, onclick}) => htmlCollection`
+            ${items.map(item => `<li key="${item.id}" ${(onclick) ? `onclick="${onclick}(${item.id})"` : ``}>${item.text}</li>`)}
+        `
+    
+    let MarkdownEditor = function({defaultValue, render}) {
+        let state = { value: defaultValue || 'Type some *markdown* here!', render }
+    
+        let input = "mde"
+        intent("handleChange", function () {
+            state.value = value(input)
+            state.render(representation(), {focus: input})
+            return false
+        })
+    
+        const md = new Remarkable()
+    
+        let representation = () => html`
+            <h3>Input</h3>
+            <textarea id="${input}" oninput="${e => handleChange()}">${state.value}</textarea>
+            <h3>Output</h3>
+            <div raw.text="true">
+            ${md.render(state.value)}
+            </div>
+            `
+        return representation
+    }
+    
+    // SAM Sample
+    let COUNTER_MAX = 10
+    
+    let RocketLauncher = function({counter = COUNTER_MAX, render}) {
+
+        let model = {
+            counter: counter, 
+            started: false,      
+            launched: false, 
+            aborted: false
+        } 
+
+        model.present = function(data) {		
+            if (state.counting(model)) {
+                if (model.counter === 0) {
+                    model.launched = data.launched || false 
+                } else {
+                    model.aborted = data.aborted || false 
+                    if (data.counter !== undefined) { model.counter = data.counter  }
+                }
+            } else {
+                if (state.ready(model)) {
+                    model.started = data.started || false 
+                }
+            }
+            state.render(model) 
+        }
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // View
+        //
+        let view = {} 
+
+        // Initial State
+        view.init = function(model) {
+            return view.ready(model.counter) 
+        }
+
+        // State representation of the ready state
+        view.ready = function(counter) {
+            return (
+                    html`<p>Counter: ${counter}</p>
+                    <form onSubmit="${e => start({e})}">
+                        <input type="submit" value="Start">
+                    </form>`
+                ) 
+
+        }
+
+        // State representation of the counting state
+        view.counting = function(counter) {
+
+            return (
+                    html`<p>Count down: ${counter}</p>
+                    <form onSubmit="${e => abort({e})}">
+                        <input type="submit" value="Abort">
+                    </form>`
+                ) 
+
+        }
+
+        // State representation of the aborted state
+        view.aborted = function(counter) {
+
+            return (
+                    html`<p>Aborted at Counter:${counter}</p>`
+                ) 
+
+        }
+
+        // State representation of the launched state
+        view.launched = function(counter) {
+
+            return (
+                    html`<p>Launched</p>`
+                ) 
+
+        }
+
+        //display the state representation
+        view.display = function(representation) {
+            // var stateRepresentation = document.getElementById("representation")
+            // stateRepresentation.innerHTML = representation
+            render(representation)
+        }
+
+        // Display initial state
+        view.display(view.init(model)) 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // State
+        //
+        let state =  { view: view} 
+
+        model.state = state 
+
+        // Derive the state representation as a function of the systen
+        // control state
+        state.representation = function(model) {
+            var representation = 'oops... something went wrong, the system is in an invalid state' 
+
+            if (state.ready(model)) {
+                representation = state.view.ready(model.counter) 
+            } 
+
+            if (state.counting(model)) {
+                representation = state.view.counting(model.counter) 
+            }
+
+            if (state.launched(model)) {
+                representation = state.view.launched(model.counter) 
+            }
+
+            if (state.aborted(model)) {
+                representation = state.view.aborted(model.counter) 
+            }
+
+            state.view.display(representation) 
+        }
+
+        // Derive the current state of the system
+        state.ready = function(model) {
+            return ((model.counter === COUNTER_MAX) && !model.started && !model.launched && !model.aborted) 
+        }
+
+        state.counting = function(model) {
+            var status = ((model.counter <= COUNTER_MAX) && (model.counter >= 0) && model.started && !model.launched && !model.aborted) 
+            return status 
+        }
+
+        state.launched = function(model) {
+            return ((model.counter == 0) && model.started && model.launched && !model.aborted) 
+        }
+
+        state.aborted = function(model) {
+            return (
+                (  model.counter <= COUNTER_MAX) && (model.counter >= 0) 
+                && model.started && !model.launched && model.aborted ) 
+        }
+
+
+        // Next action predicate, derives whether
+        // the system is in a (control) state where
+        // an action needs to be invoked
+
+        state.nextAction = function (model) {
+            if (state.counting(model)) {
+                if (model.counter>0) {
+                    decrement({counter: model.counter},model.present) 
+                }
+
+                if (model.counter === 0) {
+                    launch({},model.present) 
+                }
+            }
+        }
+
+        state.render = function(model) {
+            state.representation(model)
+            state.nextAction(model) 
+        }
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Actions
+        //
+
+        intent("start", function(data = {}, present) {
+            if (data.e) data.e.preventDefault()
+            present = present || model.present 
+            data.started = true 
+            present(data) 
+            return false 
+        })
+
+        intent("decrement", function(data  = {}, present) {
+            if (data.e) data.e.preventDefault()
+            present = present || model.present 
+            data.counter = data.counter || 10 
+            var d = data 
+            var p = present 
+            setTimeout(function() {
+                d.counter = d.counter - 1 
+                p(d) 
+            }, 1000) 
+        })
+
+        intent("launch", function(data = {}, present) {
+            if (data.e) data.e.preventDefault()
+            present = present || model.present 
+            data.launched = true 
+            present(data) 
+        })
+
+        intent("abort", function(data, present) {
+            if (data.e) data.e.preventDefault()
+            present = present || model.present 
+            data.aborted = true 
+            present(data) 
+            return false 
+        })
+
+    }
+    
+    
+    // Display Components
+    mount(
+        HelloMessage, 
+        {name: "Jane"}, 
+        "hello"
+    )
+    
+    mount(
+        Timer, {seconds: 0},
+        "timer"
+    )
+    
+    // mount(
+    //     TodoApp, {},
+    //     "todo"
+    // )
+    
+    // mount(
+    //     MarkdownEditor, {},
+    //     "markdown"
+    // )
+
+    mount(
+        RocketLauncher, {},
+        "rocket-launcher"
+    )
+    </script>
+</body>
