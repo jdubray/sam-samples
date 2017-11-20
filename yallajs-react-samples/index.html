@@ -161,27 +161,32 @@ For more information, please refer to <http://unlicense.org/>
             return false
         })
     
-        let representation = () => html`
+        let representation = () => { 
+            return html`
             <div>
             <h4>TODO</h4>
-            <ul>
             ${TodoList({items:state.items})}
-            </ul>
             <form onsubmit="${e => addTodo()}">
-                <input id="text" value=${state.text}>
+                <input id="text" type="text" placeHolder="Enter a todo">
                 <button>
                 Add #${state.items.length + 1}
                 </button>
             </form>
             </div>`
+        }
     
         return representation
     }
     // How easy is it to mount a handler on a child element?
     // as easy as passing a string! The corresponding intent
     // can be declared anywhere, yes you can try this at home!
-    let TodoList = ({items, onclick}) => htmlCollection`
-            ${items.map(item => `<li key="${item.id}" ${(onclick) ? `onclick="${onclick}(${item.id})"` : ``}>${item.text}</li>`)}
+    let TodoList = ({items}) => html`
+        <ul>
+        ${htmlCollection(items, item => item.id, item => {
+            return html`<li>${item.text}</li>
+            `
+        })}
+        </ul>
         `
     
     let MarkdownEditor = function({defaultValue, render}) {
@@ -427,10 +432,10 @@ For more information, please refer to <http://unlicense.org/>
         "timer"
     )
     
-    // mount(
-    //     TodoApp, {},
-    //     "todo"
-    // )
+    mount(
+        TodoApp, {},
+        "todo"
+    )
     
     // mount(
     //     MarkdownEditor, {},
