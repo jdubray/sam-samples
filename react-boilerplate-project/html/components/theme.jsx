@@ -188,13 +188,13 @@ let _theme = {
     page(params) {
         if (params.menuItem === 'home') {
             // you can hard code the relationship between model and them
-            return this.todo(params.home) ;
+            return this.todo(params.home) 
         } else {
             // or make it a bit more dynamic
             if (params.menuItem === 'contactus') {
-                return this.contactus(params[params.menuItem]) ;
+                return this.contactus(params[params.menuItem]) 
             } else {
-                return this.fullPage(params[params.menuItem]) ;
+                return this.fullPage(params[params.menuItem]) 
             }
         }
     }
