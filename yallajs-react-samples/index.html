@@ -193,7 +193,7 @@ For more information, please refer to <http://unlicense.org/>
         let state = { value: defaultValue || 'Type some *markdown* here!', render }
     
         let input = "mde"
-        intent("handleChange", function () {
+        intent("handleChange", function (e) {
             state.value = value(input)
             state.render(representation(), {focus: input})
             return false
@@ -203,10 +203,10 @@ For more information, please refer to <http://unlicense.org/>
     
         let representation = () => html`
             <h3>Input</h3>
-            <textarea id="${input}" oninput="${e => handleChange()}">${state.value}</textarea>
+            <textarea id="${input}" oninput="handleChange()">${state.value}</textarea>
             <h3>Output</h3>
-            <div raw.text="true">
-            ${md.render(state.value)}
+            <div>
+            ${html([md.render(state.value)])}
             </div>
             `
         return representation
@@ -437,10 +437,10 @@ For more information, please refer to <http://unlicense.org/>
         "todo"
     )
     
-    // mount(
-    //     MarkdownEditor, {},
-    //     "markdown"
-    // )
+    mount(
+        MarkdownEditor, {},
+        "markdown"
+    )
 
     mount(
         RocketLauncher, {},
