@@ -35,13 +35,12 @@
 
   // Model
   const model = {
-    quotes: [],
     present(proposal) {
       // acceptors
 
       // quotes acceptor
       if (proposal.quotes) {
-        model.quotes = model.quotes.concat(proposal.quotes);
+        model['quotes'] = model['quotes'].concat(proposal.quotes);
       }
 
       // Continue to state representation
@@ -53,6 +52,10 @@
   let state;
 
   const init = (component, start) => {
+    // get initial state from app
+    Object.assign(model, component.get())
+
+    // initialize state representation function
     state = () => {
       // Reactors would go here
       
@@ -61,7 +64,8 @@
       // everything
       component.set(diff(component.get(), model));
     }
-    // Start
+
+    // Start application
     start();
   }
 
