@@ -1,12 +1,7 @@
 <div id="app">
   <h1>Great Quotes</h1>
   <p style="margin: 0 0 30px">Curated by Chris Coyier</p>
-    {{#if quotes.length === 0}}
-      <p>Quotes loading...</p>
-    {{else}}
-      <Quotes quotes={{quotes}} />
-    {{/if}}
-  <button on:click='fetchQuotes()'>Load More</button>
+  <Quotes quotes={{quotes}} />
 </div>
 
 <script type="text/javascript">
@@ -92,15 +87,6 @@
   }
   p {
     line-height: 1.4;
-  }
-  button {
-    font-family: inherit;
-    font-size: inherit;
-    padding: 0.4em;
-    margin: 0 0 0.5em 0;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 2px;
   }
   #app {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
