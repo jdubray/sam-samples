@@ -7,7 +7,6 @@
         <p class="author">- {{quote.title}}</p>
     </div>
     {{/each}}
-     <button on:click='this.fetchQuotes()'>Load More</button>
 {{/if}}
 
 <style>
