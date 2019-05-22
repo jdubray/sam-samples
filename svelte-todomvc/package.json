@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TodoMVC implemented in Svelte",
   "scripts": {
-    "copyfiles": "rm -rf dist && cp node_modules/todomvc-app-css/index.css public/todomvc-app-css.css && cp node_modules/todomvc-common/base.css public/todomvc-common.css && cp node_modules/todomvc-common/base.js public/todomvc-common.js",
+    "copyfiles": "mkdir -p dist && cp node_modules/todomvc-app-css/index.css public/todomvc-app-css.css && cp node_modules/todomvc-common/base.css public/todomvc-common.css && cp node_modules/todomvc-common/base.js public/todomvc-common.js",
     "build": "npm run copyfiles && rollup -c",
     "dev": "npm run copyfiles && rollup -cw",
     "deploy": "surge public svelte-todomvc.surge.sh",
@@ -42,6 +42,7 @@
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^4.0.4",
     "surge": "^0.20.1",
-    "svelte": "^3.0.0-beta.20"
+    "svelte": "^3.0.0-beta.20",
+    "http-server": "^0.11.1"
   }
 }
