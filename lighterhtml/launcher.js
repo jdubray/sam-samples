@@ -99,8 +99,15 @@ const Launcher = (element, SAM) => {
       ],
       naps: [
         // decrement counter once launched
-        (state) => () => state.started && !state.launched && setTimeout(decount, 1000),
-        (state) => () => state.counter === 0 && state.started && launchIntent()
+        (state) => () => { 
+          state.started && !state.launched && setTimeout(decount, 1000)
+          return false
+        },
+        // launch rocket when countdown is complete
+        (state) => () => {
+          state.counter === 0 && state.started && launchIntent()
+          return false
+        }
       ] 
     }
   });
@@ -115,20 +122,19 @@ const Launcher = (element, SAM) => {
 
   SAM({
     render: (state) => {
+      const currentAction = state.started 
+        ? 'Abort'
+        : state.aborted || state.launched 
+          ? 'Done'
+          : 'Start'
+      const currentIntent = state.started 
+        ? abortIntent : 
+        state.aborted || state.launched 
+          ? null : startIntent
       render(document.getElementById(element), _ => html`
         <p>Status: ${state.started ? state.counter : state.status}</p>
-        <button onclick=${ 
-          state.started 
-            ? abortIntent : 
-            state.aborted || state.launched 
-              ? null : startIntent }>
-          ${
-              state.started 
-              ? 'Abort'
-              : state.aborted || state.launched 
-                ? 'Done'
-                : 'Start'  
-          }
+        <button onclick=${currentIntent}>
+          ${currentAction}
         </button>`
       )
     }

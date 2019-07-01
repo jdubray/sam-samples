@@ -36,7 +36,6 @@ const SAM = (function() {
     const acceptors = []
     const reactors = []
     const naps = []
-    let dontRenderOnNAP = false
     
     // ancillary
     let renderView = () => null
@@ -61,14 +60,8 @@ const SAM = (function() {
         // Update state representation
         reactors.forEach(react)
 
-        // render state representation
-        if (!dontRenderOnNAP) {
-            renderView(stateRepresentation(model))
-            // next-action
-            naps.map(n => n())
-        } else {
-            !naps.map(n => n()).reduce(or, false) && renderView(model.data)
-        }
+        // render state representation (gated by nap)
+        !naps.map(n => n()).reduce(or, false) && renderView(model.data)
     }
 
     // SAM's internal acceptors
