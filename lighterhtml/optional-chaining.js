@@ -53,16 +53,21 @@ const E = (value, element) =>
     ? i(value,element)
     : e(value)
 
-const on = (value, f) => { 
+const oneOf = (value, f) => { 
     e(value) && f(value) 
     return mon(e(value)) 
 }
 
+const on = (value, f) => { 
+    e(value) && f(value) 
+    return { on }
+}
+
 const mon = (triggered = true) => ({
-    on: triggered ? (value, f) => mon() : on
+    oneOf: triggered ? (value, f) => mon() : oneOf
 })
 
 const or = (acc, current) => acc || current
 const and = (acc, current) => acc && current
 
-export {O, A, S, N, NZ, F, E, on, or, and}
+export {O, A, S, N, NZ, F, E, on, oneOf, or, and}

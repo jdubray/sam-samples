@@ -82,12 +82,11 @@ const SAM = (function() {
     }
 
     // SAM's internal present function
-    return ({ initialState, component, act, render }) => {
+    return ({ initialState, component, render }) => {
         intents = [];
 
          on(initialState,   set)
         .on(component,      add)
-        .on(act,            act)
         .on(render,         setRender)
 
         return {
