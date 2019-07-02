@@ -73,6 +73,14 @@ const statusUpdate = model => () => {
         : 'ready' 
 } 
 
+const currentActionUpdate = model => () => {
+  model.currentAction = model.started 
+        ? 'Abort'
+        : model.aborted || model.launched 
+          ? 'Done'
+          : 'Start'
+}
+
 const Launcher = (element, SAM) => {
 
   const { intents } = SAM({
@@ -93,19 +101,19 @@ const Launcher = (element, SAM) => {
           abortAcceptor,
           countDown
       ], 
-      // This example does have any reactor
       reactors: [
-        statusUpdate
+        statusUpdate,
+        currentActionUpdate
       ],
       naps: [
         // decrement counter once launched
         (state) => () => { 
-          state.started && !state.launched && setTimeout(decount, 1000)
+          state.started && !state.launched && state.counter > 0 && setTimeout(decount, 1000)
           return false
         },
         // launch rocket when countdown is complete
         (state) => () => {
-          state.counter === 0 && state.started && launchIntent()
+          state.counter === 0 && state.started && setTimeout(launch, 0)
           return false
         }
       ] 
@@ -113,34 +121,29 @@ const Launcher = (element, SAM) => {
   });
 
   const [
-    initIntent,
-    startIntent,
-    launchIntent,
-    abortIntent,
+    init,
+    start,
+    launch,
+    abort,
     decount
   ] = intents;
 
   SAM({
     render: (state) => {
-      const currentAction = state.started 
-        ? 'Abort'
-        : state.aborted || state.launched 
-          ? 'Done'
-          : 'Start'
       const currentIntent = state.started 
-        ? abortIntent : 
+        ? abort : 
         state.aborted || state.launched 
-          ? null : startIntent
+          ? null : start
       render(document.getElementById(element), _ => html`
         <p>Status: ${state.started ? state.counter : state.status}</p>
         <button onclick=${currentIntent}>
-          ${currentAction}
+          ${state.currentAction}
         </button>`
       )
     }
   })
 
-  initIntent()
+  init()
 }
 
 export default Launcher;

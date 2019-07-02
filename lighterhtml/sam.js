@@ -41,7 +41,6 @@ const SAM = (function() {
     let renderView = () => null
     const react = r => r()
     const accept = proposal => a => a(proposal)
-    const stateRepresentation = model => model.data
 
     // Model
     const model = {
@@ -57,7 +56,7 @@ const SAM = (function() {
 
     // State Representation
     const state = () => {
-        // Update state representation
+        // Compute state representation
         reactors.forEach(react)
 
         // render state representation (gated by nap)
@@ -70,8 +69,9 @@ const SAM = (function() {
     const mount = (arr = [], elements = [], operand = model.data) => elements.map(e => arr.push(e(operand)))
 
     const add = (component = {}) => {
-        // Add component's acceptors and reactors to SAM
+        // Decorate actions to present proposal to the model
         intents = A(component.actions).map(action => event => model.present(action(event)))
+        // Add component's acceptors,  reactors and naps to SAM
         mount(acceptors, component.acceptors)
         mount(reactors, component.reactors)
         mount(naps, component.naps)
