@@ -81,11 +81,11 @@ const Launcher = (element, SAM) => {
         // Actions are trivial in this example.
         // In general there is more work to do to  
         // create a proposal
-        present => () => present({}),
-        present => () => present({ start: true }),
-        present => () => present({ launch: true }),
-        present => () => present({ abort: true }),
-        present => () => present({ decBy: 1 })
+        () => ({}),
+        () => ({ start: true }),
+        () => ({ launch: true }),
+        () => ({ abort: true }),
+        () => ({ decBy: 1 })
       ], 
       acceptors: [
           startAcceptor,

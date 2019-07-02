@@ -71,7 +71,7 @@ const SAM = (function() {
 
     const add = (component = {}) => {
         // Add component's acceptors and reactors to SAM
-        intents = A(component.actions).map(action => action(model.present))
+        intents = A(component.actions).map(action => event => model.present(action(event)))
         mount(acceptors, component.acceptors)
         mount(reactors, component.reactors)
         mount(naps, component.naps)
