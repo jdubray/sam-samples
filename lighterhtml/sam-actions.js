@@ -12,8 +12,15 @@
 // OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, 
 // ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import createInstance from './sam-instance.js'
+import def from './SAM.js'
 
-const SAM = createInstance()
-
-export default SAM;
+// A set of methods to use the SAM pattern
+export default (SAM = def) => ({
+    addInitialState: (initialState) => SAM({ initialState }),
+    addComponent: (component) => SAM({ component }),
+    setRender: render => SAM({ render }),
+    getIntents: (actions) => SAM({ component: { actions }}),
+    addAcceptors: (acceptors, privateModel) => SAM({ component: { acceptors, privateModel }}),
+    addReactors: (reactors, privateModel) => SAM({ component: { reactors, privateModel }}),
+    addNAPs: (naps, privateModel) => SAM({ component: { naps, privateModel }})
+})

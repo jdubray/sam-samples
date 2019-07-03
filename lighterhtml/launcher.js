@@ -24,9 +24,10 @@
 // For more information, please refer to <http://unlicense.org/>
 
 
-const {render, html} = lighterhtml;
+const { render, html } = lighterhtml;
+import { step, match } from './sam-utils.js'
 
-
+// Acceptors
 const startAcceptor = model => ({ start }) => {
     if (start) {
         if (!model.started) {
@@ -55,6 +56,15 @@ const abortAcceptor = model => ({ abort }) => {
   }
 }
 
+const resetAcceptor = model => ({ reset }) => {
+  if (reset) {
+      model.started = false
+      model.aborted = false
+      model.launched = false
+      model.counter = 10
+  }
+}
+
 const countDown = model => ({ decBy }) => {
   if (decBy) {
     if (model.started && model.counter >= decBy) {
@@ -63,22 +73,20 @@ const countDown = model => ({ decBy }) => {
   }
 }
 
+
+// Reactors
 const statusUpdate = model => () => {
-  model.status = model.started 
-    ? 'starting'
-    : model.aborted 
-      ? 'aborted'
-      : model.launched 
-        ? 'launching'
-        : 'ready' 
+  model.status = match(
+    [model.started, model.aborted, model.launched, true], 
+    ['starting', 'aborted', 'launching', 'ready']
+  )
 } 
 
 const currentActionUpdate = model => () => {
-  model.currentAction = model.started 
-        ? 'Abort'
-        : model.aborted || model.launched 
-          ? 'Done'
-          : 'Start'
+  model.currentAction = match(
+    [model.started, model.aborted || model.launched, true],
+    ['abort', 'reset', 'start']
+  )
 }
 
 const Launcher = (element, SAM) => {
@@ -89,16 +97,18 @@ const Launcher = (element, SAM) => {
         // Actions are trivial in this example.
         // In general there is more work to do to  
         // create a proposal
-        () => ({}),
+        step,
         () => ({ start: true }),
         () => ({ launch: true }),
         () => ({ abort: true }),
+        () => ({ reset: true }),
         () => ({ decBy: 1 })
       ], 
       acceptors: [
           startAcceptor,
           launchAcceptor,
           abortAcceptor,
+          resetAcceptor,
           countDown
       ], 
       reactors: [
@@ -118,24 +128,26 @@ const Launcher = (element, SAM) => {
         }
       ] 
     }
-  });
+  })
 
-  const [
+  let [
     init,
     start,
     launch,
     abort,
+    reset,
     decount
-  ] = intents;
+  ] = intents
 
   SAM({
     render: (state) => {
-      const currentIntent = state.started 
-        ? abort : 
-        state.aborted || state.launched 
-          ? null : start
+      const currentIntent = match(
+        [state.started, state.aborted || state.launched, true],
+        [abort, reset, start] 
+      )
+      const status = state.started ? state.counter : state.status
       render(document.getElementById(element), _ => html`
-        <p>Status: ${state.started ? state.counter : state.status}</p>
+        <p>Status: ${status}</p>
         <button onclick=${currentIntent}>
           ${state.currentAction}
         </button>`
