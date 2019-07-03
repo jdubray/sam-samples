@@ -40,14 +40,13 @@ For more information, please refer to <http://unlicense.org/>
 <script type="module"> 
     const {render} = lighterhtml;
 
-    // import SAM from './SAM.js';
     const { SAM } = tp;
     import Launcher from './launcher.js';
 
     const COUNTER_MAX = 10;
 
     // Application's initial state
-    const state = SAM({
+    SAM({
         initialState: {
             counter: COUNTER_MAX,
             status: 'ready', 
