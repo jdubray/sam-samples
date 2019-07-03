@@ -24,8 +24,8 @@
 // For more information, please refer to <http://unlicense.org/>
 
 
-const { render, html } = lighterhtml;
-import { step, match } from './sam-utils.js'
+const { render, html } = lighterhtml
+const { step, match } = tp
 
 // Acceptors
 const startAcceptor = model => ({ start }) => {

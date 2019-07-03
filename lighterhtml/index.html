@@ -34,12 +34,14 @@ For more information, please refer to <http://unlicense.org/>
 
 <script src="https://unpkg.com/dom-augmentor@latest"></script>
 <script src="https://unpkg.com/lighterhtml@latest"></script>
+<script src="https://unpkg.com/sam-pattern@1.0.9/dist/sam.js"></script>
 
 
 <script type="module"> 
     const {render} = lighterhtml;
 
-    import SAM from './SAM.js';
+    // import SAM from './SAM.js';
+    const { SAM } = tp;
     import Launcher from './launcher.js';
 
     const COUNTER_MAX = 10;
