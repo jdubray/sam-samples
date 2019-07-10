@@ -1,6 +1,8 @@
 # SAM TodoMVC Implementation (ES6)
 
-> SAM is a new reactive/functional pattern that simplifies Front-End architectures by clearly separating the business logic from the view and, in particular, strictly decoupling back-end APIs from the Front-End. [- The SAM Pattern](http://sam.js.org)
+> SAM is a new software engineering pattern that simplifies the Front-End development by cleanly separating the business logic from the view and strictly decoupling back-end APIs from the Front-End. [- The SAM Pattern](http://sam.js.org)
+
+This code sample uses the `sam-pattern` [library](https://www.npmjs.com/package/sam-pattern)
 
 ![](http://sam.js.org/assets/figures/fig6.jpg)
 
@@ -15,12 +17,6 @@
 SAM is naturally isomorphic so all the code provided in that sample can, without modification, run on node.js following [this tutorial](http://sam.js.org/#iso) 
 
 The "mods" directory contains a modularized version of the application.
-
-## ES6 Implementation
-
-The code supports an ES6 implementation. You can comment/uncomment the E6 and ES5 sections in index.html
-
-You would need to run a local web server to load the index.html file. 
 
 ## License
 
