@@ -41,36 +41,37 @@
 		</footer>
 		<!-- Scripts here. Don't remove ↓ -->
 		<script src="node_modules/todomvc-common/base.js"></script>
-		<!-- ES5  -->
-		<script src="js/app.js"></script> 
-		<!-- ES6 
-		<script src="https://google.github.io/traceur-compiler/bin/traceur.js"></script>
-        <script src="https://google.github.io/traceur-compiler/bin/BrowserSystem.js"></script>
-        <script src="https://google.github.io/traceur-compiler/src/bootstrap.js"></script>
-        <script type="text/javascript">
-            
-            var actions = {} ;
-            
-        </script>
+
+		<!-- This sample uses the sam-pattern library 
+			 https://www.npmjs.com/package/sam-pattern 
+		---------------------------------------------------------->
+		<script src="https://unpkg.com/sam-pattern"></script>
+
 		<script type="module">
-		    
-          import {state}            from './mods/state.js' ;
-          import {model}            from './mods/model.js' ;
-          import {actions as a}     from './mods/actions.js' ;
-          import {view}             from './mods/view.js' ;
-          
-          // wire the elements of the pattern
-          state.init(view) ;
-          model.init(state) ;
-          a.init(model.present) ;
-          
-          // init
-          state.representation(model) ;
-          
-          actions = a ;
+			const { addInitialState, addComponent, setRender } = tp
+			import initialState from './sam/initialState.js'
+			import todo from './sam/todoComponent.js'
+			import createFrom from './sam/theme.js'
+			
+			addInitialState(initialState)
+			const { intents } = addComponent(todo)
+			
+			const theme = createFrom(intents)
+			
+			setRender(state => {
+				display(theme.representation(state))
+			})
+
+			displayAll()
+
+			const display = (stateRepresentation) => {
+				Object.keys(stateRepresentation).forEach(function (el) {
+					document.getElementById(el).innerHTML = stateRepresentation[el]
+				});
+
+				// clean up edited field
+				document.getElementById('new-todo').value = ''
+			}
         </script>
-        
-        END OF ES6 -->
-		
 	</body>
 </html>
