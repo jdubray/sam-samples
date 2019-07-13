@@ -8,6 +8,7 @@
 
 export default function(intents) {
 
+    // Add intents to the global scope
     Object.assign(window, {
         edit: intents[0],
         save: intents[1],
@@ -19,7 +20,7 @@ export default function(intents) {
         del: intents[7]
     })
 
-    // Component 1: Item list ///////////////////////////////////////////
+    // Theme Component 1: Item list ///////////////////////////////////////////
 
     const todoList = ({ items, displayActive, displayCompleted }, { toggleAll = 'toggleAll', save = 'save', edit = 'edit', done = 'done', del = 'del' } = {}) => {
 
@@ -69,7 +70,7 @@ export default function(intents) {
 
     }
 
-    // Component 2: Filters /////////////////////////////////////////// 
+    // Theme Component 2: Filters /////////////////////////////////////////// 
 
     const todoFilters = ({ displayActive, displayCompleted, count, completedCount }, {
         del = 'del', displayAll = 'displayAll', displayActiveIntent = 'displayActive', displayCompletedIntent = 'displayCompleted'

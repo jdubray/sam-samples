@@ -18,3 +18,7 @@ Some samples can be run here:
 - [inferno-rocket](https://plum-ocelot.hyperdev.space/)
 - [crud-blog](https://fish-trader.hyperdev.space/)
 - [vanilla-focus-textarea](https://codepen.io/sam-pattern/pen/vJvyro)
+
+## Recent Updates
+
+Updated the [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) sample to use the new [sam-pattern](https://www.npmjs.com/package/sam-pattern) library

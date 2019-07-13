@@ -48,30 +48,22 @@
 		<script src="https://unpkg.com/sam-pattern"></script>
 
 		<script type="module">
+			// sam-patter library
 			const { addInitialState, addComponent, setRender } = tp
+
+			// your application implementation
 			import initialState from './sam/initialState.js'
 			import todo from './sam/todoComponent.js'
 			import createFrom from './sam/theme.js'
+			import { display } from './sam/display.js'
 			
+			// wire it up
 			addInitialState(initialState)
 			const { intents } = addComponent(todo)
-			
-			const theme = createFrom(intents)
-			
-			setRender(state => {
-				display(theme.representation(state))
-			})
+			setRender([display, createFrom(intents).representation])
 
+			// start your application
 			displayAll()
-
-			const display = (stateRepresentation) => {
-				Object.keys(stateRepresentation).forEach(function (el) {
-					document.getElementById(el).innerHTML = stateRepresentation[el]
-				});
-
-				// clean up edited field
-				document.getElementById('new-todo').value = ''
-			}
         </script>
 	</body>
 </html>
