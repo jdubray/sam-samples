@@ -1,4 +1,4 @@
-# SAM TodoMVC Implementation (ES6)
+# SAM TodoMVC lit-html Implementation 
 
 > SAM is a new software engineering pattern that simplifies the Front-End development by cleanly separating the business logic from the view and strictly decoupling back-end APIs from the Front-End. [- The SAM Pattern](http://sam.js.org)
 
@@ -16,7 +16,7 @@ This code sample uses the `sam-pattern` [library](https://www.npmjs.com/package/
 
 SAM is naturally isomorphic so all the code provided in that sample can, without modification, run on node.js following [this tutorial](http://sam.js.org/#iso) 
 
-The "mods" directory contains a modularized version of the application.
+The sam directory contains all the application's code. The application logic is in the `todoComponent.js` file. The `theme.js` implements the view in a functional html style using lit-html.  
 
 ## License
 
