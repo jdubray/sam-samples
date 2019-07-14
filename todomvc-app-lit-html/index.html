@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	    <!-- this is it -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>SAM • TodoNoMVC</title>
+		<link rel="stylesheet" href="node_modules/todomvc-common/base.css">
+		<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+		<!-- CSS overrides - remove if you don't need it -->
+		<link rel="stylesheet" href="css/app.css">
+	</head>
+	<body>
+		<section class="todoapp">
+		    
+			<header class="header">
+			    
+			    <div id="todoHeader"></div>
+		
+			</header>
+			<!-- This section should be hidden by default and shown when there are todos -->
+			<section class="main">
+ 
+				<div id="todoList"></div>
+
+ 			</section>
+			<!-- This footer should hidden by default and shown when there are todos -->
+			<footer class="footer">
+				<!-- Remove this if you don't implement routing -->
+				<div id="filters"></div>
+ 				
+			</footer>
+		</section>
+		<footer class="info">
+			<p>Double-click to edit a todo</p>
+			<!-- Remove the below line ↓ -->
+			<p>Template by <a href="http://sindresorhus.com">Sindre Sorhus</a></p>
+			<!-- Change this out with your name and url ↓ -->
+			<p>Created by <a href="https://github.com/jdubray">Jean-Jacques Dubray</a></p>
+			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+		</footer>
+		<!-- Scripts here. Don't remove ↓ -->
+		<script src="node_modules/todomvc-common/base.js"></script>
+
+		<!-- This sample uses the sam-pattern library 
+			 https://www.npmjs.com/package/sam-pattern 
+		---------------------------------------------------------->
+		<script src="https://unpkg.com/sam-pattern"></script>
+
+		<script type="module">
+			// sam-patter library
+			const { addInitialState, addComponent, setRender } = tp
+
+			// your application implementation
+			import initialState from './sam/initialState.js'
+			import todo from './sam/todoComponent.js'
+			import createFrom from './sam/theme.js'
+			import { display } from './sam/display.js'
+			
+			// wire it up
+			addInitialState(initialState)
+			const { intents } = addComponent(todo)
+			setRender([display, createFrom(intents).representation])
+
+			// start your application
+			displayAll()
+        </script>
+	</body>
+</html>

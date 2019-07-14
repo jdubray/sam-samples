@@ -21,4 +21,5 @@ Some samples can be run here:
 
 ## Recent Updates
 
+created the [todomvc-app-lit-html](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-lit-html) sample with the [sam-pattern](https://www.npmjs.com/package/sam-pattern) library
 Updated the [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) sample to use the new [sam-pattern](https://www.npmjs.com/package/sam-pattern) library

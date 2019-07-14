@@ -6,6 +6,8 @@
 // the model following the expression:
 // C = f(M.part)
 
+import { html } from 'https://unpkg.com/lit-html@1.1.1/lit-html.js';
+
 export default function(intents) {
 
     // Add intents to the global scope
@@ -17,11 +19,7 @@ export default function(intents) {
         displayActive: intents[4],
         displayCompleted: intents[5],
         toggleAll: intents[6],
-        del: intents[7],
-        saveAndCleanup: (e) => {
-            document.getElementById('new-todo').value = ''
-            return window.save(e)
-        }
+        del: intents[7]
     })
 
     // Theme Component 1: Item list ///////////////////////////////////////////
@@ -36,28 +34,30 @@ export default function(intents) {
 
             if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' }
 
-            const label = `<label ondblclick="return ${edit}({'id':'${todo.id}'});">${todo.name}</label>`;
+            const label = html`<label @dblclick=${() => {
+                window.edit({ id : todo.id })}}>${todo.name}</label>`;
 
             // if the item is in edit mode we return an input field instead 
-            const input = `<input  id="edit-todo" class="new-todo"
-                            onchange="return ${save}({'id':'${todo.id}','name':document.getElementById('edit-todo').value});"
-                            value="${todo.name}"  autofocus></input>`;
+            const input = html`<input  id="edit-todo" class="new-todo"
+                            @change=${() => window.save({ id: todo.id, name:document.getElementById('edit-todo').value })}
+                            value="${todo.name}"  autofocus/>`;
 
-            return `
-                    <li ${(checked ? 'class="completed"' : '')}>
+            return html`
+                    <li class=${(checked ? 'completed' : '')}>
                         <div class="view">
-                            <input class="toggle" type="checkbox" ${(checked ? 'checked' : '')} 
-                                    onclick="return ${done}({'id':'${todo.id}'});">
+                            <input class="toggle" type="checkbox" ?checked=${checked} 
+                                    @click=${(e) => window.done({ id : todo.id })}>
                             ${(todo.edited ? input : label)}
-                            <button class="destroy" onclick="return ${del}({'id':'${todo.id}'});"></button>
+                            <button class="destroy" @click=${() => window.del({ id: todo.id })}></button>
                         </div>
                         <input class="edit" value="${todo.description}">
                     </li>` ;
         });
 
         let showToggleCheckbox = false;
-        const toggleCheckbox = `
-                    <input class="toggle-all" type="checkbox" onclick="return ${toggleAll}({});">
+        const toggleCheckbox = ''
+                html`
+                    <input class="toggle-all" type="checkbox" @click=${() => window.toggleAll({})}>
                     <label for="toggle-all">Mark all as complete</label>` ;
 
         items.forEach(function (item) {
@@ -67,9 +67,9 @@ export default function(intents) {
             }
         })
 
-        return `${(showToggleCheckbox ? toggleCheckbox : '')}
+        return html`${(showToggleCheckbox ? toggleCheckbox : '')}
                 <ul class="todo-list" id="todo-list">
-                    ${todoList.join('\n')}
+                    ${todoList}
                 </ul>` ;
 
     }
@@ -79,27 +79,27 @@ export default function(intents) {
     const todoFilters = ({ displayActive, displayCompleted, count, completedCount }, {
         del = 'del', displayAll = 'displayAll', displayActiveIntent = 'displayActive', displayCompletedIntent = 'displayCompleted'
     } = {}) => {
-        const displaySelectedClass = (displayActive && displayCompleted) ? 'class="selected" ' : ''
-        const displayActiveClass = (displayActive && !displayCompleted) ? 'class="selected" ' : ''
-        const displayCompletedClass = (!displayActive && displayCompleted) ? 'class="selected" ' : ''
+        const displaySelectedClass = (displayActive && displayCompleted) ? 'selected' : ''
+        const displayActiveClass = (displayActive && !displayCompleted) ? 'selected' : ''
+        const displayCompletedClass = (!displayActive && displayCompleted) ? 'selected' : ''
 
-        const clearCompleted = `
+        const clearCompleted = html`
                     <!-- Hidden if no completed items are left   -->
-                    <button class="clear-completed" onclick="return ${del}({});">Clear completed</button>
+                    <button class="clear-completed" @click=${() => window.del({})}>Clear completed</button>
                     `
 
-        return (`
+        return (html`
             <!-- This should be 0 items left by default -->
             <span class="todo-count"><strong>${count}</strong> item left</span>
             <ul class="filters">
                 <li>
-                    <a ${displaySelectedClass} href="#/" onclick="return ${displayAll}({});">All</a>
+                    <a class=${displaySelectedClass} href="#/" @click=${() => window.displayAll({})}>All</a>
                 </li>
                 <li>
-                    <a ${displayActiveClass} href="#/active" onclick="return ${displayActiveIntent}({});">Active</a>
+                    <a class=${displayActiveClass} href="#/active" @click=${() => window.displayActive({})}>Active</a>
                 </li>
                 <li>
-                    <a ${displayCompletedClass} href="#/completed" onclick="return ${displayCompletedIntent}({});">Completed</a>
+                    <a class=${displayCompletedClass} href="#/completed" @click=${() => window.displayCompleted({})}>Completed</a>
                 </li>
             </ul>
             ${((completedCount > 0) ? clearCompleted : '')}`
@@ -107,11 +107,14 @@ export default function(intents) {
     }
 
 
-    const todoHeader = (save = 'saveAndCleanup') => {
-        return `<h1>todos</h1>
-                <input     id="new-todo"  class="new-todo"  
-                        onchange="return ${save}({'name':document.getElementById('new-todo').value});" 
-                        placeholder="What needs to be done?" autofocus></input>`
+    const todoHeader = (save = 'save') => {
+        return html`<h1>todos</h1>
+                    <input     id="new-todo"  class="new-todo" 
+                        @change=${(e) => {
+                            window.save({ name: e.srcElement.value })
+                            e.srcElement.value = ''
+                        }}
+                        placeholder="What needs to be done?" autofocus />`
     }
 
     const representation = (state) => ({

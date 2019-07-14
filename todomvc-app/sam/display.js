@@ -5,6 +5,6 @@ export const display = (stateRepresentation) => {
     });
 
     // clean up edited field
-    document.getElementById('new-todo').value = ''
+    // document.getElementById('new-todo').value = ''
 }
 
