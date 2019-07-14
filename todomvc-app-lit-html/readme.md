@@ -12,9 +12,7 @@ This code sample uses the `sam-pattern` [library](https://www.npmjs.com/package/
 - Clone this repo and install the dependencies with [npm](https://npmjs.com) by running: `npm install`.
 - Open the the index.html file
 
-## Server side implementation
-
-SAM is naturally isomorphic so all the code provided in that sample can, without modification, run on node.js following [this tutorial](http://sam.js.org/#iso) 
+## Implementation
 
 The sam directory contains all the application's code. The application logic is in the `todoComponent.js` file. The `theme.js` implements the view in a functional html style using lit-html.  
 
