@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import '../node_modules/todomvc-common/base.css'
 import '../node_modules/todomvc-common/base.css'
 
+const clone = (state) => {
+    const comps = state.__components
+    delete state.__components
+    const cln = JSON.parse(JSON.stringify(state))
+    if (comps) {
+      cln.__components = []
+      if (comps.length > 0) {
+        comps.forEach((c) => {
+          delete c.parent
+          cln.__components.push(Object.assign(clone(c), { parent: cln }))
+        })
+      }
+    }
+    return cln
+  }
+
 export let TodoApp = () => {
     return (<div/>)
 }
@@ -73,17 +89,20 @@ export function TodoAppFactory(intents, initialState) {
                     <li>
                         <a className={displaySelectedClass} href="#/" onClick={(e) => {
                                 console.log(e)
+                                e.preventDefault();
                                 displayAll({})
                             }}>All</a>
                     </li>
                     <li>
                         <a className={displayActiveClass} href="#/active" onClick={(e) => {
                                 console.log(e)
+                                e.preventDefault();
                                 displayActive({})}}>Active</a>
                     </li>
                     <li>
                         <a className={displayCompletedClass} href="#/completed" onClick={(e) => {
                                 console.log(e)
+                                e.preventDefault();
                                 displayCompleted({})}}>Completed</a>
                     </li>
                 </ul>
@@ -92,7 +111,12 @@ export function TodoAppFactory(intents, initialState) {
         const ClearCompleted = ({ completedCount }) => {
                     if (completedCount > 0) {
                         return (
-                            <button className="clear-completed" onClick={(e) => del({})}>Clear completed</button>
+                            <button className="clear-completed" 
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    del({})
+                                }}
+                            >Clear completed</button>
                         )
                     }
                     return (
@@ -106,11 +130,12 @@ export function TodoAppFactory(intents, initialState) {
                 const deleted = todo.deleted || false;
                 const checked = todo.checked || false;
 
-                if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return '' }
+                if ((deleted) || (!displayActive && !checked) || (!displayCompleted && checked)) { return (<div className="dontdisplay"></div>) }
 
                 const Label = ({ todo }) => {
                    return (
-                    <label onDoubleClick={() => {
+                    <label onDoubleClick={(e) => {
+                        e.preventDefault()
                         edit({ id : todo.id })
                     }}>{todo.name}</label>
                    )
@@ -141,10 +166,16 @@ export function TodoAppFactory(intents, initialState) {
                         <div className="view">
                             <input className="toggle" type="checkbox" defaultChecked={todo.checked} 
                                     onClick={(e) => {
+                                        e.preventDefault()
                                         done({ id : todo.id })
                                     }} />
                             <InputOrLabel todo={todo}/>
-                            <button className="destroy" onClick={() => del({ id: todo.id })}></button>
+                            <button className="destroy" 
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    del({ id: todo.id })
+                                }}
+                            ></button>
                         </div>
                         
                     </li>
@@ -171,13 +202,17 @@ export function TodoAppFactory(intents, initialState) {
                 </section>
 
                 <footer className="footer">
-                    <span className="todo-count"><strong>{todos.count}</strong> item left</span>
-                    <Filters todos={todos} />
-                    <ClearCompleted clearCompleted={todos.completedCount} />
+                    <div id="filters">
+                        <span className="todo-count"><strong>{todos.count}</strong> item left</span>
+                        <Filters todos={todos} />
+                        <ClearCompleted clearCompleted={todos.completedCount} />
+                    </div>
                 </footer>
             </div>
           );
         }
 
-        return [state => setTodos(state)]
+        return [state => {
+            setTodos(clone(state))
+        }]
 }
