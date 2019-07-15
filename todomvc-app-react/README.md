@@ -1,4 +1,4 @@
-This project is [based on](https://github.com/Upmostly/react-todo) James King [tutorial](https://upmostly.com/tutorials/build-a-todo-app-in-react-using-hooks): Build a Todo App in React Using Hooks
+This project is [based on](https://github.com/Upmostly/react-todo) James King [tutorial](https://upmostly.com/tutorials/build-a-todo-app-in-react-using-hooks): Build a Todo App in React Using Hooks and on the [TODOMVC](http://todomvc.com/) project
 
 ## Available Scripts
 

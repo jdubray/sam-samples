@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../node_modules/todomvc-app-css/index.css';
-import { TodoAppFactory, TodoApp }  from './TodoApp';
+import { TodoAppFactory, TodoApp }  from './sam/TodoApp';
 import * as serviceWorker from './serviceWorker';
 
 import initialState from './sam/initialState.js'
@@ -10,7 +10,7 @@ import todo from './sam/todoComponent.js'
 import tp from 'sam-pattern'
 
 const { addInitialState, addComponent, setRender } = tp
-// wire it up
+// wire it up  
 addInitialState(initialState)
 const { intents } = addComponent(todo)
 const todoApp = TodoAppFactory(intents, initialState)
