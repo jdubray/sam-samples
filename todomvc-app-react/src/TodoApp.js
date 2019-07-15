@@ -64,14 +64,35 @@ export function TodoAppFactory(intents, initialState) {
         //     // e.srcElement.value = ''
         // }}
 
-        const displaySelectedClass = (todos.displayActive && todos.displayCompleted) ? 'selected' : ''
-        const displayActiveClass = (todos.displayActive && !todos.displayCompleted) ? 'selected' : ''
-        const displayCompletedClass = (!todos.displayActive && todos.displayCompleted) ? 'selected' : ''
-
+        const Filters = ({ todos }) => {
+            const displaySelectedClass = (todos.displayActive && todos.displayCompleted) ? 'selected' : ''
+            const displayActiveClass = (todos.displayActive && !todos.displayCompleted) ? 'selected' : ''
+            const displayCompletedClass = (!todos.displayActive && todos.displayCompleted) ? 'selected' : ''
+            return (
+                <ul className="filters">
+                    <li>
+                        <a className={displaySelectedClass} href="#/" onClick={(e) => {
+                                console.log(e)
+                                displayAll({})
+                            }}>All</a>
+                    </li>
+                    <li>
+                        <a className={displayActiveClass} href="#/active" onClick={(e) => {
+                                console.log(e)
+                                displayActive({})}}>Active</a>
+                    </li>
+                    <li>
+                        <a className={displayCompletedClass} href="#/completed" onClick={(e) => {
+                                console.log(e)
+                                displayCompleted({})}}>Completed</a>
+                    </li>
+                </ul>
+            )
+        }
         const ClearCompleted = ({ completedCount }) => {
                     if (completedCount > 0) {
                         return (
-                            <button className="clear-completed" onClick={() => window.del({})}>Clear completed</button>
+                            <button className="clear-completed" onClick={(e) => del({})}>Clear completed</button>
                         )
                     }
                     return (
@@ -114,52 +135,46 @@ export function TodoAppFactory(intents, initialState) {
                         <Label todo={todo} />
                     )
                 }
-
+                // <input className="edit" defaultValue={todo.description} />
                 return (
                     <li className={(todo.checked ? 'completed' : '')} key={todo.id}>
                         <div className="view">
                             <input className="toggle" type="checkbox" defaultChecked={todo.checked} 
-                                    onClick={(e) => done({ id : todo.id })} />
+                                    onClick={(e) => {
+                                        done({ id : todo.id })
+                                    }} />
                             <InputOrLabel todo={todo}/>
                             <button className="destroy" onClick={() => del({ id: todo.id })}></button>
                         </div>
-                        <input className="edit" defaultValue={todo.description} />
+                        
                     </li>
                 )
             })
         }
         
           return (
-            <div className="app">
-                <h1>todos</h1>
-                <input className="new-todo"
-                    id="new-todo"  
-                    onKeyDown={e => handleKeyDown(e)} 
-                    placeholder="What needs to be done?" 
-                    autoFocus
-                />
+              <div>
+                <header className="header">
+                    <h1>todos</h1>
+                    <input className="new-todo"
+                        id="new-todo"  
+                        onKeyDown={e => handleKeyDown(e)} 
+                        placeholder="What needs to be done?" 
+                        autoFocus
+                    />
+                </header>
 
-              
-              <form className="todo-list">
-                <ul>
-                  <TodoList items={todos.items} />
-                </ul>
-              </form>
+                <section className="main">
+                    <ul className="todo-list">
+                        <TodoList items={todos.items} />
+                    </ul>
+                </section>
 
-             
-            <span className="todo-count"><strong>{todos.count}</strong> item left</span>
-            <ul className="filters">
-                <li>
-                    <a className={displaySelectedClass} href="#/" onClick={() => displayAll({})}>All</a>
-                </li>
-                <li>
-                    <a className={displayActiveClass} href="#/active" onClick={() => displayActive({})}>Active</a>
-                </li>
-                <li>
-                    <a className={displayCompletedClass} href="#/completed" onClick={() => displayCompleted({})}>Completed</a>
-                </li>
-            </ul>
-            <ClearCompleted clearCompleted={todos.completedCount} />
+                <footer className="footer">
+                    <span className="todo-count"><strong>{todos.count}</strong> item left</span>
+                    <Filters todos={todos} />
+                    <ClearCompleted clearCompleted={todos.completedCount} />
+                </footer>
             </div>
           );
         }
