@@ -2,22 +2,6 @@ import React, { useState } from 'react';
 import '../../node_modules/todomvc-common/base.css'
 import '../../node_modules/todomvc-common/base.css'
 
-const clone = (state) => {
-    const comps = state.__components
-    delete state.__components
-    const cln = JSON.parse(JSON.stringify(state))
-    if (comps) {
-      cln.__components = []
-      if (comps.length > 0) {
-        comps.forEach((c) => {
-          delete c.parent
-          cln.__components.push(Object.assign(clone(c), { parent: cln }))
-        })
-      }
-    }
-    return cln
-  }
-
 export let TodoApp = () => {
     return (<div/>)
 }
@@ -41,44 +25,6 @@ export function TodoAppFactory(intents, initialState) {
               return del({ deleteId: id });
             }
           }
-        
-          function createTodoAtIndex(e, i) {
-            const newTodos = [...todos];
-            newTodos.splice(i + 1, 0, {
-              content: '',
-              isCompleted: false,
-            });
-            setTodos(newTodos);
-            setTimeout(() => {
-              document.forms[0].elements[i + 1].focus();
-            }, 0);
-          }
-        
-          function updateTodoAtIndex(e, i) {
-            const newTodos = [...todos];
-            newTodos[i].content = e.target.value;
-            setTodos(newTodos);
-          }
-        
-          function removeTodoAtIndex(i) {
-            if (i === 0 && todos.length === 1) return;
-            setTodos(todos => todos.slice(0, i).concat(todos.slice(i + 1, todos.length)));
-            setTimeout(() => {
-              document.forms[0].elements[i - 1].focus();
-            }, 0);
-          }
-        
-          function toggleTodoCompleteAtIndex(index) {
-            const temporaryTodos = [...todos];
-            temporaryTodos[index].isCompleted = !temporaryTodos[index].isCompleted;
-            setTodos(temporaryTodos);
-          }
-
-        //   onChange={(e) => {
-        //     e.preventDefault()
-        //     save({ name: e.target.value })
-        //     // e.srcElement.value = ''
-        // }}
 
         const Filters = ({ todos }) => {
             const displaySelectedClass = (todos.displayActive && todos.displayCompleted) ? 'selected' : ''
@@ -88,20 +34,17 @@ export function TodoAppFactory(intents, initialState) {
                 <ul className="filters">
                     <li>
                         <a className={displaySelectedClass} href="#/" onClick={(e) => {
-                                console.log(e)
                                 e.preventDefault();
                                 displayAll({})
                             }}>All</a>
                     </li>
                     <li>
                         <a className={displayActiveClass} href="#/active" onClick={(e) => {
-                                console.log(e)
                                 e.preventDefault();
                                 displayActive({})}}>Active</a>
                     </li>
                     <li>
                         <a className={displayCompletedClass} href="#/completed" onClick={(e) => {
-                                console.log(e)
                                 e.preventDefault();
                                 displayCompleted({})}}>Completed</a>
                     </li>
@@ -124,7 +67,7 @@ export function TodoAppFactory(intents, initialState) {
                     )
         }
 
-        const TodoList = ({ items }) => {
+        const TodoList = ({ items, displayActive, displayCompleted }) => {
             return items.map((todo) => {
 
                 const deleted = todo.deleted || false;
@@ -160,7 +103,7 @@ export function TodoAppFactory(intents, initialState) {
                         <Label todo={todo} />
                     )
                 }
-                // <input className="edit" defaultValue={todo.description} />
+                    
                 return (
                     <li className={(todo.checked ? 'completed' : '')} key={todo.id}>
                         <div className="view">
@@ -177,42 +120,42 @@ export function TodoAppFactory(intents, initialState) {
                                 }}
                             ></button>
                         </div>
-                        
                     </li>
                 )
             })
         }
         
-          return (
-              <div>
-                <header className="header">
-                    <h1>todos</h1>
-                    <input className="new-todo"
-                        id="new-todo"  
-                        onKeyDown={e => handleKeyDown(e)} 
-                        placeholder="What needs to be done?" 
-                        autoFocus
-                    />
-                </header>
+        return (
+            <div>
+            <header className="header">
+                <h1>todos</h1>
+                <input className="new-todo"
+                    id="new-todo"  
+                    onKeyDown={e => handleKeyDown(e)} 
+                    placeholder="What needs to be done?" 
+                    autoFocus
+                />
+            </header>
 
-                <section className="main">
-                    <ul className="todo-list">
-                        <TodoList items={todos.items} />
-                    </ul>
-                </section>
+            <section className="main">
+                <ul className="todo-list">
+                    <TodoList items={todos.items} displayActive={todos.displayActive} displayCompleted={todos.displayCompleted} />
+                </ul>
+            </section>
 
-                <footer className="footer">
-                    <div id="filters">
-                        <span className="todo-count"><strong>{todos.count}</strong> item left</span>
-                        <Filters todos={todos} />
-                        <ClearCompleted clearCompleted={todos.completedCount} />
-                    </div>
-                </footer>
-            </div>
-          );
-        }
+            <footer className="footer">
+                <div id="filters">
+                    <span className="todo-count"><strong>{todos.count}</strong> item left</span>
+                    <Filters todos={todos} />
+                    <ClearCompleted clearCompleted={todos.completedCount} />
+                </div>
+            </footer>
+        </div>
+        );
+    }
 
-        return [state => {
-            setTodos(clone(state))
-        }]
+    // Return render hook
+    return [state => {
+        setTodos(state)
+    }]
 }

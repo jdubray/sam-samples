@@ -6,10 +6,11 @@ import * as serviceWorker from './serviceWorker';
 
 import initialState from './sam/initialState.js'
 import todo from './sam/todoComponent.js'
-// import { display } from './sam/display.js'
-import tp from 'sam-pattern'
+import { createInstance, api } from 'sam-pattern'
 
-const { addInitialState, addComponent, setRender } = tp
+// Creates a SAM instance that clones the model before rendering
+const { addInitialState, addComponent, setRender } = api(createInstance({ clone: true }))
+
 // wire it up  
 addInitialState(initialState)
 const { intents } = addComponent(todo)
