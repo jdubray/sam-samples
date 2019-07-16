@@ -13,6 +13,7 @@ export function TodoAppFactory(intents, initialState) {
 
     TodoApp = function () {
         [todos, setTodos] = useState(initialState)
+        
         function handleKeyDown(e, id) {
             if (e.key === 'Enter') {
               save({ id, name: e.target.value });
@@ -24,7 +25,7 @@ export function TodoAppFactory(intents, initialState) {
               e.preventDefault();
               return del({ deleteId: id });
             }
-          }
+        }
 
         const Filters = ({ todos }) => {
             const displaySelectedClass = (todos.displayActive && todos.displayCompleted) ? 'selected' : ''
@@ -52,19 +53,19 @@ export function TodoAppFactory(intents, initialState) {
             )
         }
         const ClearCompleted = ({ completedCount }) => {
-                    if (completedCount > 0) {
-                        return (
-                            <button className="clear-completed" 
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    del({})
-                                }}
-                            >Clear completed</button>
-                        )
-                    }
-                    return (
-                        <div></div>
-                    )
+            if (completedCount > 0) {
+                return (
+                    <button className="clear-completed" 
+                        onClick={(e) => {
+                            e.preventDefault()
+                            del({})
+                        }}
+                    >Clear completed</button>
+                )
+            }
+            return (
+                <div></div>
+            )
         }
 
         const TodoList = ({ items, displayActive, displayCompleted }) => {
