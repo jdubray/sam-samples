@@ -83,7 +83,7 @@ const todoComponent = Vue.component('todo-app', {
                 :class="{completed: todo.isDone, editing: todo === editingTodo}">
 
               <div class="view">
-                <input class="toggle" type="checkbox" @click="complete(todo)" v-bind:value="!todo.isDone">
+                <input class="toggle" type="checkbox" @click="complete(todo)" v-bind:checked="todo.isDone">
                 <label @dblclick="startEditing(todo)">{{todo.text}}</label>
                 <button class="destroy" @click="destroy(todo)"></button>
               </div>
