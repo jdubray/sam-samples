@@ -6,7 +6,7 @@ addInitialState({
     _todos: JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [
     { text: 'Learn JavaScript ES6+ goodies', isDone: true },
     { text: 'Learn Vue', isDone: false },
-    { text: 'Build something awesome', isDone: false },
+    { text: 'Build something awesome with SAM', isDone: false },
     ],
     editingTodo: null,
     newTodo: null,
@@ -23,8 +23,6 @@ const { intents, state } = addComponent({
     acceptors:[
         model => ({ complete }) => {
             if (complete) {
-                const index = model._todos.indexOf(complete)
-                // model._todos[index].isDone = !complete.isDone //(complete.isDone === undefined ? true : )
                 complete.isDone = !complete.isDone
             }
         },

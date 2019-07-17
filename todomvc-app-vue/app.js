@@ -36,10 +36,7 @@ const todoComponent = Vue.component('todo-app', {
   },
   computed: {
     todos() {
-        const out = localState('_todos').filter(todo => !todo.isDeleted);
-        const foo = localState('exists')
-        console.log(out)
-        return out
+        return localState('_todos').filter(todo => !todo.isDeleted);
     },
     status() {
       return this.$route.params.status;
