@@ -26,7 +26,7 @@ const { intents, state } = addComponent({
     acceptors:[
         model => ({ complete, del, clear }) => 
             on(complete, () => complete.isDone = !complete.isDone )
-                .on(del, () => model._todos[model._todos.indexOf(del)].isDeleted = true)
+                .on(del, () => del.isDeleted = true)
                 .on(clear, () => model.completedTodos.forEach(t => t.isDeleted = true)),
         
         model => ({ text, startEditing, finishEditing, cancelEditing }) => 
