@@ -1,4 +1,4 @@
-const { addInitialState, addComponent, setRender } = tp
+const { addInitialState, addComponent, setRender } = tp;
 
 const LOCAL_STORAGE_KEY = 'todo-app-vue';
 // wire it up
@@ -10,7 +10,7 @@ addInitialState({
     ],
     editingTodo: null,
     newTodo: null,
-})
+});
 
 const { intents, state } = addComponent({
     actions:[
@@ -18,7 +18,10 @@ const { intents, state } = addComponent({
         todo => ({ complete: todo }),
         todo => ({ del: todo }),
         () => ({ clear: true }),
-        (event) => ({ text: event.target.value })
+        event => ({ text: event.target.value }),
+        todo => ({ startEditing: todo }),
+        () => ({ finishEditing: true }),
+        todo => ({ cancelEditing: todo })
     ],
     acceptors:[
         model => ({ complete }) => {
@@ -41,16 +44,37 @@ const { intents, state } = addComponent({
             if (text) {
                 model._todos.push({ text, isDone: false, isDeleted: false });
             }
+        },
+        model => ({ startEditing }) => {
+            if (startEditing) {
+                model._editingTodo = startEditing;
+                model._beforeText = startEditing.text;
+            }
+        },
+        model => ({ finishEditing }) => {
+            if (finishEditing) {
+                model._editingTodo = null;
+                model._beforeText = '';
+            }
+        },
+        model => ({ cancelEditing }) => {
+            if (cancelEditing) {
+                model._editingTodo = null;
+                cancelEditing.text = model._beforeText;
+            }
         }
     ],
     reactors: [
         model => () => model.activeTodos = model._todos.filter(t => !t.isDone && !t.isDeleted),
         model => () => model.completedTodos = model._todos.filter(t => t.isDone && !t.isDeleted),
         model => () => model.itemsLeft = model._todos.filter(t => !t.isDone && !t.isDeleted).length,
-        model => () => model._todos.forEach(t => t.isDeleted = t.isDeleted === undefined ? false : t.isDeleted) 
+        model => () => model._todos.forEach(t => t.isDeleted = t.isDeleted === undefined ? false : t.isDeleted),
+        model => () => model.editingTodo = model._editingTodo,
+        model => () => model.beforeText = model._beforeText,
+        model => () => model._todos = model._todos.filter(todo => !todo.isDeleted)
     ]
-})
+});
 
-const [start, completeIntent, deleteIntent, clearIntent, createTodoIntent] = intents
+const [start, completeIntent, deleteIntent, clearIntent, createTodoIntent, startEditingIntent, finishEditingIntent, cancelEditingIntent] = intents;
 
-start()
+start();

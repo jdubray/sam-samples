@@ -1,47 +1,37 @@
 const localState = (prop) => {
   if (prop && typeof prop === 'object') {
-    const todos = state()._todos
-    const index = todos.indexOf(prop)
-    return todos[index]
+    const todos = state()._todos;
+    const index = todos.indexOf(prop);
+    return todos[index];
   }
   if (prop === 'todos') {
-    return state('_todos')
+    return state('_todos');
   }
-  return state(prop)
+  return state(prop);
 }
 
 const todoComponent = Vue.component('todo-app', {
   data() {
-    return localState()
+    return localState();
   },
   methods: {
     destroy: deleteIntent,
-    startEditing(todo) {
-      // this.editingTodo = todo;
-      // this.beforeText = todo.text;
-    },
-    finishEditing(todo) {
-      // this.editingTodo = null;
-    },
-    cancelEditing(todo) {
-      // this.editingTodo = null;
-      // todo.text = this.beforeText;
-    },
+    startEditing: startEditingIntent,
+    finishEditing: finishEditingIntent,
+    cancelEditing: cancelEditingIntent,
     complete: completeIntent,
-    createTodo(event) {
-      createTodoIntent(event)
-      this.newTodo = null
-    },
+    createTodo: createTodoIntent,
     clearCompleted: clearIntent
   },
   computed: {
     todos() {
-        return localState('_todos').filter(todo => !todo.isDeleted);
+        return localState('todos');
     },
     status() {
       return this.$route.params.status;
     },
     filteredTodos () {
+      this.newTodo = null;
       switch (this.status) {
         case 'active':
           return localState('activeTodos');
@@ -49,7 +39,7 @@ const todoComponent = Vue.component('todo-app', {
           return localState('completedTodos');
 
         default:
-          return localState('_todos').filter(todo => !todo.isDeleted);
+          return localState('todos');
       }
     }
   },
