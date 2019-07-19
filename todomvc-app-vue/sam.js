@@ -1,4 +1,4 @@
-const { addInitialState, addComponent, setRender } = tp;
+const { addInitialState, addComponent, setRender, on } = tp;
 
 const LOCAL_STORAGE_KEY = 'todo-app-vue';
 // wire it up
@@ -24,45 +24,26 @@ const { intents, state } = addComponent({
         todo => ({ cancelEditing: todo })
     ],
     acceptors:[
-        model => ({ complete }) => {
-            if (complete) {
-                complete.isDone = !complete.isDone
-            }
-        },
-        model => ({ del }) => {
-            if (del) {
-                const index = model._todos.indexOf(del);
-                model._todos[index].isDeleted = true;
-            }
-        },
-        model => ({ clear }) => {
-            if (clear) {
-                model.completedTodos.forEach(t => t.isDeleted = true);
-            }
-        },
-        model => ({ text }) => { 
-            if (text) {
-                model._todos.push({ text, isDone: false, isDeleted: false });
-            }
-        },
-        model => ({ startEditing }) => {
-            if (startEditing) {
-                model._editingTodo = startEditing;
-                model._beforeText = startEditing.text;
-            }
-        },
-        model => ({ finishEditing }) => {
-            if (finishEditing) {
-                model._editingTodo = null;
-                model._beforeText = '';
-            }
-        },
-        model => ({ cancelEditing }) => {
-            if (cancelEditing) {
-                model._editingTodo = null;
-                cancelEditing.text = model._beforeText;
-            }
-        }
+        model => ({ complete, del, clear }) => 
+            on(complete, () => complete.isDone = !complete.isDone )
+                .on(del, () => model._todos[model._todos.indexOf(del)].isDeleted = true)
+                .on(clear, () => model.completedTodos.forEach(t => t.isDeleted = true)),
+        
+        model => ({ text, startEditing, finishEditing, cancelEditing }) => 
+            on(text, () =>
+                model._todos.push({ text, isDone: false, isDeleted: false }))
+                .on(startEditing, () => {
+                    model._editingTodo = startEditing;
+                    model._beforeText = startEditing.text;
+                })
+                .on(finishEditing, () => {
+                    model._editingTodo = null;
+                    model._beforeText = '';
+                })
+                .on(cancelEditing, () => {
+                    model._editingTodo = null;
+                    cancelEditing.text = model._beforeText;
+                })
     ],
     reactors: [
         model => () => model.activeTodos = model._todos.filter(t => !t.isDone && !t.isDeleted),
