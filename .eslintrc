@@ -1,0 +1,22 @@
+{
+    "extends": "airbnb",
+    "env": {
+        "node": true,
+        "es6": true,
+        "browser": true
+    },
+    "rules": {
+        "linebreak-style": ["error", "windows"],
+        "semi": ["error", "never"],
+        "max-len": ["error", { "code": 130 }],
+        "no-unused-expressions": ["error", { "allowShortCircuit": true }],
+        "comma-dangle": ["error", "never"],
+        "default-case": 0,
+        "no-use-before-define": 0,
+        "no-nested-ternary": 0,
+        "func-names": ["error", "never"],
+        "no-plusplus": 0,
+        "no-underscore-dangle": 0,
+        "no-param-reassign": 0
+    }
+}

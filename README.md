@@ -19,7 +19,9 @@ Some samples can be run here:
 - [crud-blog](https://fish-trader.hyperdev.space/)
 - [vanilla-focus-textarea](https://codepen.io/sam-pattern/pen/vJvyro)
 
-## Recent Updates
+## Recently Updated
 
-created the [todomvc-app-lit-html](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-lit-html) sample with the [sam-pattern](https://www.npmjs.com/package/sam-pattern) library
-Updated the [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) sample to use the new [sam-pattern](https://www.npmjs.com/package/sam-pattern) library
+Now running with the [sam-pattern](https://www.npmjs.com/package/sam-pattern) library
+- [todomvc-app-lit-html](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-lit-html)  
+- [todomvc-app-react](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-react) samples 
+- [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) (vanillajs)

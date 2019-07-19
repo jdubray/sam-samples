@@ -1,0 +1,21 @@
+{
+  "name": "todo-vue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "serve": "npx live-server --entry-file=index.html",
+    "start": "npm run serve"
+  },
+  "author": "Adrian Mejia <me@adrianmejia.com> (http://adrianmejia.com)",
+  "license": "ISC",
+  "dependencies": {
+    "todomvc-app-css": "2.2.0",
+    "vue": "2.6.10",
+    "vue-router": "3.0.7",
+    "sam-pattern": "^1.4.6"
+  },
+  "devDependencies": {
+    "live-server": "1.2.1"
+  }
+}
