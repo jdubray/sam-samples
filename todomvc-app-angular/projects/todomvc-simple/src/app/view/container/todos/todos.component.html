@@ -1,0 +1,60 @@
+<section class="todoapp">
+  <header class="header">
+    <h1>todos</h1>
+    <input
+      class="new-todo"
+      placeholder="What needs to be done?"
+      autofocus=""
+      [formControl]="newTodoControl"
+      (keyup.enter)="addTodo()"
+    />
+  </header>
+  <ng-container *ngIf="(sam.todos$) as todos">
+    <section class="main" *ngIf="todos.length > 0">
+      <ul class="todo-list" [formGroup]="editTodoControls">
+        <li
+          *ngFor="let todo of todos; index as i"
+          [class.completed]="todo.completed"
+          [class.editing]="todo.editing"
+        >
+          <div class="view">
+            <input
+              class="toggle"
+              type="checkbox"
+              (click)="toggleCompletion(i)"
+              [checked]="todo.completed"
+            />
+            <label (dblclick)="editTodo(i, todo)">{{ todo.title }}</label>
+            <button class="destroy" (click)="removeTodo(i)"></button>
+          </div>
+          <input
+            class="edit"
+            *ngIf="todo.editing"
+            [formControlName]="i"
+            (blur)="stopEditing(i)"
+            (keyup.enter)="stopEditing(i)"
+            (keyup.escape)="cancelEditingTodo(i)"
+          />
+        </li>
+      </ul>
+    </section>
+    <footer class="footer" *ngIf="todos.length > 0">
+      <ng-container
+        *ngIf="(sam.remainingTodosCount$) as remainingTodosCount"
+      >
+        <span class="todo-count">
+          <strong>{{ remainingTodosCount }}</strong>
+          {{ remainingTodosCount === 1 ? 'item' : 'items' }}
+          left
+        </span>
+      </ng-container>
+      <button
+        class="clear-completed"
+        *ngIf="(sam.completedTodosCount$) > 0"
+        (click)="removeCompleted()"
+      >
+        Clear completed
+      </button>
+    </footer>
+  </ng-container>
+</section>
