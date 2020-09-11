@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "express-http-proxy": "^0.6.0",
     "he": "*",
-    "http-proxy": "1.12.x",
+    "http-proxy": "1.18.x",
     "memcached": "2.2.x",
     "morgan": "^1.9.1",
     "node-uuid": "*",
