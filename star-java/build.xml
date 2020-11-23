@@ -1,0 +1,19 @@
+<project>
+	
+	<property name="bin" value="bin"/>
+	<property name="lib" value="lib"/>
+	
+    <target name="jar">
+    	<jar destfile="${lib}/star.jar"
+    	       basedir="${bin}"
+    	       includes="xgen/**"
+    		   excludes="xgen/io/star/sample/**"
+    	/>        
+    	<copy file="${lib}/star.jar" todir="/Users/jjdubray/Documents/dev/metaprogramming/star-programming/reliable-api-call/src/main/resources/lib/"/>
+    	<copy file="${lib}/star.jar" todir="/Users/jjdubray/Documents/dev/wso2esb-4.8.1/repository/components/lib/" />
+    </target>
+	
+
+
+</project>
+
