@@ -17,7 +17,7 @@
     "log4js": "^1.0.1",
     "morgan": "1.6.x",
     "node-uuid": "*",
-    "nodemailer": "^2.6.4",
+    "nodemailer": "^6.4.16",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "tingodb": "^0.4.2"
