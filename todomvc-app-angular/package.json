@@ -23,7 +23,7 @@
     "@ngrx/effects": "^7.4.0",
     "@ngrx/store": "^7.4.0",
     "core-js": "^2.5.4",
-    "immer": "^2.1.4",
+    "immer": "^9.0.6",
     "rxjs": "~6.3.3",
     "sam-pattern": "^1.4.6",
     "todomvc-app-css": "^2.2.0",
