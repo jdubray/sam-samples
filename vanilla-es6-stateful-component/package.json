@@ -14,7 +14,7 @@
     "cors": "^2.8.1",
     "express": "4.13.x",
     "jquery-autocomplete": "^1.2.1",
-    "log4js": "^1.0.1",
+    "log4js": "^6.4.0",
     "morgan": "1.6.x",
     "node-uuid": "*",
     "nodemailer": "^2.6.4",
