@@ -25,3 +25,5 @@ Now running with the [sam-pattern](https://www.npmjs.com/package/sam-pattern) li
 - [todomvc-app-lit-html](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-lit-html)  
 - [todomvc-app-react](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-react) samples 
 - [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) (vanillajs)
+
+- [react-sam-provider](https://github.com/jdubray/sam-samples/tree/master/react-sam-provider)
