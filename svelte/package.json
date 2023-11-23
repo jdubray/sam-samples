@@ -17,7 +17,7 @@
   "author": "John Hannah",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "svelte": "^1.59.0"
   },
   "devDependencies": {
