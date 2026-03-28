@@ -24,20 +24,87 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rocket Launcher — SAM + lighterhtml</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .mission-header {
+      text-align: center;
+    }
+    .mission-header h1 {
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    #representation {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 60px 88px;
+      text-align: center;
+      min-width: 320px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    #representation p {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+      margin-bottom: 40px;
+      line-height: 1;
+    }
+    #representation button {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 48px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: capitalize;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+    #representation button:hover {
+      background: #2563eb;
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.45);
+    }
+    #representation button:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
 <body>
 
-<div id="representation">
-    <blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote><br>
-	- Andy Weir, The Martian
+<div class="mission-header">
+  <h1>Rocket Launcher — SAM + lighterhtml</h1>
 </div>
+
+<div id="representation"></div>
 
 <script src="https://unpkg.com/dom-augmentor@latest"></script>
 <script src="https://unpkg.com/lighterhtml@latest"></script>
-<script src="https://unpkg.com/sam-pattern"></script>
+<script src="../../sam-lib/dist/SAM.js"></script>
 
 
-<script type="module"> 
+<script type="module">
     const {render} = lighterhtml;
 
     const { SAM } = tp;
@@ -49,9 +116,9 @@ For more information, please refer to <http://unlicense.org/>
     SAM({
         initialState: {
             counter: COUNTER_MAX,
-            status: 'ready', 
-            started: false,      
-            launched: false, 
+            status: 'ready',
+            started: false,
+            launched: false,
             aborted: false
         }
     });
@@ -61,6 +128,4 @@ For more information, please refer to <http://unlicense.org/>
 
 </script>
 </body>
-</html> 
-    
-    
+</html>

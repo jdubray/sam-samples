@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { createInstance, api } from 'sam-pattern';
+import { createInstance, api } from '@cognitive-fab/sam-pattern';
 
 export const SAMContext = createContext(null);
 

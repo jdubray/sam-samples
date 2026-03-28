@@ -36,6 +36,7 @@
 
 'use strict' ;
 
+var crypto              = require('crypto') ;
 // DynamoDB session manager
 var DOC                 = require('dynamodb-doc') ;
 // var BlueBirdPromise     = require('bluebird') ;
@@ -46,7 +47,7 @@ var DynamoDBSessionManager = {
 
         dehydrateSession: (model,req) => {
             
-            model.__token = model.__token || '1234' ;
+            model.__token = model.__token || crypto.randomBytes(32).toString('hex') ;
             var params = {
                 TableName: getTableName(req),
                 Item: {
@@ -92,8 +93,13 @@ var DynamoDBSessionManager = {
                         reject(error);
                     } else {
                         data.Item = data.Item || {} ;
-                        data.Item.model = data.Item.model || "{}" ;
-                        resolve(JSON.parse(data.Item.model));
+                        data.Item.model = data.Item.model || '{}' ;
+                        try {
+                            resolve(JSON.parse(data.Item.model));
+                        } catch (parseErr) {
+                            console.error('[DDBsession] Failed to parse stored model', parseErr);
+                            resolve({});
+                        }
                     }
                 });
             }) ;

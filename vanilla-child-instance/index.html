@@ -24,12 +24,113 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Child Instance — SAM Pattern</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a0800;
+      background-image: radial-gradient(ellipse at 50% 0%, #2d1200 0%, #0d0400 70%);
+      color: #e8d5b7;
+      font-family: Georgia, 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+    .page-title {
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #a0522d;
+    }
+    #parent {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid #5a2d00;
+      border-radius: 12px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 560px;
+    }
+    /* Blockquote — The Martian quotes */
+    #parent blockquote, #child blockquote {
+      font-style: italic;
+      color: #d4903a;
+      border-left: 3px solid #a0522d;
+      padding: 12px 0 12px 20px;
+      margin-bottom: 8px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+    /* Submitted value line */
+    #parent p {
+      color: #c9a96e;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+    /* Range slider section */
+    #parent label {
+      display: block;
+      color: #d4903a;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    #parent input[type=range] {
+      width: 100%;
+      accent-color: #c2440e;
+      margin-bottom: 8px;
+    }
+    #parent output {
+      display: inline-block;
+      background: #2d1200;
+      color: #e8d5b7;
+      border: 1px solid #5a2d00;
+      border-radius: 4px;
+      padding: 2px 10px;
+      font-size: 0.9rem;
+      margin-left: 8px;
+    }
+    /* Buttons */
+    #parent input[type=submit] {
+      margin-top: 24px;
+      background: #c2440e;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 28px;
+      font-family: Georgia, serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #parent input[type=submit]:hover {
+      background: #9a360b;
+      box-shadow: 0 0 16px rgba(194, 68, 14, 0.4);
+    }
+    /* Child panel */
+    #child {
+      margin-top: 16px;
+      padding-top: 20px;
+      border-top: 1px solid #5a2d00;
+    }
+  </style>
+</head>
 <body>
 
+<p class="page-title">SAM Pattern — Child Instance</p>
+
 <div id="parent">
-	<blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote><br>
-	- Andy Weir, The Martian
+	<blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote>
+	— Andy Weir, The Martian
 </div>
 
 <script type="text/javascript">
@@ -43,20 +144,20 @@ var child = {
 } ;
 
 ////////////////////////////////////////////////////////////////////////////////
-// child Model 
+// child Model
 //
 
 child.model = {
-	
-    value: 50, 
 
-    present(data) {		
-	
+    value: 50,
+
+    present(data) {
+
         if (data.value) {
-            this.model.value = data.value;
-        } 
+            this.value = data.value;
+        }
 
-	    this.state.render(this.model) ;
+        child.state.render(child.model) ;
     }
 } ;
 
@@ -98,33 +199,33 @@ child.view = {
 ////////////////////////////////////////////////////////////////////////////////
 // State
 //
-child.state =  { 
+child.state =  {
 
     representation(model) {
         var representation = 'oops... something went wrong, the system is in an invalid state' ;
 
-        if (state.ready(model)) {
-            representation = state.view.ready(model) ;
-        } 
+        if (this.ready(model)) {
+            representation = child.view.ready(model) ;
+        }
 
-        this.view.display(representation) ;
+        child.view.display(representation) ;
     },
 
     ready(model) {
-	    return true ;
-    },    
+        return true ;
+    },
 
     // Next action predicate, derives whether
     // the system is in a (control) state where
     // an action needs to be invoked
 
     nextAction(model) {
-	
+
     },
 
     render(model) {
-        this.state.representation(model)
-        this.state.nextAction(model) ;
+        this.representation(model) ;
+        this.nextAction(model) ;
     }
 
 } ;
@@ -155,16 +256,16 @@ var parent = {
     },
 
 ////////////////////////////////////////////////////////////////////////////////
-// Parent Model 
+// Parent Model
 //
 
     model : {
-        
-        childCreated: false, 
-        
 
-        present(data) {		
-        
+        childCreated: false,
+
+
+        present(data) {
+
             if (data.child) {
                 parent.model.childCreated = true;
             } else {
@@ -174,7 +275,7 @@ var parent = {
 
             parent.state.render(parent.model) ;
         }
-    }, 
+    },
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +306,7 @@ var parent = {
             return (
                     `<div id="child">
                     <blockquote>In the face of overwhelming odds, I'm left with only one option, I'm gonna have to science the shit out of this.</blockquote>
-                    - Mark Watney, the Martian
+                    — Mark Watney, The Martian
                     </div>`
                 ) ;
 
@@ -225,8 +326,8 @@ var parent = {
 ////////////////////////////////////////////////////////////////////////////////
 // State
 //
-    state : { 
-    
+    state : {
+
         // Derive the state representation as a function of the systen
         // control state
         representation(model) {
@@ -234,13 +335,13 @@ var parent = {
 
             if (parent.state.ready(model)) {
                 representation = parent.view.ready(model) ;
-            } 
+            }
 
             if (parent.state.child(model)) {
                 representation = parent.view.child(model) ;
             }
 
-            
+
 
             parent.view.display(representation) ;
         },
@@ -286,14 +387,11 @@ var parent = {
             present(data) ;
             return false ;
         }
-    } 
+    }
 };
 
 // Display initial state
-// parent.state.view = parent.view ;
-// parent.actions.model = parent.model;
-// parent.model.state = parent.state;
-parent.init() ; 
+parent.init() ;
 
 
 
@@ -302,4 +400,4 @@ parent.init() ;
 
 
 </body>
-</html> 
+</html>

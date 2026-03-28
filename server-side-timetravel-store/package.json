@@ -10,8 +10,7 @@
     "cookie-parser": "",
     "express": "4.13.x",
     "morgan": "1.6.x",
-    "node-uuid": "*",
-    "sam-safe": "*"
+    "node-uuid": "*"
   },
   "preferGlobal": false,
   "private": true

@@ -34,11 +34,7 @@ var model       = require('./model'   ) ;
 var view        = require('./view'    ) ;
 var state       = require('./state'   ) ;
 
-var safe = require('sam-safe') ;
-
 var sessionManager = require('./DDBsession') ;
-
-safe.init(actions,model,state,view,null,null,sessionManager) ;
 
 var v = '/v1' ;
 var r = 'app' ;
@@ -100,38 +96,39 @@ api.get(apis.session, function(req) {
 ///   Action Dispatcher
 ///
 
-// cannot use safe.dispatcher(api,apis.dispatch) because Claudia.js is not compatible with Express;
+// Claudia.js is not compatible with Express, so dispatch is implemented manually
+api.post(apis.dispatch, function(req) {
 
-api.post(apis.dispatch, function(req) { 
-    
     var data = req.body ;
-    
-    safe.logger.info('dispatcher received request '+JSON.stringify(data)) ;
-    safe.logger.info('model is                    '+JSON.stringify(model)) ;
+
+    console.log('dispatcher received request ' + JSON.stringify(data)) ;
+    console.log('model is                    ' + JSON.stringify(model)) ;
 
     data.__token = req.__token || '1234' ;
-    
-    return new Promise(function(resolve,reject) {
-      
-      safe.dispatch(data.__action, data, function(representation) {
-          
-          resolve(representation) ;
-      }) ;
-      
-    });
-    
-    
+
+    return new Promise(function(resolve, reject) {
+        var actionName = data.__action ;
+        if (actionName && actions[actionName] && typeof actions[actionName] === 'function') {
+            actions[actionName](data, function(proposal) {
+                model.present(proposal, function(representation) {
+                    resolve(representation) ;
+                }) ;
+            }) ;
+        } else {
+            // Unknown action: present data directly
+            model.present(data, function(representation) {
+                resolve(representation) ;
+            }) ;
+        }
+    }) ;
+
 }) ;
- 
-api.get(apis.init,function(req) {
-    // we need to pass a dummy function otherwise
-    // it will try to render in the browser
-    safe.render(model, () => {} ) ;
+
+api.get(apis.init, function(req) {
+    // pass a no-op render callback so state does not attempt browser rendering
+    state.render(model, () => {}) ;
     return view.init(model) ;
 }) ;
-
-
-// add SAFE's APIs
 
 
 // Export the api

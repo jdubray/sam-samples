@@ -24,31 +24,119 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rocket Launcher — SAM + Inferno</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .mission-header {
+      text-align: center;
+    }
+    .mission-header h1 {
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 4px;
+    }
+    .mission-header p {
+      font-size: 0.7rem;
+      color: #484f58;
+      letter-spacing: 0.1em;
+    }
+    #representation {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 56px 80px;
+      text-align: center;
+      min-width: 340px;
+      box-shadow: 0 0 60px rgba(88, 166, 255, 0.07);
+    }
+    #representation p {
+      font-size: 3.2rem;
+      font-weight: bold;
+      color: #38bdf8;
+      letter-spacing: 0.08em;
+      margin-bottom: 40px;
+      text-shadow: 0 0 32px rgba(56, 189, 248, 0.35);
+    }
+    #representation form {
+      display: flex;
+      justify-content: center;
+    }
+    .form-group { display: flex; justify-content: center; }
+    #representation input[type=submit] {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 48px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+    #representation input[type=submit]:active {
+      transform: scale(0.97);
+    }
+    #representation input[value="Start"] {
+      background: #238636;
+      color: #fff;
+    }
+    #representation input[value="Start"]:hover {
+      box-shadow: 0 0 24px rgba(35, 134, 54, 0.55);
+    }
+    #representation input[value="Abort"] {
+      background: #da3633;
+      color: #fff;
+    }
+    #representation input[value="Abort"]:hover {
+      box-shadow: 0 0 24px rgba(218, 54, 51, 0.55);
+    }
+  </style>
+</head>
 <body>
 
-<div id="representation">
-    
+<div class="mission-header">
+  <h1>Mission Control — SAM + Inferno</h1>
+  <p>rocket launch sequence</p>
 </div>
 
-<script src="/inferno.min.js"></script>
-<script src="/inferno-dom.min.js"></script>
+<div id="representation"></div>
+
+<script src="inferno.min.js"></script>
+<script src="inferno-dom.min.js"></script>
 
 
 <script type="text/javascript">
 
 ////////////////////////////////////////////////////////////////////////////////
-// Model 
+// Model
 //
 const COUNTER_MAX = 10 ;
 
 var model = {
-        counter: COUNTER_MAX, 
-        started: false,      
-        launched: false, 
+        counter: COUNTER_MAX,
+        started: false,
+        launched: false,
         aborted: false} ;
 
-model.present = function(data) {        
+model.present = function(data) {
     if (state.counting(model)) {
         if (model.counter === 0) {
             model.launched = data.launched || false ;
@@ -173,7 +261,7 @@ view.launched = function(model) {
 //display the state representation
 view.display = function(representation) {
     //var stateRepresentation = document.getElementById("representation");
-    InfernoDOM.render(representation, document.getElementById('representation')) ; 
+    InfernoDOM.render(representation, document.getElementById('representation')) ;
 }
 
 // Display initial state
@@ -195,7 +283,7 @@ state.representation = function(model) {
 
     if (state.ready(model)) {
         representation = state.view.ready(model) ;
-    } 
+    }
 
     if (state.counting(model)) {
         representation = state.view.counting(model) ;
@@ -228,7 +316,7 @@ state.launched = function(model) {
 
 state.aborted = function(model) {
     return (
-        (  model.counter <= COUNTER_MAX) && (model.counter >= 0) 
+        (  model.counter <= COUNTER_MAX) && (model.counter >= 0)
         && model.started && !model.launched && model.aborted ) ;
 }
 
@@ -295,6 +383,4 @@ actions.abort = function(data, present) {
 
 </script>
 </body>
-</html> 
-    
-    
+</html>

@@ -24,28 +24,128 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Calls — SAM Pattern</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .terminal-header {
+      text-align: center;
+    }
+    .terminal-header h1 {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #58a6ff;
+    }
+    .terminal-header p {
+      font-size: 0.7rem;
+      color: #484f58;
+      margin-top: 4px;
+    }
+    #representation {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 40px 56px;
+      min-width: 360px;
+      text-align: center;
+    }
+    /* Terminal prompt bar */
+    #representation::before {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: #30363d;
+      margin-bottom: 32px;
+    }
+    /* Status line */
+    #representation p {
+      font-size: 1rem;
+      color: #8b949e;
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
+    }
+    /* Highlight the status value */
+    #representation p::after {
+      content: '';
+    }
+    #representation form {
+      display: flex;
+      justify-content: center;
+    }
+    #representation input[type=submit] {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #c9d1d9;
+      border-radius: 6px;
+      padding: 10px 32px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    #representation input[value="Start"]:hover,
+    #representation input[value="Stop"]:hover {
+      background: #238636;
+      border-color: #238636;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(35, 134, 54, 0.35);
+    }
+    #representation input[value="Abort"]:hover {
+      background: #da3633;
+      border-color: #da3633;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(218, 54, 51, 0.35);
+    }
+    .offline-notice {
+      font-size: 0.7rem;
+      color: #484f58;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+  </style>
 </head>
 <body>
 
-<div id="representation">
-	<blockquote>Problem is (follow me closely here, the science is pretty complicated), if I cut a hole in the Hab, the air won't stay inside anymore.</blockquote><br>
-	- Andy Weir, The Martian
+<div class="terminal-header">
+  <h1>Server Control — SAM Pattern</h1>
+  <p>async api calls demo</p>
 </div>
+
+<div id="representation"></div>
+
+<p class="offline-notice">Note: external API server (cloudsentinel.com) may be offline</p>
 
 <script type="text/javascript">
 
 ////////////////////////////////////////////////////////////////////////////////
-// Model 
+// Model
 //
 
 var model = {
 		status: 'stopped'
     } ;
 
-model.present = function(data) {		
+model.present = function(data) {
 	if (data.status) {
         model.status = data.status;
     }
@@ -99,7 +199,7 @@ view.init = function(model) {
 // State representation of the ready state
 view.ready = function(model) {
 	return (
-			"<p>Status:"+model.status+"</p>\n\
+			"<p>Status: "+model.status+"</p>\n\
 			<form onSubmit=\"return actions.start({});\">\n\
 				<input type=\"submit\" value=\"Start\">\n\
 			</form>"
@@ -111,7 +211,7 @@ view.ready = function(model) {
 view.starting = function(model) {
 
 	return (
-			"<p>Status:"+model.status+"</p>\n\
+			"<p>Status: "+model.status+"</p>\n\
 			 <form onSubmit=\"return actions.abort({});\">\n\
 				<input type=\"submit\" value=\"Abort\">\n\
 			</form>"
@@ -123,7 +223,7 @@ view.starting = function(model) {
 view.started = function(model) {
 
 	return (
-			"<p>Status:"+model.status+"</p>\n\
+			"<p>Status: "+model.status+"</p>\n\
 			 <form onSubmit=\"return actions.stop({});\">\n\
 				<input type=\"submit\" value=\"Stop\">\n\
 			</form>"
@@ -156,7 +256,7 @@ state.representation = function(model) {
 
 	if (state.ready(model)) {
 		representation = state.view.ready(model) ;
-	} 
+	}
 
 	if (state.starting(model)) {
 		representation = state.view.starting(model) ;
@@ -223,10 +323,10 @@ actions.getStatus = function(data, present) {
 	setTimeout(function() {
 		$.get("http://cloudsentinel.com:3099/server/status",
             function(data,status){
-			
+
 				d.status = data.status || 'error' ;
 				p(d) ;
-			
+
             });
 	}, 1000) ;
 }
@@ -235,7 +335,7 @@ actions.stop = function(data, present) {
 	present = present || model.present ;
 	data.stop = true ;
 	present(data) ;
-	return false ; 
+	return false ;
 }
 
 actions.abort = function(data, present) {
@@ -247,4 +347,4 @@ actions.abort = function(data, present) {
 
 </script>
 </body>
-</html> 
+</html>

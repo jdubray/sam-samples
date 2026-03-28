@@ -11,7 +11,6 @@
   },
   "keywords": [
     "sam",
-    "sam-safe",
     "claudia",
     "aws-lambda",
     "dynamodb"
@@ -23,8 +22,6 @@
     "aws-sdk": "^2.2.39",
     "claudia-api-builder": "^1.1.0",
     "dynamodb-doc": "^1.0.0",
-
-    "sam-safe": "^0.7.0",
 
     "chai": "^3.5.0"
 

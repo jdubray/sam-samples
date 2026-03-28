@@ -1,95 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Basic Click Counter Example with JSX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Click Counter — SAM + React</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        gap: 16px;
+      }
+      .page-label {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.6);
+      }
+      #container {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 20px;
+        padding: 48px 64px;
+        text-align: center;
+      }
+      /* React renders a single <button> into #container */
+      #container button {
+        background: #fff;
+        color: #5b21b6;
+        border: none;
+        border-radius: 50px;
+        padding: 18px 52px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        white-space: nowrap;
+      }
+      #container button:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+      }
+      #container button:active {
+        transform: scale(0.96);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      }
+    </style>
   </head>
   <body>
-    <h1>SAM Implementation of the Basic Click Counter Example with JSX</h1>
-    <div id="container">
-      <p>
-        To install React, follow the instructions on
-        <a href="https://github.com/facebook/react/">GitHub</a>.
-      </p>
-      <p>
-        If you can see this, React is <strong>not</strong> working right.
-        If you checked out the source from GitHub make sure to run <code>grunt</code>.
-      </p>
-    </div>
-    <br><br>
-    <h4>Example Details</h4>
-    <p>This is written with with React, using JSX and transformed in the browser.</p>
-    <p>This example has been implemented following the SAM pattern which makes the view components stateless.</p>
-    <p>
-      Learn more about SAM at
-      <a href="https://sam.js.org/" target="_blank">sam.js.org</a>.<br>         
-      Learn more about React at 
-      <a href="https://facebook.github.io/react" target="_blank">facebook.github.io/react</a>.
-    </p>
+    <p class="page-label">SAM Pattern — React Counter</p>
+    <div id="container"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
     <script type="text/babel">
-    
-        // modified by Jean-Jacques Dubray  jdubray@xgen.io
-        
-    
-        // SAM Implementation 
-        
-        // Theme (View components)
-        var theme = { } 
 
-        theme.counter = (c,a) => <Counter count={c} action={a}/> 
-        
+        // modified by Jean-Jacques Dubray  jdubray@xgen.io
+
+
+        // SAM Implementation
+
+        // Theme (View components)
+        var theme = { }
+
+        theme.counter = (c,a) => <Counter count={c} action={a}/>
+
         theme.display = (m) => ReactDOM.render(
                               <SAMContainer model={m}/>,
                               document.getElementById('container')
-                             ) 
-                             
-                             
+                             )
+
+
         var Counter = ({count,action}) =>  (
             <button onClick={action}>
               Click me! Number of clicks: {count}
             </button>
           )
-      
-      
+
+
         // App Container
         // With React, we have to implement SAM in a "container" class
         // model, actions and state are in the same container
-        
+
         var SAMContainer = React.createClass({
-            
+
             // Model -------------------------------------------------------
             getInitialState: function() {
-                return this.props.model 
+                return this.props.model
             },
 
             present: function(data) {
-                data.incrementBy = data.incrementBy || 1 
+                data.incrementBy = data.incrementBy || 1
                 this.setState( {count: this.state.count + data.incrementBy} )
-            },  
-          
-          
+            },
+
+
             // Actions -----------------------------------------------------
             click: function() { this.present({incrementBy:1}) },
-          
-          
+
+
             // State -------------------------------------------------------
             nap: function() {
-                // there are no automatic action in this example  
-            }, 
-            
+                // there are no automatic action in this example
+            },
+
             render: function() {
-                this.nap() 
-                return theme.counter(this.state.count, this.click) 
+                this.nap()
+                return theme.counter(this.state.count, this.click)
             }
-          
+
         })
-      
+
         // init
         theme.display({ count: 0 })
-       
+
     </script>
   </body>
 </html>

@@ -25,7 +25,7 @@
     "core-js": "^2.5.4",
     "immer": "^2.1.4",
     "rxjs": "~6.3.3",
-    "sam-pattern": "^1.4.6",
+    "@cognitive-fab/sam-pattern": "latest",
     "todomvc-app-css": "^2.2.0",
     "todomvc-common": "^1.0.5",
     "tslib": "^1.9.0",

@@ -37,15 +37,22 @@ var model = require('./model') ;
 var view = require('./view') ;
 var state = require('./state') ;
 
-var safe = require('sam-safe') ;
-
 console.log(actions) ;
 
-safe.init() ;
-
-// use default time traveler
-var myTimeTraveler = safe.defaultTimeTraveler() ;
-safe.initTimeTraveler(myTimeTraveler) ;
+// Simple in-memory time traveler (replaces sam-safe's defaultTimeTraveler)
+var snapshots = [] ;
+var timeTraveler = {
+    saveSnapshot: function(m, meta) {
+        snapshots.push({
+            snapshot: JSON.parse(JSON.stringify(m)),
+            meta: meta || {},
+            timestamp: new Date().toISOString()
+        }) ;
+    },
+    getSnapshots: function() {
+        return snapshots ;
+    }
+} ;
 
 var config = {} ;
 config.port = 5425 ;
@@ -176,18 +183,35 @@ app.post(apis.present,function(req,res) {
 
 //postman.addAPI(r, 'init', config.loginKey) ;
 
-app.get(apis.init,function(req,res) { 
+app.get(apis.init,function(req,res) {
     // Store initial snapshot
-    myTimeTraveler.saveSnapshot(model,{}) ;
-    
+    timeTraveler.saveSnapshot(model,{}) ;
+
     res.status(200).send(view.init(model)) ;
 }) ;
 
-// add SAFE's APIs
+// Dispatch route: call named action then present proposal to model
+app.post(apis.dispatch, function(req, res) {
+    var data = req.body ;
+    var actionName = data.__action ;
+    if (actionName && actions[actionName] && typeof actions[actionName] === 'function') {
+        actions[actionName](data, function(proposal) {
+            model.present(proposal, function(representation) {
+                res.status(200).send(representation) ;
+            }) ;
+        }) ;
+    } else {
+        // No named action: present data directly
+        model.present(data, function(representation) {
+            res.status(200).send(representation) ;
+        }) ;
+    }
+}) ;
 
-safe.dispatcher(app,apis.dispatch) ;
-
-myTimeTraveler.init(app,apis.timetravel) ;
+// Time travel route: return all saved snapshots
+app.get(apis.timetravel, function(req, res) {
+    res.status(200).send(timeTraveler.getSnapshots()) ;
+}) ;
 
 
 // start application 

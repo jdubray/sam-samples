@@ -1,4 +1,5 @@
-const { utils: { E } } = window.tp
+import { utils } from '@cognitive-fab/sam-pattern'
+const { E } = utils
 
 export default {
     actions: [

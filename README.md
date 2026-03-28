@@ -1,29 +1,87 @@
 # SAM Samples
 
-SAM is [a new reactive functional pattern](http://sam.js.org) which greatly simplifies the architecture of front-ends (native or Web).
+[SAM (State-Action-Model)](http://sam.js.org) is a reactive functional pattern that simplifies front-end and back-end architecture by clearly separating business logic from the view. All samples use the local [sam-pattern](../sam-lib) library build.
 
-This repo focuses on Vanilla JS and Node.js implementations. It contains the following samples:
+## Running Samples
 
-* admin-template - an Angular2 admin template modified to implement the SAM pattern 
-* aws-alexa samples show how the SAM pattern can be used to implement Alexa skills
-* Blog - a simple CRUD implementation showing how easy it is to create isomorphic implementations with SAM (vanilla.js +/- node.js)
-* Hash-DOM - an unapologetic minimalist v-dom equivalent that works well with the SAM pattern
-* Inferno - the rocket sample with an [Inferno](https://github.com/trueadm/inferno) based view
-* React - counter is a boilerplate SAM implementation in React, child-instance demonstrates how a Parent/Child implementation works, and the Spinner sample shows how a view component can initiate/control a spinner
-* SB-Admin - a simple Web application based on the SB Admin template (node.js with no client-side code)
-* TODOMVC - an implementation of the [TODOMVC](http://www.todomvc.com) challenge (vanilla.js)
-* Vanilla-ES6-boilerplate-project - This is a starter project for people who do not want to use a framwork
+Serve from the `sam/` workspace root so that relative paths to `../../sam-lib/dist/SAM.js` resolve correctly:
 
-Some samples can be run here:
-- [inferno-rocket](https://plum-ocelot.hyperdev.space/)
-- [crud-blog](https://fish-trader.hyperdev.space/)
-- [vanilla-focus-textarea](https://codepen.io/sam-pattern/pen/vJvyro)
+```sh
+npx http-server -p 3000 .
+# then open http://localhost:3000
+```
 
-## Recently Updated
+`http://localhost:3000` loads an index page with links to all samples below. Samples marked **build required** need `npm install` (and `npm start` / `ng serve`) run inside their directory.
 
-Now running with the [sam-pattern](https://www.npmjs.com/package/sam-pattern) library
-- [todomvc-app-lit-html](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-lit-html)  
-- [todomvc-app-react](https://github.com/jdubray/sam-samples/tree/master/todomvc-app-react) samples 
-- [todomvc-app](https://github.com/jdubray/sam-samples/tree/master/todomvc-app) (vanillajs)
+---
 
-- [react-sam-provider](https://github.com/jdubray/sam-samples/tree/master/react-sam-provider)
+## TodoMVC
+
+Full [TodoMVC](http://todomvc.com) implementations across multiple frameworks:
+
+| Sample | Framework | Notes |
+|--------|-----------|-------|
+| [todomvc-app](./todomvc-app) | Vanilla JS | Reference implementation |
+| [todomvc-app-lit-html](./todomvc-app-lit-html) | lit-html | `npm install` required |
+| [todomvc-app-vue](./todomvc-app-vue) | Vue 2.6 + Vue Router | `npm install` required |
+| [todomvc-app-angular](./todomvc-app-angular) | Angular 7 | `npm install && ng serve` |
+| [todomvc-app-react](./todomvc-app-react) | React 18 CRA | `npm install && npm start` |
+
+## Vanilla JS
+
+| Sample | Description |
+|--------|-------------|
+| [vanilla-child-instance](./vanilla-child-instance) | Parent/child SAM instance relationship |
+| [vanilla-focus-fields](./vanilla-focus-fields) | Form focus management with timesheet |
+| [vanilla-api-calls](./vanilla-api-calls) | Async API calls (requires external server) |
+
+## React (CDN — no build needed)
+
+| Sample | Description |
+|--------|-------------|
+| [react-counter](./react-counter) | Minimal click counter with React 15 + JSX |
+| [react-child-instance](./react-child-instance) | Multi-step form with parent/child SAM instance |
+| [react-sam-provider](./react-sam-provider) | React 18 Context Provider wrapping a SAM instance — `npm install && npm start` |
+
+## Alternative Renderers
+
+| Sample | Description |
+|--------|-------------|
+| [inferno-rocket](./inferno-rocket) | Rocket launcher with [Inferno](https://infernojs.org/) vdom |
+| [lighterhtml](./lighterhtml) | lighterhtml renderer + sam-pattern |
+
+## Server-Side (Node.js)
+
+| Sample | Description | Start command |
+|--------|-------------|---------------|
+| [crud-blog](./crud-blog) | Express CRUD blog | `npm start` → `localhost:5425/html/blog.html` |
+| [server-side-timetravel-store](./server-side-timetravel-store) | Express + in-memory time-travel snapshot store | `npm start` |
+
+---
+
+## Tests
+
+Puppeteer smoke tests cover all browser-based samples above:
+
+```sh
+cd tests
+npm install
+node samples.test.js
+```
+
+---
+
+## Change Log
+
+- 2026-03-27 Removed hash-dom from active samples (not fixable for Puppeteer testing)
+- 2026-03-27 Fixed todomvc-app-vue `<base href>` so scripts resolve correctly under http-server
+- 2026-03-27 Fixed inferno-rocket absolute script paths (`/inferno.min.js` → `inferno.min.js`)
+- 2026-03-27 Fixed vanilla-child-instance `this`-binding bugs in object literal methods
+- 2026-03-27 Fixed vanilla-focus-fields `cmodel.urrentIndex` typo
+- 2026-03-27 Added Puppeteer smoke test suite covering all active browser samples
+- 2026-03-27 Added `sam/index.html` launcher page with correct `/sam-samples/...` paths
+- 2026-03-27 Ran `npm install` for todomvc-app-lit-html and todomvc-app-vue
+- 2026-03-27 Polished READMEs for sam-lib, sam-fsm, and sam-samples
+- 2026-03-27 Replaced all CDN and npm `sam-pattern` references with the local `sam-lib` build
+- 2026-03-27 Upgraded todomvc-app-react from React 16 to React 18 (`createRoot` API)
+- 2026-03-27 Removed obsolete samples: Angular 2, Angular 4, AWS Alexa, Svelte

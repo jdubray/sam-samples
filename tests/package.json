@@ -1,0 +1,13 @@
+{
+  "name": "sam-samples-tests",
+  "version": "1.0.0",
+  "description": "Puppeteer smoke tests for SAM samples",
+  "private": true,
+  "scripts": {
+    "test": "node samples.test.js"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1",
+    "puppeteer": "^21.0.0"
+  }
+}

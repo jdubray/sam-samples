@@ -89,7 +89,7 @@
             let hashedRepresentation = {}
 
             Object.keys(representation || {}).forEach( function (key) {
-                hashedRepresentation[key] = (typeof representation[key] === 'string') ? hashCode(representation[key]) : window.hashedRepresentation(representation[key])
+                hashedRepresentation[key] = (typeof representation[key] === 'string') ? hashCode(representation[key]) : hashedRepresentation(representation[key])
             })
 
             return hashedRepresentation
@@ -107,7 +107,7 @@
                         (document.getElementById(key) || {}).innerHTML = representation[key]
                     }
                 } else {
-                    window.trim(representation[key],(priorHash[key] || {}))
+                    trim(representation[key],(priorHash[key] || {}))
                 }
             })
 

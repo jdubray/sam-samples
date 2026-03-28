@@ -1,5 +1,5 @@
 import { Injectable, ApplicationRef  } from '@angular/core';
-import SAM from 'sam-pattern'
+import SAM from '@cognitive-fab/sam-pattern'
 
 
 const { on, utils: { N, A} } = SAM

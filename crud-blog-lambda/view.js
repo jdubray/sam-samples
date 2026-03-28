@@ -3,6 +3,16 @@
 // View
 //
 
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 var view = {} ;
 
 // Initial State
@@ -28,15 +38,20 @@ view.ready = function(model,intents) {
     '         <br><br>\n<div class="blog-post">\n'
                +model.posts.map(function(e){
                    return(
-                        '<br><br><h3 class="blog-post-title" onclick="JavaScript:return actions.'+intents['edit']+'({\'title\':\''+e.title+'\', \'description\':\''+e.description+'\', \'id\':\''+e.id+'\'});">'+e.title+'</h3>\n'
-                       +'<p class="blog-post-meta">'+e.description+'</p>'
-                       +'<button onclick="JavaScript:return actions.delete({\'id\':\''+e.id+'\'});">Delete</button>') ;
+                        '<br><br><h3 class="blog-post-title"'
+                       +' data-id="'+escapeHtml(e.id)+'"'
+                       +' data-title="'+escapeHtml(e.title)+'"'
+                       +' data-desc="'+escapeHtml(e.description)+'"'
+                       +' onclick="return actions.'+intents['edit']+'({title:this.dataset.title,description:this.dataset.desc,id:this.dataset.id});">'
+                       +escapeHtml(e.title)+'</h3>\n'
+                       +'<p class="blog-post-meta">'+escapeHtml(e.description)+'</p>'
+                       +'<button data-id="'+escapeHtml(e.id)+'" onclick="return actions.delete({id:this.dataset.id});">Delete</button>') ;
                    }).join('\n')+'\n'+
    '          </div>\n'+
    '          <br><br>\n'+
    '          <div class="mdl-cell mdl-cell--6-col">\n'+
-   '                      <input id="title" type="text" class="form-control"  '+valAttr+'="'+titleValue+'"><br>\n'+
-   '                      <input id="description" type="textarea" class="form-control" '+valAttr+'="'+descriptionValue+'"><br>\n'+
+   '                      <input id="title" type="text" class="form-control" '+valAttr+'="'+escapeHtml(titleValue)+'"><br>\n'+
+   '                      <input id="description" type="textarea" class="form-control" '+valAttr+'="'+escapeHtml(descriptionValue)+'"><br>\n'+
    '                      <button id="save" onclick="JavaScript:return actions.'+intents['save']+'({\'title\':document.getElementById(\'title\').value, \'description\': document.getElementById(\'description\').value'+idElement+'});">'+actionLabel+'</button>\n'+
                cancelButton+'\n'+
     '          </div><br><br>\n'
