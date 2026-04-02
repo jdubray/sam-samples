@@ -10,7 +10,7 @@
     "compression": "^1.7.4",
     "cookie-parser": "",
     "cron": "1.0.x",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-http-proxy": "^0.6.0",
     "he": "*",
     "http-proxy": "1.12.x",
