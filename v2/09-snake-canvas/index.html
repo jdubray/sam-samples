@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Snake (canvas)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; text-align: center; }
+    canvas { border: 2px solid #333; border-radius: 6px; background: #0d1117; }
+    .hud { display: flex; justify-content: space-between; max-width: 400px; margin: .5rem auto; font-variant-numeric: tabular-nums; }
+    .rejected { color: #b00020; font-family: monospace; font-size: .8rem; min-height: 1.1rem; }
+    button { font-size: 1rem; padding: .5rem 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Snake 🐍</h1>
+  <p style="text-align:left">A game is a state machine on a timer: every frame is a <code>Tick</code> proposal, every
+    keypress a <code>Turn</code>. Reversing into yourself is <em>rejected</em> (watch the log),
+    game-over is just a guard, and the whole board state lives in one sealed model.</p>
+
+  <div class="hud"><span id="score">Score: 0</span><span id="status"></span></div>
+  <canvas id="board" width="400" height="400"></canvas>
+  <div class="rejected" id="rejected"></div>
+  <p><button id="restart">Restart</button> — arrow keys to steer</p>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'snake' })
+
+    const GRID = 20, CELL = 20
+    const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' }
+    const DELTA = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }
+
+    const randomFood = body => {
+      let cell
+      do {
+        cell = [Math.floor(Math.random() * GRID), Math.floor(Math.random() * GRID)]
+      } while (body.some(([x, y]) => x === cell[0] && y === cell[1]))
+      return cell
+    }
+
+    const initialState = () => ({
+      body: [[10, 10], [9, 10], [8, 10]],
+      direction: 'right',
+      food: [15, 10],
+      score: 0,
+      alive: true
+    })
+
+    const ctx = document.getElementById('board').getContext('2d')
+
+    const control = instance({
+      initialState: initialState(),
+
+      component: {
+        modelShape: {
+          body: { type: 'array' },
+          direction: { type: 'string' },
+          food: { type: 'array' },
+          score: { type: 'number' },
+          alive: { type: 'boolean' }
+        },
+
+        actions: {
+          Turn: {
+            action: direction => ({ direction }),
+            schema: { direction: { type: 'string', required: true } },
+            domain: ['up', 'down', 'left', 'right']
+          },
+          // food placement is computed in the action: acceptors stay pure
+          Tick: {
+            action: nextFood => ({ tick: true, nextFood }),
+            schema: {
+              tick: { type: 'boolean', required: true },
+              nextFood: { type: 'array', required: true }
+            }
+          },
+          Restart: {
+            action: () => ({ restart: initialState() }),
+            schema: { restart: { type: 'object', required: true } }
+          }
+        },
+
+        acceptors: {
+          Turn: model => ({ direction }, { reject }) => {
+            if (!model.alive) return reject('game over — restart to play')
+            if (!DELTA[direction]) return reject(`unknown direction ${direction}`)
+            if (direction === OPPOSITE[model.direction]) return reject('cannot reverse into yourself')
+            model.direction = direction
+          },
+          Tick: model => ({ nextFood }, { reject }) => {
+            if (!model.alive) return reject('game over')
+            const [dx, dy] = DELTA[model.direction]
+            const head = [model.body[0][0] + dx, model.body[0][1] + dy]
+            const hitWall = head[0] < 0 || head[0] >= GRID || head[1] < 0 || head[1] >= GRID
+            const hitSelf = model.body.some(([x, y]) => x === head[0] && y === head[1])
+            if (hitWall || hitSelf) {
+              model.alive = false
+              return
+            }
+            const ate = head[0] === model.food[0] && head[1] === model.food[1]
+            model.body = [head, ...(ate ? model.body : model.body.slice(0, -1))]
+            if (ate) {
+              model.score += 10
+              model.food = nextFood
+            }
+          },
+          Restart: model => ({ restart }) => {
+            Object.assign(model, restart)
+          }
+        }
+      },
+
+      stepListener: step => {
+        document.getElementById('rejected').textContent = step.classification === 'rejected'
+          && step.intent !== 'Tick' ? `rejected: ${step.rejections[0].reason}` : ''
+      },
+
+      render: state => {
+        ctx.clearRect(0, 0, GRID * CELL, GRID * CELL)
+        ctx.fillStyle = '#e63946'
+        ctx.fillRect(state.food[0] * CELL, state.food[1] * CELL, CELL - 1, CELL - 1)
+        state.body.forEach(([x, y], i) => {
+          ctx.fillStyle = i === 0 ? '#8ce99a' : '#40c057'
+          ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1)
+        })
+        document.getElementById('score').textContent = `Score: ${state.score}`
+        document.getElementById('status').textContent = state.alive ? '' : '💀 Game over'
+      }
+    })
+
+    const { intents } = control
+
+    document.addEventListener('keydown', (e) => {
+      const dir = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' }[e.key]
+      if (dir) {
+        e.preventDefault()
+        intents.Turn(dir)
+      }
+    })
+    document.getElementById('restart').onclick = () => intents.Restart()
+
+    setInterval(() => {
+      const state = control.getState()
+      if (state.alive) intents.Tick(randomFood(state.body))
+    }, 130)
+
+    // initial paint
+    intents.Turn('right').catch(() => {})
+  </script>
+</body>
+</html>

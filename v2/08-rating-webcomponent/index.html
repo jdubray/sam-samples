@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Star Rating (Web Components)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    .row { display: flex; align-items: center; gap: 1rem; margin: .75rem 0; }
+    .row span:first-child { width: 12rem; }
+    #summary { margin-top: 1.5rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Rate the conference talks</h1>
+  <p>A native <code>&lt;star-rating&gt;</code> custom element. <strong>Each element owns its own
+    strict SAM instance</strong> — isolated model, shape, and intents — and reports changes with a
+    DOM event. SAM instances compose the way components do.</p>
+
+  <div class="row"><span>The SAM pattern</span><star-rating name="sam" value="5"></star-rating></div>
+  <div class="row"><span>TLA+ for everyone</span><star-rating name="tla" value="4"></star-rating></div>
+  <div class="row"><span>CSS-in-YAML</span><star-rating name="yaml"></star-rating></div>
+
+  <div id="summary"></div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+    const MAX = 5
+
+    // page-level aggregation from component events — attached before the
+    // element definition so the initial paints are not missed
+    const ratings = {}
+    document.addEventListener('rating-change', ({ detail }) => {
+      ratings[detail.name] = detail.value
+      const values = Object.values(ratings).filter(v => v > 0)
+      const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1) : '—'
+      document.getElementById('summary').textContent = `Average rating: ${avg}`
+    })
+
+    class StarRating extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' })
+        this.shadowRoot.innerHTML = `
+          <style>
+            button { background: none; border: 0; font-size: 1.6rem; cursor: pointer; padding: 0 .1rem; filter: grayscale(1); }
+            button.lit { filter: none; }
+          </style>
+          <span></span>
+        `
+        const container = this.shadowRoot.querySelector('span')
+
+        // one isolated strict instance per element
+        const instance = createInstance({
+          strict: true,
+          instanceName: `rating-${this.getAttribute('name')}`
+        })
+
+        const paint = (state) => {
+          container.innerHTML = ''
+          for (let i = 1; i <= MAX; i++) {
+            const b = document.createElement('button')
+            b.textContent = '⭐'
+            b.className = i <= state.value ? 'lit' : ''
+            b.onclick = () => intents.Rate(i)
+            container.appendChild(b)
+          }
+          this.dispatchEvent(new CustomEvent('rating-change', {
+            bubbles: true, composed: true,
+            detail: { name: this.getAttribute('name'), value: state.value }
+          }))
+        }
+
+        const control = instance({
+          initialState: { value: Number(this.getAttribute('value') ?? 0) },
+
+          component: {
+            modelShape: { value: { type: 'number' } },
+
+            actions: {
+              Rate: {
+                action: value => ({ value }),
+                schema: { value: { type: 'number', required: true } },
+                domain: [0, 1, 2, 3, 4, 5]
+              }
+            },
+
+            acceptors: {
+              Rate: model => ({ value }, { reject }) => {
+                if (!Number.isInteger(value) || value < 0 || value > MAX) {
+                  return reject(`rating must be an integer between 0 and ${MAX}`)
+                }
+                // clicking the current rating clears it
+                model.value = value === model.value ? 0 : value
+              }
+            }
+          },
+
+          render: paint
+        })
+        const intents = control.intents
+
+        // paint the initial state without presenting a proposal
+        paint(control.getState())
+        this._instance = instance
+      }
+    }
+    customElements.define('star-rating', StarRating)
+
+  </script>
+</body>
+</html>

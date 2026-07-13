@@ -2,6 +2,8 @@
 
 [SAM (State-Action-Model)](http://sam.js.org) is a reactive functional pattern that simplifies front-end and back-end architecture by clearly separating business logic from the view. All samples use the local [sam-pattern](../sam-lib) library build.
 
+> **✨ New: [v2 samples](v2/)** — twelve samples for sam-lib 2.0's **strict profile** (named intents with schemas, sealed model shape, `reject(reason)`, keyed acceptors, input domains + in-browser model checking), ordered from hello-world to a time-travel debugger, using vanilla JS, Alpine.js, VanJS, lit-html, Preact, Vue 3, petite-vue, Web Components, and canvas. Self-contained: `npx serve v2`.
+
 ## Running Samples
 
 Serve from the `sam/` workspace root so that relative paths to `../../sam-lib/dist/SAM.js` resolve correctly:

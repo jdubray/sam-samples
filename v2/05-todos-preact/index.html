@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Todos (Preact + htm)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    input[type=text] { font-size: 1.1rem; padding: .5rem; width: 70%; }
+    button { cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; gap: .5rem; align-items: center; padding: .35rem 0; font-size: 1.1rem; }
+    li.done label { text-decoration: line-through; color: #999; }
+    .filters button { margin-right: .5rem; }
+    .filters .active { font-weight: 700; }
+    .count { color: #666; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <h1>Todos</h1>
+  <p><a href="https://preactjs.com">Preact</a> + htm (no build step). The whole UI re-renders
+    from the model snapshot on every SAM step — the view is a pure function of state.
+    Blank titles are rejected by the schema; the list is replaced (not spliced) so v2's
+    per-step mutation tracking sees every change.</p>
+
+  <div id="app"></div>
+
+  <script src="../lib/SAM.js"></script>
+  <!-- ESM import below is version-pinned; import statements cannot carry SRI -->
+  <script type="module">
+    import { html, render } from 'https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.module.js'
+
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'todos' })
+    let intents
+
+    const onSubmit = (e) => {
+      e.preventDefault()
+      const input = e.target.elements.title
+      intents.Add(input.value.trim(), Date.now()).catch(() => {})
+      input.value = ''
+    }
+
+    const view = state => {
+      const visible = state.todos.filter(t => (
+        state.filter === 'all' || (state.filter === 'active' ? !t.done : t.done)
+      ))
+      return html`
+        <form onSubmit=${onSubmit}>
+          <input type="text" name="title" placeholder="What needs to be done?" autocomplete="off" />
+          <button>Add</button>
+        </form>
+        <ul>
+          ${visible.map(t => html`
+            <li class=${t.done ? 'done' : ''} key=${t.id}>
+              <input type="checkbox" checked=${t.done} onChange=${() => intents.Toggle(t.id)} />
+              <label>${t.title}</label>
+              <button onClick=${() => intents.Remove(t.id)}>✕</button>
+            </li>`)}
+        </ul>
+        <div class="filters">
+          ${['all', 'active', 'done'].map(f => html`
+            <button class=${state.filter === f ? 'active' : ''}
+                    onClick=${() => intents.SetFilter(f)}>${f}</button>`)}
+          <span class="count">${state.remaining} remaining</span>
+        </div>
+      `
+    }
+
+    const control = instance({
+      initialState: {
+        todos: [], filter: 'all', remaining: 0
+      },
+
+      component: {
+        modelShape: {
+          todos: { type: 'array' },
+          filter: { type: 'string' },
+          remaining: { type: 'number', derived: true }
+        },
+
+        actions: {
+          Add: {
+            action: (title, id) => ({ title, id }),
+            schema: {
+              title: { type: 'string', required: true },
+              id: { type: 'number', required: true }
+            }
+          },
+          Toggle: {
+            action: id => ({ toggle: id }),
+            schema: { toggle: { type: 'number', required: true } }
+          },
+          Remove: {
+            action: id => ({ remove: id }),
+            schema: { remove: { type: 'number', required: true } }
+          },
+          SetFilter: {
+            action: filter => ({ filter }),
+            schema: { filter: { type: 'string', required: true } }
+          }
+        },
+
+        acceptors: {
+          Add: model => ({ title, id }, { reject }) => {
+            if (title.length === 0) return reject('title is blank')
+            model.todos = model.todos.concat({ id, title, done: false })
+          },
+          Toggle: model => ({ toggle }) => {
+            model.todos = model.todos.map(t => (t.id === toggle ? { ...t, done: !t.done } : t))
+          },
+          Remove: model => ({ remove }) => {
+            model.todos = model.todos.filter(t => t.id !== remove)
+          },
+          SetFilter: model => ({ filter }, { reject }) => {
+            if (!['all', 'active', 'done'].includes(filter)) return reject(`unknown filter ${filter}`)
+            model.filter = filter
+          }
+        },
+
+        reactors: [
+          model => () => {
+            model.remaining = model.todos.filter(t => !t.done).length
+          }
+        ]
+      },
+
+      render: state => render(view(state), document.getElementById('app'))
+    })
+
+    intents = control.intents
+
+    // initial paint (SAM renders on steps; the first frame comes from the snapshot)
+    render(view(control.getState()), document.getElementById('app'))
+  </script>
+</body>
+</html>
