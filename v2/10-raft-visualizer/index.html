@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Raft Leader Election Visualizer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 3rem auto; padding: 0 1rem; }
+    .node { display: inline-block; text-align: center; margin: 1rem 2rem 1rem 0; }
+    .bubble { width: 110px; height: 110px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; border: 4px solid #999; transition: all .3s; }
+    .follower  { background: #eef; border-color: #7a8cc9; }
+    .candidate { background: #fff3cd; border-color: #d4a017; }
+    .leader    { background: #d9f2e3; border-color: #0a7d34; }
+    .meta { font-size: .8rem; font-weight: 400; color: #555; }
+    button { font-size: .95rem; padding: .5rem .9rem; margin: .25rem .5rem .25rem 0; cursor: pointer; }
+    .panel { display: flex; gap: 1.5rem; }
+    .steps { flex: 1; font-family: monospace; font-size: .8rem; background: #f6f6f6; border-radius: 6px; padding: .75rem; max-height: 18rem; overflow: auto; }
+    .badge { display: inline-block; border-radius: 4px; padding: 0 .4rem; color: #fff; margin-right: .4rem; }
+    .b-mutated { background: #0a7d34; }
+    .b-rejected { background: #b00020; }
+    .b-identity-by-mutation { background: #d4a017; }
+    .b-unhandled { background: #555; }
+  </style>
+</head>
+<body>
+  <h1>Raft Leader Election — an enabledness visualizer</h1>
+  <p>This is the leader-election spec from the SAM↔TLA+ study, running live (node <code>n1</code>'s
+    view of a 3-node cluster). Every button is an intent; the log classifies every step as
+    <strong>mutated</strong> or <strong>rejected(reason)</strong> — the "enabledness observability"
+    that v2 adds to the pattern. Try granting a vote before campaigning, or heart-beating with a
+    stale term.</p>
+
+  <div class="node">
+    <div class="bubble" id="bubble">
+      <div id="role">follower</div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div>n1 (this node)</div>
+  </div>
+
+  <div>
+    <button id="timeout">⏰ Election timeout</button>
+    <button id="vote2">🗳️ Vote from n2</button>
+    <button id="vote3">🗳️ Vote from n3</button>
+    <button id="hbLow">💓 Heartbeat (stale term)</button>
+    <button id="hbHigh">💓 Heartbeat (term +1)</button>
+  </div>
+
+  <div class="panel">
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'raft' })
+
+    const el = id => document.getElementById(id)
+    const logStep = (step) => {
+      const line = document.createElement('div')
+      const reason = step.rejections.length ? ` — ${step.rejections[0].reason}` : ''
+      const mutated = step.mutations.length ? ` {${step.mutations.join(', ')}}` : ''
+      line.innerHTML = `<span class="badge b-${step.classification}">${step.classification}</span>`
+        + `${step.intent}${reason}${mutated}`
+      el('steps').prepend(line)
+    }
+
+    const control = instance({
+      initialState: {
+        role: 'follower', term: 0, votedFor: null, votesGranted: 0
+      },
+
+      component: {
+        modelShape: {
+          role: { type: 'string' },
+          term: { type: 'number' },
+          votedFor: { type: 'string', nullable: true },
+          votesGranted: { type: 'number' }
+        },
+
+        actions: {
+          ElectionTimeout: {
+            action: () => ({ timeout: true }),
+            schema: { timeout: { type: 'boolean', required: true } },
+            domain: [[]]
+          },
+          VoteGranted: {
+            action: from => ({ from }),
+            schema: { from: { type: 'string', required: true } },
+            domain: ['n2', 'n3']
+          },
+          Heartbeat: {
+            action: (term, leader) => ({ term, leader }),
+            schema: {
+              term: { type: 'number', required: true },
+              leader: { type: 'string', required: true }
+            },
+            domain: [[0, 'n2'], [2, 'n2']]
+          }
+        },
+
+        acceptors: {
+          ElectionTimeout: model => (p, { reject }) => {
+            if (model.role === 'leader') return reject('leaders do not time out')
+            model.role = 'candidate'
+            model.term += 1
+            model.votedFor = 'n1'
+            model.votesGranted = 1
+          },
+          VoteGranted: model => (p, { reject }) => {
+            if (model.role !== 'candidate') return reject('votes only count while campaigning')
+            model.votesGranted += 1
+            if (model.votesGranted >= 2) model.role = 'leader'
+          },
+          Heartbeat: model => ({ term }, { reject }) => {
+            if (term < model.term) return reject(`stale term ${term} < ${model.term}`)
+            model.role = 'follower'
+            model.term = term
+            model.votedFor = null
+            model.votesGranted = 0
+          }
+        }
+      },
+
+      stepListener: logStep,
+
+      render: state => {
+        el('bubble').className = `bubble ${state.role}`
+        el('role').textContent = state.role
+        el('meta').textContent = `term ${state.term} · votes ${state.votesGranted}`
+          + (state.votedFor ? ` · voted ${state.votedFor}` : '')
+      }
+    })
+
+    const { intents } = control
+    el('timeout').onclick = () => intents.ElectionTimeout()
+    el('vote2').onclick = () => intents.VoteGranted('n2')
+    el('vote3').onclick = () => intents.VoteGranted('n3')
+    el('hbLow').onclick = () => intents.Heartbeat(Math.max(0, control.getState().term - 1), 'n2')
+    el('hbHigh').onclick = () => intents.Heartbeat(control.getState().term + 1, 'n2')
+
+    // initial paint
+    el('meta').textContent = 'term 0 · votes 0'
+  </script>
+</body>
+</html>

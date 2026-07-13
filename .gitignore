@@ -89,3 +89,7 @@ typings/
 
 # VS Code
 .vscode/
+
+.memsearch/
+todomvc-app-react/dist/
+react-sam-provider/dist/

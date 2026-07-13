@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Contacts CRUD (Vue 3)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 3rem auto; padding: 0 1rem; }
+    .layout { display: flex; gap: 2rem; }
+    .list { flex: 1; }
+    .detail { flex: 1; background: #f6f6f6; border-radius: 8px; padding: 1rem; }
+    .list ul { list-style: none; padding: 0; }
+    .list li { padding: .4rem .6rem; border-radius: 4px; cursor: pointer; }
+    .list li.selected { background: #dbe9ff; }
+    label { display: block; margin-top: .75rem; font-weight: 600; }
+    input { width: 100%; padding: .4rem; font-size: 1rem; box-sizing: border-box; }
+    button { margin: 1rem .5rem 0 0; padding: .5rem 1rem; cursor: pointer; }
+    .rejected { color: #b00020; font-family: monospace; font-size: .85rem; min-height: 1.2rem; margin-top: .75rem; }
+    .validate { color: #0a7d34; font-family: monospace; font-size: .85rem; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"
+          integrity="sha384-W/1Fp/LgAYO/oTn9Gs+PbeWuMuq1eQCnUMPCeg8POmMYchhzxctjEqtbiCIxDOON"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>Contacts</h1>
+  <p>Master–detail CRUD with <a href="https://vuejs.org">Vue 3</a>. Each action has its own
+    keyed acceptor (guards + mutations only, no dispatch switch); the footer shows
+    <code>instance.validate()</code> proving every intent declares its schema, and rejections
+    surface inline instead of failing silently.</p>
+
+  <div id="app">
+    <div class="layout">
+      <div class="list">
+        <ul>
+          <li v-for="c in contacts" :key="c.id"
+              :class="{ selected: c.id === selectedId }"
+              @click="select(c.id)">{{ c.name }} — {{ c.email }}</li>
+        </ul>
+        <button @click="startCreate">＋ New contact</button>
+      </div>
+      <div class="detail">
+        <label>Name</label>
+        <input v-model="form.name">
+        <label>Email</label>
+        <input v-model="form.email">
+        <div>
+          <button @click="save">{{ selectedId === null ? 'Create' : 'Update' }}</button>
+          <button v-if="selectedId !== null" @click="remove">Delete</button>
+        </div>
+        <div class="rejected">{{ rejection }}</div>
+      </div>
+    </div>
+    <p class="validate">validate(): {{ validation }}</p>
+  </div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'contacts' })
+
+    const contactSchema = {
+      id: { type: 'number', required: true },
+      name: { type: 'string', required: true },
+      email: { type: 'string', required: true }
+    }
+
+    const control = instance({
+      initialState: {
+        contacts: [
+          { id: 1, name: 'Ada Lovelace', email: 'ada@analytical.engine' },
+          { id: 2, name: 'Leslie Lamport', email: 'leslie@tla.plus' }
+        ],
+        selectedId: null
+      },
+
+      component: {
+        modelShape: {
+          contacts: { type: 'array' },
+          selectedId: { type: 'number', nullable: true }
+        },
+
+        actions: {
+          Create: {
+            action: (name, email) => ({ id: Date.now(), name, email }),
+            schema: contactSchema,
+            domain: [['Grace Hopper', 'grace@cobol.dev']]
+          },
+          Update: {
+            action: (id, name, email) => ({ id, name, email, update: true }),
+            schema: { ...contactSchema, update: { type: 'boolean', required: true } },
+            domain: [[1, 'Ada Lovelace', 'ada@lovelace.dev']]
+          },
+          Delete: {
+            action: id => ({ deleteId: id }),
+            schema: { deleteId: { type: 'number', required: true } },
+            domain: [1, 2]
+          },
+          Select: {
+            action: id => ({ selectId: id }),
+            schema: { selectId: { type: 'number', nullable: true, required: true } },
+            domain: [1, 2, null]
+          }
+        },
+
+        acceptors: {
+          Create: model => ({ id, name, email }, { reject }) => {
+            if (!name.trim()) return reject('name is required')
+            if (!email.includes('@')) return reject('email looks invalid')
+            model.contacts = model.contacts.concat({ id, name, email })
+            model.selectedId = id
+          },
+          Update: model => ({ id, name, email }, { reject }) => {
+            if (!model.contacts.some(c => c.id === id)) return reject(`no contact ${id}`)
+            if (!name.trim()) return reject('name is required')
+            if (!email.includes('@')) return reject('email looks invalid')
+            model.contacts = model.contacts.map(c => (c.id === id ? { id, name, email } : c))
+          },
+          Delete: model => ({ deleteId }, { reject }) => {
+            if (!model.contacts.some(c => c.id === deleteId)) return reject(`no contact ${deleteId}`)
+            model.contacts = model.contacts.filter(c => c.id !== deleteId)
+            model.selectedId = null
+          },
+          Select: model => ({ selectId }, { reject }) => {
+            if (selectId !== null && !model.contacts.some(c => c.id === selectId)) {
+              return reject(`no contact ${selectId}`)
+            }
+            model.selectedId = selectId
+          }
+        }
+      }
+    })
+
+    const app = Vue.createApp({
+      data() {
+        return {
+          contacts: [], selectedId: null,
+          form: { name: '', email: '' },
+          rejection: '', validation: ''
+        }
+      },
+      methods: {
+        select(id) { control.intents.Select(id) },
+        startCreate() {
+          control.intents.Select(null)
+          this.form = { name: '', email: '' }
+        },
+        save() {
+          if (this.selectedId === null) {
+            control.intents.Create(this.form.name, this.form.email)
+          } else {
+            control.intents.Update(this.selectedId, this.form.name, this.form.email)
+          }
+        },
+        remove() { control.intents.Delete(this.selectedId) }
+      }
+    })
+    const vm = app.mount('#app')
+
+    // wire SAM -> Vue after mount
+    instance({
+      stepListener: step => {
+        vm.rejection = step.classification === 'rejected'
+          ? `rejected: ${step.rejections[0].reason}` : ''
+      },
+      render: state => {
+        vm.contacts = state.contacts
+        vm.selectedId = state.selectedId
+        const selected = state.contacts.find(c => c.id === state.selectedId)
+        vm.form = selected ? { name: selected.name, email: selected.email } : vm.form
+      }
+    })
+
+    const problems = control.validate()
+    vm.validation = problems.length === 0 ? 'spec fully declared ✓' : problems.join('; ')
+    vm.contacts = control.getState().contacts
+  </script>
+</body>
+</html>

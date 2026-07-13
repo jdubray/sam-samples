@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Model Checker Playground</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 3rem auto; padding: 0 1rem; }
+    button { font-size: 1rem; padding: .5rem 1rem; margin-right: .75rem; cursor: pointer; }
+    label { font-size: 1rem; user-select: none; }
+    .result { border-radius: 8px; padding: 1rem; margin-top: 1.25rem; }
+    .safe { background: #d9f2e3; }
+    .unsafe { background: #ffe3e3; }
+    h3 { margin: .25rem 0 .5rem; }
+    .trace { font-family: monospace; font-size: .8rem; margin: .15rem 0; }
+    .stats { color: #555; font-size: .9rem; }
+    code { background: #f0f0f0; border-radius: 3px; padding: 0 .25rem; }
+  </style>
+</head>
+<body>
+  <h1>Model Checker Playground</h1>
+  <p>v2 specs carry their own input domains, so the checker explores them with
+    <strong>zero configuration</strong> — in the browser. The spec below is a bank account with
+    deposits, withdrawals, and an overdraft guard.</p>
+  <ul>
+    <li><strong>Liveness</strong>: can the balance reach exactly 30?</li>
+    <li><strong>Safety</strong>: the balance must never go negative.</li>
+  </ul>
+  <p>Uncheck the guard and re-run: the checker finds the overdraft traces a human reviewer
+    might not.</p>
+
+  <p>
+    <label><input type="checkbox" id="guard" checked> overdraft guard in the acceptor</label>
+  </p>
+  <button id="run">Run the checker (depth 3)</button>
+
+  <div id="out"></div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance, checker } = tp
+
+    const el = id => document.getElementById(id)
+    let runCount = 0
+
+    // builds a fresh spec each run; `guarded` toggles the overdraft guard
+    const buildSpec = (guarded, trace) => {
+      const instance = createInstance({
+        strict: true,
+        hasAsyncActions: false, // synchronous stepping for exploration
+        instanceName: `bank-${runCount++}`
+      })
+      const control = instance({
+        initialState: { balance: 0 },
+        // record the exploration path: intent name + how the step was classified
+        stepListener: step => {
+          if (step.intent) {
+            trace.push(step.classification === 'rejected' ? `${step.intent}⛔` : step.intent)
+          }
+        },
+        component: {
+          modelShape: { balance: { type: 'number' } },
+          actions: {
+            Deposit: {
+              action: amount => ({ deposit: amount }),
+              schema: { deposit: { type: 'number', required: true } },
+              domain: [10, 20]
+            },
+            Withdraw: {
+              action: amount => ({ withdraw: amount }),
+              schema: { withdraw: { type: 'number', required: true } },
+              domain: [10, 50]
+            }
+          },
+          acceptors: {
+            Deposit: model => ({ deposit }) => {
+              model.balance += deposit
+            },
+            Withdraw: model => ({ withdraw }, { reject }) => {
+              if (guarded && withdraw > model.balance) {
+                return reject(`insufficient funds: ${withdraw} > ${model.balance}`)
+              }
+              model.balance -= withdraw
+            }
+          }
+        },
+        render: () => {} // headless: the checker drives the spec
+      })
+      return { instance, control }
+    }
+
+    el('run').onclick = () => {
+      const guarded = el('guard').checked
+      let trace = []
+      const { instance, control } = buildSpec(guarded, trace)
+
+      const live = []
+      const violations = []
+      const t0 = performance.now()
+
+      checker({
+        instance,
+        initialState: { balance: 0 },
+        reset: init => { control.setState(init); trace.length = 0 },
+        liveness: state => state.balance === 30,
+        safety: state => state.balance < 0,
+        options: { depthMax: 3 }
+      },
+      () => live.push(`${trace.join(' → ')} (balance 30)`),
+      () => violations.push(`${trace.join(' → ')} (balance ${control.getState().balance})`))
+
+      const ms = (performance.now() - t0).toFixed(0)
+      const fmt = traces => [...new Set(traces)]
+        .slice(0, 8)
+        .map(t => `<div class="trace">${t}</div>`)
+        .join('')
+
+      el('out').innerHTML = `
+        <div class="result ${violations.length ? 'unsafe' : 'safe'}">
+          <h3>${violations.length
+            ? `❌ ${violations.length} safety violation(s): the balance can go negative`
+            : '✅ no safety violations — the overdraft guard holds'}</h3>
+          ${violations.length ? fmt(violations) : ''}
+          <h3>Liveness: balance 30 reached by ${live.length} behavior(s)</h3>
+          ${fmt(live)}
+          <p class="stats">guard ${guarded ? 'ON' : 'OFF'} · depth 3 over declared domains
+            (Deposit ∈ {10, 20}, Withdraw ∈ {10, 50}) · ${ms}&nbsp;ms ·
+            <code>validate()</code>: ${control.validate().length === 0 ? 'fully declared ✓' : 'incomplete'}</p>
+        </div>`
+    }
+  </script>
+</body>
+</html>

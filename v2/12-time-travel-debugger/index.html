@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Time-Travel Debugger</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 3rem auto; padding: 0 1rem; }
+    .layout { display: flex; gap: 2rem; }
+    .app { flex: 1; }
+    .debugger { flex: 1.2; }
+    .cart { background: #f6f6f6; border-radius: 8px; padding: 1rem; min-height: 8rem; }
+    .cart div { display: flex; justify-content: space-between; padding: .2rem 0; }
+    .total { font-weight: 700; border-top: 1px solid #ccc; margin-top: .5rem; padding-top: .5rem; }
+    button { padding: .45rem .9rem; margin: .5rem .5rem 0 0; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: .78rem; }
+    th { text-align: left; border-bottom: 1px solid #ccc; padding: .25rem; }
+    td { padding: .25rem; border-bottom: 1px solid #eee; cursor: pointer; vertical-align: top; }
+    tr:hover td { background: #eef4ff; }
+    tr.current td { background: #dbe9ff; }
+    .badge { display: inline-block; border-radius: 4px; padding: 0 .35rem; color: #fff; }
+    .b-mutated { background: #0a7d34; }
+    .b-rejected { background: #b00020; }
+    .b-identity-by-mutation { background: #d4a017; }
+    .b-unhandled { background: #555; }
+    .hint { color: #666; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <h1>Time-Travel Debugger</h1>
+  <p>v2's <code>getState()/setState()</code> round-trip is total over the declared model shape, so
+    <strong>any logged step can be re-pinned exactly</strong> — the replay-pinning capability from
+    the SAM↔TLA+ study, as a debugger. Interact with the shop, then click any row in the step log
+    to travel back. Rejected steps are logged too: the timeline shows what <em>didn't</em> happen,
+    and why.</p>
+
+  <div class="layout">
+    <div class="app">
+      <h3>🛒 Duck Shop</h3>
+      <button id="addDuck">Add duck ($10)</button>
+      <button id="addBoat">Add boat ($25)</button>
+      <button id="undo">Remove last</button>
+      <button id="coupon">Apply coupon</button>
+      <div class="cart" id="cart"></div>
+    </div>
+    <div class="debugger">
+      <h3>Step log <span class="hint">(click a row to travel)</span></h3>
+      <table>
+        <thead><tr><th>#</th><th>intent</th><th>step</th><th>state after</th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'timetravel' })
+
+    const el = id => document.getElementById(id)
+    const timeline = [] // { step, snapshot } — snapshots via the total getState()
+    let currentIndex = -1
+    let travelling = false
+    let pendingStep = null
+
+    const control = instance({
+      initialState: { items: [], discount: 0, total: 0 },
+
+      component: {
+        modelShape: {
+          items: { type: 'array' },
+          discount: { type: 'number' },
+          total: { type: 'number', derived: true }
+        },
+
+        actions: {
+          Add: {
+            action: (name, price) => ({ name, price }),
+            schema: {
+              name: { type: 'string', required: true },
+              price: { type: 'number', required: true }
+            }
+          },
+          RemoveLast: () => ({ removeLast: true }),
+          Coupon: () => ({ coupon: true })
+        },
+
+        acceptors: {
+          Add: model => ({ name, price }, { reject }) => {
+            if (model.items.length >= 6) return reject('cart is full (6 items max)')
+            model.items = model.items.concat({ name, price })
+          },
+          RemoveLast: model => (p, { reject }) => {
+            if (model.items.length === 0) return reject('cart is already empty')
+            model.items = model.items.slice(0, -1)
+          },
+          Coupon: model => (p, { reject }) => {
+            if (model.discount > 0) return reject('coupon already applied')
+            if (model.items.length < 2) return reject('coupon needs at least 2 items')
+            model.discount = 5
+          }
+        },
+
+        reactors: [
+          model => () => {
+            model.total = model.items.reduce((sum, i) => sum + i.price, 0) - model.discount
+          }
+        ]
+      },
+
+      // the step record arrives before reactors run; pair it with the snapshot
+      // at render time so derived keys (total) are captured post-reactor
+      stepListener: step => {
+        if (!travelling) pendingStep = step
+      },
+
+      render: state => {
+        if (pendingStep) {
+          timeline.push({ step: pendingStep, snapshot: control.getState() })
+          currentIndex = timeline.length - 1
+          pendingStep = null
+        }
+        paintFromSnapshot({ items: state.items, discount: state.discount, total: state.total })
+      }
+    })
+
+    const { intents } = control
+
+    const travelTo = (index) => {
+      travelling = true
+      control.setState(timeline[index].snapshot) // total round-trip: exact restore
+      currentIndex = index
+      paintFromSnapshot(timeline[index].snapshot)
+      travelling = false
+    }
+
+    const paintFromSnapshot = (s) => {
+      el('cart').innerHTML = s.items.map(i => `<div><span>${i.name}</span><span>$${i.price}</span></div>`).join('')
+        + (s.discount ? `<div><span>coupon</span><span>−$${s.discount}</span></div>` : '')
+        + `<div class="total"><span>Total</span><span>$${s.total}</span></div>`
+      renderLog()
+    }
+
+    const renderLog = () => {
+      el('log').innerHTML = timeline.map(({ step, snapshot }, i) => `
+        <tr class="${i === currentIndex ? 'current' : ''}" onclick="travelTo(${i})">
+          <td>${i}</td>
+          <td>${step.intent}</td>
+          <td><span class="badge b-${step.classification}">${step.classification}</span>
+              ${step.rejections.map(r => r.reason).join('; ')}</td>
+          <td>${snapshot.items.length} items · $${snapshot.total}</td>
+        </tr>`).join('')
+    }
+    window.travelTo = travelTo
+
+    el('addDuck').onclick = () => intents.Add('Rubber duck 🦆', 10)
+    el('addBoat').onclick = () => intents.Add('Duck boat 🚤', 25)
+    el('undo').onclick = () => intents.RemoveLast()
+    el('coupon').onclick = () => intents.Coupon()
+
+    paintFromSnapshot(control.getState())
+  </script>
+</body>
+</html>

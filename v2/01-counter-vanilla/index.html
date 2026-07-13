@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Counter (vanilla)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    .count { font-size: 4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    button { font-size: 1rem; padding: .5rem 1rem; margin-right: .5rem; cursor: pointer; }
+    .log { background: #f6f6f6; border-radius: 6px; padding: .75rem; font-family: monospace; font-size: .85rem; min-height: 3rem; white-space: pre-wrap; }
+    .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Counter</h1>
+  <p>The v2 "hello world": a <strong>strict</strong> SAM instance with named intents, a payload
+    schema, and a sealed model shape. The "break it" button fires a proposal that drops its
+    payload — in v1 that was a legal, silent no-op; in v2 it throws <code>SamSchemaError</code>.</p>
+
+  <div class="count" id="count"></div>
+  <p>
+    <button id="inc">+1</button>
+    <button id="dec">−1</button>
+    <button id="reset">Reset</button>
+    <button id="break">Break it (drop the payload)</button>
+  </p>
+  <div class="log" id="log"></div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    const { createInstance } = tp
+
+    const instance = createInstance({ strict: true, instanceName: 'counter' })
+
+    const el = id => document.getElementById(id)
+    const log = (msg, isError) => {
+      el('log').textContent = msg
+      el('log').className = isError ? 'log err' : 'log'
+    }
+
+    const { intents } = instance({
+      initialState: { count: 0 },
+
+      component: {
+        modelShape: {
+          count: { type: 'number' }
+        },
+
+        actions: {
+          Increment: {
+            action: by => ({ by }),
+            schema: { by: { type: 'number', required: true } },
+            domain: [1, -1]
+          },
+          Reset: () => ({ reset: true }),
+          // The Haiku failure class: an action creator that drops its payload.
+          // Same schema as Increment — v2 turns the silent no-op into a throw.
+          Broken: {
+            action: () => ({}),
+            schema: { by: { type: 'number', required: true } }
+          }
+        },
+
+        acceptors: {
+          Increment: model => ({ by }) => {
+            model.count += by
+          },
+          Reset: model => () => {
+            model.count = 0
+          }
+        }
+      },
+
+      render: state => {
+        el('count').textContent = state.count
+      }
+    })
+
+    el('inc').onclick = () => { intents.Increment(1); log('Increment(1) accepted') }
+    el('dec').onclick = () => { intents.Increment(-1); log('Increment(-1) accepted') }
+    el('reset').onclick = () => { intents.Reset(); log('Reset accepted') }
+    el('break').onclick = () =>
+      intents.Broken(1).catch(err => log(`${err.name}: ${err.message}`, true))
+  </script>
+</body>
+</html>

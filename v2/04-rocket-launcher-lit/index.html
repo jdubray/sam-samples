@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Rocket Launcher (lit-html)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    .counter { font-size: 5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .launched { color: #0a7d34; }
+    .aborted { color: #b00020; }
+    button { font-size: 1.1rem; padding: .6rem 1.2rem; margin-right: .5rem; cursor: pointer; }
+    .steps { font-family: monospace; font-size: .8rem; background: #f6f6f6; border-radius: 6px; padding: .75rem; margin-top: 1.5rem; max-height: 12rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Rocket Launcher 🚀</h1>
+  <p>The canonical SAM sample, in the v2 strict profile with
+    <a href="https://lit.dev">lit-html</a> templates. The countdown is driven by a
+    <strong>next-action predicate (nap)</strong>; launching mid-abort or counting down a launched
+    rocket is <code>reject</code>ed — watch the step log classify every attempt.</p>
+
+  <div id="app"></div>
+
+  <script src="../lib/SAM.js"></script>
+  <!-- ESM import below is version-pinned; import statements cannot carry SRI -->
+  <script type="module">
+    import { html, render } from 'https://cdn.jsdelivr.net/npm/lit-html@3.2.1/+esm'
+
+    const { createInstance } = tp
+    const instance = createInstance({ strict: true, instanceName: 'rocket' })
+
+    const COUNTDOWN = 10
+    const steps = []
+    let intents
+
+    const view = state => html`
+      <div class="counter ${state.status === 'launched' ? 'launched' : state.status === 'aborted' ? 'aborted' : ''}">
+        ${state.status === 'launched' ? 'Liftoff!' : state.status === 'aborted' ? 'Aborted' : state.counter}
+      </div>
+      <p>
+        <button @click=${() => intents.Start()}>Start</button>
+        <button @click=${() => intents.Abort()}>Abort</button>
+        <button @click=${() => intents.Reset()}>Reset</button>
+      </p>
+      <div class="steps">${steps.slice(-8).map(s => html`<div>${s}</div>`)}</div>
+    `
+
+    const control = instance({
+      initialState: { counter: COUNTDOWN, status: 'ready' },
+
+      component: {
+        modelShape: {
+          counter: { type: 'number' },
+          status: { type: 'string' }
+        },
+
+        actions: {
+          Start: () => ({ start: true }),
+          Countdown: () => ({ countdown: true }),
+          Launch: () => ({ launch: true }),
+          Abort: () => ({ abort: true }),
+          Reset: () => ({ reset: true })
+        },
+
+        acceptors: {
+          Start: model => (p, { reject }) => {
+            if (model.status !== 'ready') return reject(`cannot start while ${model.status}`)
+            model.status = 'counting'
+          },
+          Countdown: model => (p, { reject }) => {
+            if (model.status !== 'counting') return reject(`cannot count down while ${model.status}`)
+            if (model.counter <= 0) return reject('countdown already complete')
+            model.counter -= 1
+          },
+          Launch: model => (p, { reject }) => {
+            if (model.status !== 'counting' || model.counter > 0) return reject('launch conditions not met')
+            model.status = 'launched'
+          },
+          Abort: model => (p, { reject }) => {
+            if (model.status !== 'counting') return reject(`nothing to abort while ${model.status}`)
+            model.status = 'aborted'
+          },
+          Reset: model => (p, { reject }) => {
+            if (model.status === 'counting') return reject('abort first')
+            model.status = 'ready'
+            model.counter = COUNTDOWN
+          }
+        },
+
+        // next-action predicates: the model decides what must happen next
+        naps: [
+          model => () => {
+            if (model.status === 'counting' && model.counter > 0) {
+              setTimeout(() => intents.Countdown(), 1000)
+            }
+            if (model.status === 'counting' && model.counter === 0) {
+              setTimeout(() => intents.Launch(), 0)
+            }
+          }
+        ]
+      },
+
+      stepListener: step => {
+        steps.push(`${step.intent}: ${step.classification}${
+          step.rejections.length ? ` (${step.rejections[0].reason})` : ''}`)
+      },
+
+      render: state => render(view(state), document.getElementById('app'))
+    })
+
+    intents = control.intents
+
+    // initial paint (SAM renders on steps; the first frame comes from the snapshot)
+    render(view(control.getState()), document.getElementById('app'))
+  </script>
+</body>
+</html>

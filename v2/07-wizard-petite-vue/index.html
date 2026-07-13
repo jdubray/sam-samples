@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Checkout Wizard (petite-vue)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    .crumbs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+    .crumb { padding: .3rem .8rem; border-radius: 99px; background: #eee; font-size: .9rem; }
+    .crumb.here { background: #dbe9ff; font-weight: 700; }
+    .crumb.done { background: #d9f2e3; }
+    label { display: block; margin-top: .75rem; font-weight: 600; }
+    input { width: 100%; padding: .4rem; font-size: 1rem; box-sizing: border-box; }
+    button { margin: 1.25rem .5rem 0 0; padding: .5rem 1.2rem; cursor: pointer; }
+    .rejected { color: #b00020; font-family: monospace; font-size: .85rem; min-height: 1.2rem; margin-top: .75rem; }
+    .receipt { background: #d9f2e3; border-radius: 8px; padding: 1rem; }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/petite-vue@0.4.1/dist/petite-vue.iife.js"
+          integrity="sha384-G3VE2R9nao/dKH0R46Bvk6qIVBAeImWjeTj+SwWOJzJ4N0vQ2RKWuC/cp36l4Iba"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>Checkout Wizard</h1>
+  <p>A multi-step form with <a href="https://github.com/vuejs/petite-vue">petite-vue</a>.
+    The wizard's control state is a tiny FSM inside the model; step transitions are guarded
+    acceptors, and the reason a "Next" didn't advance comes straight from the rejection log —
+    the form never fails silently.</p>
+
+  <div id="app" v-scope>
+    <div class="crumbs">
+      <span v-for="(s, i) in ['cart', 'shipping', 'payment', 'confirmed']"
+            :class="['crumb', s === step ? 'here' : (i < stepIndex ? 'done' : '')]">{{ s }}</span>
+    </div>
+
+    <div v-if="step === 'cart'">
+      <label>Quantity of rubber ducks 🦆</label>
+      <input type="number" min="0" :value="quantity"
+             @input="intents.SetQuantity(Number($event.target.value))">
+    </div>
+
+    <div v-if="step === 'shipping'">
+      <label>Address</label>
+      <input :value="address" @input="intents.SetAddress($event.target.value)">
+    </div>
+
+    <div v-if="step === 'payment'">
+      <label>Card number (16 digits)</label>
+      <input :value="card" @input="intents.SetCard($event.target.value)">
+    </div>
+
+    <div v-if="step === 'confirmed'" class="receipt">
+      <strong>Order confirmed!</strong><br>
+      {{ quantity }} duck(s) to {{ address }}.
+    </div>
+
+    <div v-if="step !== 'confirmed'">
+      <button @click="intents.Back()">← Back</button>
+      <button @click="intents.Next()">Next →</button>
+    </div>
+    <div v-else><button @click="intents.Restart()">Start over</button></div>
+
+    <div class="rejected">{{ rejection }}</div>
+  </div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const { createInstance } = tp
+      const instance = createInstance({ strict: true, instanceName: 'wizard' })
+
+      const STEPS = ['cart', 'shipping', 'payment', 'confirmed']
+
+      const store = PetiteVue.reactive({
+        step: 'cart', stepIndex: 0, quantity: 1, address: '', card: '',
+        rejection: '', intents: null
+      })
+
+      const control = instance({
+        initialState: {
+          step: 'cart', quantity: 1, address: '', card: ''
+        },
+
+        component: {
+          modelShape: {
+            step: { type: 'string' },
+            quantity: { type: 'number' },
+            address: { type: 'string' },
+            card: { type: 'string' }
+          },
+
+          actions: {
+            SetQuantity: {
+              action: quantity => ({ quantity }),
+              schema: { quantity: { type: 'number', required: true } }
+            },
+            SetAddress: {
+              action: address => ({ address }),
+              schema: { address: { type: 'string', required: true } }
+            },
+            SetCard: {
+              action: card => ({ card }),
+              schema: { card: { type: 'string', required: true } }
+            },
+            Next: () => ({ next: true }),
+            Back: () => ({ back: true }),
+            Restart: () => ({ restart: true })
+          },
+
+          acceptors: {
+            SetQuantity: model => ({ quantity }, { reject }) => {
+              if (!Number.isInteger(quantity) || quantity < 0) return reject('quantity must be a whole number ≥ 0')
+              model.quantity = quantity
+            },
+            SetAddress: model => ({ address }) => { model.address = address },
+            SetCard: model => ({ card }) => { model.card = card },
+
+            Next: model => (p, { reject }) => {
+              // per-step guards: the reasons a step refuses to advance
+              if (model.step === 'cart' && model.quantity === 0) return reject('cart is empty — add at least one duck')
+              if (model.step === 'shipping' && model.address.trim().length < 8) return reject('address looks too short')
+              if (model.step === 'payment' && !/^\d{16}$/.test(model.card.replace(/\s/g, ''))) return reject('card number must be 16 digits')
+              if (model.step === 'confirmed') return reject('order already confirmed')
+              model.step = STEPS[STEPS.indexOf(model.step) + 1]
+            },
+            Back: model => (p, { reject }) => {
+              if (model.step === 'cart') return reject('already at the first step')
+              if (model.step === 'confirmed') return reject('order already confirmed')
+              model.step = STEPS[STEPS.indexOf(model.step) - 1]
+            },
+            Restart: model => (p, { reject }) => {
+              if (model.step !== 'confirmed') return reject('nothing to restart')
+              model.step = 'cart'
+              model.quantity = 1
+              model.address = ''
+              model.card = ''
+            }
+          }
+        },
+
+        stepListener: step => {
+          store.rejection = step.classification === 'rejected'
+            ? `⛔ ${step.rejections[0].reason}` : ''
+        },
+
+        render: state => {
+          store.step = state.step
+          store.stepIndex = STEPS.indexOf(state.step)
+          store.quantity = state.quantity
+          store.address = state.address
+          store.card = state.card
+        }
+      })
+
+      store.intents = control.intents
+      PetiteVue.createApp(store).mount('#app')
+    })
+  </script>
+</body>
+</html>

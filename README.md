@@ -2,6 +2,8 @@
 
 [SAM (State-Action-Model)](http://sam.js.org) is a reactive functional pattern that simplifies front-end and back-end architecture by clearly separating business logic from the view. All samples use the local [sam-pattern](../sam-lib) library build.
 
+> **✨ New: [v2 samples](v2/)** — twelve samples for sam-lib 2.0's **strict profile** (named intents with schemas, sealed model shape, `reject(reason)`, keyed acceptors, input domains + in-browser model checking), ordered from hello-world to a time-travel debugger, using vanilla JS, Alpine.js, VanJS, lit-html, Preact, Vue 3, petite-vue, Web Components, and canvas. Self-contained: `npx serve v2`.
+
 ## Running Samples
 
 Serve from the `sam/` workspace root so that relative paths to `../../sam-lib/dist/SAM.js` resolve correctly:
@@ -23,9 +25,9 @@ Full [TodoMVC](http://todomvc.com) implementations across multiple frameworks:
 |--------|-----------|-------|
 | [todomvc-app](./todomvc-app) | Vanilla JS | Reference implementation |
 | [todomvc-app-lit-html](./todomvc-app-lit-html) | lit-html | `npm install` required |
-| [todomvc-app-vue](./todomvc-app-vue) | Vue 2.6 + Vue Router | `npm install` required |
-| [todomvc-app-angular](./todomvc-app-angular) | Angular 7 | `npm install && ng serve` |
-| [todomvc-app-react](./todomvc-app-react) | React 18 CRA | `npm install && npm start` |
+| [todomvc-app-vue](./todomvc-app-vue) | Vue 2.7 + Vue Router | `npm install` required |
+| [todomvc-app-angular](./todomvc-app-angular) | Angular 7 | **archived** — source only, see its ARCHIVED.md |
+| [todomvc-app-react](./todomvc-app-react) | React 18 + Vite | `npm install && npm start` |
 
 ## Vanilla JS
 
@@ -50,12 +52,15 @@ Full [TodoMVC](http://todomvc.com) implementations across multiple frameworks:
 | [inferno-rocket](./inferno-rocket) | Rocket launcher with [Inferno](https://infernojs.org/) vdom |
 | [lighterhtml](./lighterhtml) | lighterhtml renderer + sam-pattern |
 
-## Server-Side (Node.js)
+## Server-Side (Node.js) — archived
 
-| Sample | Description | Start command |
-|--------|-------------|---------------|
-| [crud-blog](./crud-blog) | Express CRUD blog | `npm start` → `localhost:5425/html/blog.html` |
-| [server-side-timetravel-store](./server-side-timetravel-store) | Express + in-memory time-travel snapshot store | `npm start` |
+These samples ran on dependency stacks that are now end-of-life (express 4.13, request, node-uuid, Claudia 1.x, …). Their source remains browsable, but the dependency manifests were removed — see the `ARCHIVED.md` inside each directory for the rationale and how to restore them from git history. The same applies to [lit-html](./lit-html) (a vendored 2017 snapshot of the library source), [vanilla-es6-boilerplate-project](./vanilla-es6-boilerplate-project), and [vanilla-es6-stateful-component](./vanilla-es6-stateful-component).
+
+| Sample | Description |
+|--------|-------------|
+| [crud-blog](./crud-blog) | Express CRUD blog |
+| [crud-blog-lambda](./crud-blog-lambda) | AWS Lambda (Claudia.js) port of the CRUD blog |
+| [server-side-timetravel-store](./server-side-timetravel-store) | Express + in-memory time-travel snapshot store |
 
 ---
 
@@ -73,6 +78,8 @@ node samples.test.js
 
 ## Change Log
 
+- 2026-07-12 Security pass: migrated the React samples from CRA to Vite, updated puppeteer/vue/chai stacks, archived seven end-of-life samples (manifests removed, source kept) — Dependabot alerts from ~964 to ~1 (Vue 2 ReDoS, low; Vue 2 is EOL)
+- 2026-07-12 Added the v2 strict-profile samples under v2/
 - 2026-03-27 Removed hash-dom from active samples (not fixable for Puppeteer testing)
 - 2026-03-27 Fixed todomvc-app-vue `<base href>` so scripts resolve correctly under http-server
 - 2026-03-27 Fixed inferno-rocket absolute script paths (`/inferno.min.js` → `inferno.min.js`)

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import '../../node_modules/todomvc-common/base.css'
-import '../../node_modules/todomvc-common/base.css'
 
 export let TodoApp = () => {
     return (<div/>)

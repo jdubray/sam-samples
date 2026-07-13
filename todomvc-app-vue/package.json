@@ -4,17 +4,17 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "serve": "npx live-server --entry-file=index.html",
+    "serve": "http-server -p 8080 -c-1 ../..",
     "start": "npm run serve"
   },
   "author": "Adrian Mejia <me@adrianmejia.com> (http://adrianmejia.com)",
   "license": "ISC",
   "dependencies": {
-    "todomvc-app-css": "2.2.0",
-    "vue": "2.6.10",
-    "vue-router": "3.0.7"
+    "todomvc-app-css": "^2.4.3",
+    "vue": "^2.7.16",
+    "vue-router": "^3.6.5"
   },
   "devDependencies": {
-    "live-server": "1.2.1"
+    "http-server": "^14.1.1"
   }
 }

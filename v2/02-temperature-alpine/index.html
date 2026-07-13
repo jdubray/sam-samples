@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM v2 — Temperature Converter (Alpine.js)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 3rem auto; padding: 0 1rem; }
+    label { display: block; margin: 1rem 0 .25rem; font-weight: 600; }
+    input { font-size: 1.25rem; padding: .4rem; width: 8rem; }
+    .verdict { margin-top: 1.5rem; font-size: 1.1rem; }
+    .rejected { color: #b00020; font-family: monospace; font-size: .85rem; margin-top: 1rem; min-height: 1.2rem; }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"
+          integrity="sha384-9Ax3MmS9AClxJyd5/zafcXXjxmwFhZCdsT6HJoJjarvCaAkJlk5QDzjLJm+Wdx5F"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>Temperature Converter</h1>
+  <p>Bidirectional editing with <a href="https://alpinejs.dev">Alpine.js</a> as the view layer.
+    Celsius is the single source of truth; Fahrenheit is a <code>derived</code> key computed by a
+    reactor. Out-of-range values are <code>reject</code>ed with a reason — shown live below.</p>
+
+  <div x-data>
+    <label>Celsius</label>
+    <input type="number" :value="$store.temp.celsius"
+           @input="samIntents.SetCelsius(Number($event.target.value))">
+
+    <label>Fahrenheit</label>
+    <input type="number" :value="$store.temp.fahrenheit"
+           @input="samIntents.SetFahrenheit(Number($event.target.value))">
+
+    <div class="verdict" x-text="$store.temp.verdict"></div>
+    <div class="rejected" x-text="$store.temp.rejection"></div>
+  </div>
+
+  <script src="../lib/SAM.js"></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      const { createInstance } = tp
+      const instance = createInstance({ strict: true, instanceName: 'temperature' })
+
+      Alpine.store('temp', {
+        celsius: 21, fahrenheit: 69.8, verdict: '', rejection: ''
+      })
+
+      const ABSOLUTE_ZERO_C = -273.15
+      const toF = c => Math.round((c * 9 / 5 + 32) * 10) / 10
+      const toC = f => Math.round(((f - 32) * 5 / 9) * 10) / 10
+
+      const control = instance({
+        initialState: { celsius: 21, fahrenheit: toF(21), verdict: '' },
+
+        component: {
+          modelShape: {
+            celsius: { type: 'number' },
+            fahrenheit: { type: 'number', derived: true },
+            verdict: { type: 'string', derived: true }
+          },
+
+          actions: {
+            SetCelsius: {
+              action: celsius => ({ celsius }),
+              schema: { celsius: { type: 'number', required: true } }
+            },
+            SetFahrenheit: {
+              action: fahrenheit => ({ fahrenheit }),
+              schema: { fahrenheit: { type: 'number', required: true } }
+            }
+          },
+
+          acceptors: {
+            SetCelsius: model => ({ celsius }, { reject }) => {
+              if (Number.isNaN(celsius)) return reject('not a number')
+              if (celsius < ABSOLUTE_ZERO_C) return reject(`${celsius}°C is below absolute zero`)
+              model.celsius = celsius
+            },
+            SetFahrenheit: model => ({ fahrenheit }, { reject }) => {
+              if (Number.isNaN(fahrenheit)) return reject('not a number')
+              const celsius = toC(fahrenheit)
+              if (celsius < ABSOLUTE_ZERO_C) return reject(`${fahrenheit}°F is below absolute zero`)
+              model.celsius = celsius
+            }
+          },
+
+          reactors: [
+            model => () => {
+              model.fahrenheit = toF(model.celsius)
+              model.verdict = model.celsius <= 0 ? '🥶 freezing'
+                : model.celsius >= 30 ? '🥵 hot'
+                : '😌 comfortable'
+            }
+          ]
+        },
+
+        stepListener: step => {
+          Alpine.store('temp').rejection = step.classification === 'rejected'
+            ? `rejected: ${step.rejections[0].reason}`
+            : ''
+        },
+
+        render: state => {
+          Object.assign(Alpine.store('temp'), {
+            celsius: state.celsius,
+            fahrenheit: state.fahrenheit,
+            verdict: state.verdict
+          })
+        }
+      })
+
+      window.samIntents = control.intents
+    })
+  </script>
+</body>
+</html>
