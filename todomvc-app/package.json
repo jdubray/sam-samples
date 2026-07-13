@@ -4,11 +4,11 @@
     "test": "node tests/puppeteer.test.js"
   },
   "dependencies": {
-    "todomvc-app-css": "^2.0.0",
-    "todomvc-common": "^1.0.0"
+    "todomvc-app-css": "^2.4.3",
+    "todomvc-common": "^1.0.5"
   },
   "devDependencies": {
     "http-server": "^14.1.1",
-    "puppeteer": "^21.11.0"
+    "puppeteer": "^24.14.0"
   }
 }

@@ -1,11 +1,11 @@
 {
   "private": true,
   "dependencies": {
-    "todomvc-app-css": "^2.0.0",
-    "todomvc-common": "^1.0.0"
+    "todomvc-app-css": "^2.4.3",
+    "todomvc-common": "^1.0.5"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-http": "^4.3.0"
+    "chai": "^5.2.0",
+    "chai-http": "^5.1.1"
   }
 }

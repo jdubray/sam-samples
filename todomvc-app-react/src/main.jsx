@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '../node_modules/todomvc-app-css/index.css';
+import 'todomvc-common/base.css';
+import 'todomvc-app-css/index.css';
 import { TodoAppFactory, TodoApp }  from './sam/TodoApp';
 
 import initialState from './sam/initialState.js'
