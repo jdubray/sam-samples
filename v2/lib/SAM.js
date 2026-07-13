@@ -20,14 +20,14 @@
 
   /**
    * Modernized SAM Utilities
-   * 
+   *
    * Note: Many functions have been replaced with native JavaScript features:
    * - O() → optional chaining (?.) and nullish coalescing (??)
    * - A() → optional chaining (?.) and nullish coalescing (??)
    * - S() → optional chaining (?.) and nullish coalescing (??)
    * - F() → nullish coalescing (??)
    * - E() → nullish checks (!= null) for simple cases
-   * 
+   *
    * The remaining functions provide specialized functionality beyond
    * what native optional chaining offers.
    */
@@ -48,7 +48,7 @@
   /**
    * Standardized error handling for SAM
    * Creates a consistent error object that can be used across the system
-   * 
+   *
    * @param {Error|string} error - The error to standardize
    * @param {string} [context] - Optional context for the error
    * @param {string} [type='SAM_ERROR'] - Optional error type
@@ -76,7 +76,7 @@
   // Enhanced existence check with support for complex cases
   // This goes beyond simple nullish checks to handle:
   // - Array element existence
-  // - String substring checks  
+  // - String substring checks
   // - Object key existence with truthy values
   const e = value => Array.isArray(value) ? value.map(e).reduce(and, true) : value !== false && value !== null && value !== undefined;
   const i = (value, element) => {
@@ -91,14 +91,14 @@
 
   /**
    * Enhanced existence check - checks if value exists and optionally if element exists within value
-   * 
+   *
    * @param {*} value - The value to check
    * @param {*} [element] - Optional element to check within value
    * @returns {boolean} True if value exists and (element is undefined or element exists within value)
-   * 
+   *
    * Examples:
    * E(null) → false
-   * E(undefined) → false  
+   * E(undefined) → false
    * E(false) → false
    * E('hello') → true
    * E('hello', 'ell') → true
@@ -116,12 +116,12 @@
 
   /**
    * Chainable conditional executor - executes function if value is truthy
-   * 
+   *
    * @param {*} value - Value to check
    * @param {Function} f - Function to execute if value is truthy
    * @param {boolean} [guard=true] - Optional guard condition
    * @returns {Object} Chainable object with .on method
-   * 
+   *
    * Example:
    * on(user.loggedIn, () => console.log('Welcome'))
    *   .on(user.isAdmin, () => console.log('Admin access'))
@@ -135,7 +135,7 @@
   /**
    * Chainable conditional executor - executes function if value is truthy
    * Continues chain regardless of execution
-   * 
+   *
    * @param {*} value - Value to check
    * @param {Function} f - Function to execute if value is truthy
    * @param {boolean} [guard=true] - Optional guard condition
@@ -248,6 +248,43 @@
     }
   };
 
+  // module-level clone so the recursion cannot be shadowed by a model data key
+  // named `clone` (issue #29)
+  const cloneState = state => {
+    const comps = state.__components;
+    const {
+      __components,
+      ...stateWithoutComps
+    } = state;
+
+    // Optimized cloning - avoid JSON.parse(JSON.stringify) for better performance
+    const cln = Array.isArray(stateWithoutComps) ? [...stateWithoutComps] : {
+      ...stateWithoutComps
+    };
+
+    // Deep clone nested objects
+    Object.keys(cln).forEach(key => {
+      const value = cln[key];
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        cln[key] = cloneState(value);
+      } else if (Array.isArray(value)) {
+        cln[key] = value.map(item => item && typeof item === 'object' ? cloneState(item) : item);
+      }
+    });
+    if (comps) {
+      cln.__components = {};
+      Object.keys(comps).forEach(key => {
+        const {
+          parent,
+          ...compWithoutParent
+        } = comps[key];
+        cln.__components[key] = Object.assign(cloneState(compWithoutParent), {
+          parent: cln
+        });
+      });
+    }
+    return cln;
+  };
   class Model {
     constructor(name) {
       this.__components = {};
@@ -344,46 +381,15 @@
       this.__eventQueue = [];
     }
     flush() {
-      if (this.continue() === false) {
+      // direct field access: a data key named `continue` must not shadow the check (#29)
+      if (this.__continue !== true) {
         var _this$__eventQueue;
         (_this$__eventQueue = this.__eventQueue) === null || _this$__eventQueue === void 0 || _this$__eventQueue.forEach(([event, data]) => events.emit(event, data));
         this.__eventQueue = [];
       }
     }
     clone(state = this) {
-      const comps = state.__components;
-      const {
-        __components,
-        ...stateWithoutComps
-      } = state;
-
-      // Optimized cloning - avoid JSON.parse(JSON.stringify) for better performance
-      const cln = Array.isArray(stateWithoutComps) ? [...stateWithoutComps] : {
-        ...stateWithoutComps
-      };
-
-      // Deep clone nested objects
-      Object.keys(cln).forEach(key => {
-        const value = cln[key];
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          cln[key] = this.clone(value);
-        } else if (Array.isArray(value)) {
-          cln[key] = value.map(item => item && typeof item === 'object' ? this.clone(item) : item);
-        }
-      });
-      if (comps) {
-        cln.__components = {};
-        Object.keys(comps).forEach(key => {
-          const {
-            parent,
-            ...compWithoutParent
-          } = comps[key];
-          cln.__components[key] = Object.assign(this.clone(compWithoutParent), {
-            parent: cln
-          });
-        });
-      }
-      return cln;
+      return cloneState(state);
     }
     state(name, clone) {
       const prop = n => E(this[n]) ? this[n] : E(this.__components[n]) ? this.__components[n] : this;
@@ -393,7 +399,7 @@
       } else {
         state = prop(name);
       }
-      return clone && state ? this.clone(state) : state;
+      return clone && state ? cloneState(state) : state;
     }
   }
 
@@ -645,6 +651,11 @@
     let history;
     const model = new Model(instanceName);
 
+    // framework-internal Model method access, immune to data keys shadowing
+    // prototype methods (issue #29: a model key named 'state', 'clone', ...)
+    const invokeModel = (method, ...args) => Model.prototype[method].apply(model, args);
+    const safeFlush = m => m instanceof Model ? Model.prototype.flush.call(m) : typeof m.flush === 'function' ? m.flush() : undefined;
+
     // v2 (#21): declared, sealed model shape — SAM's VARIABLES
     let modelShape = null;
     const stepMutations = new Set();
@@ -714,6 +725,14 @@
     }) : model;
     const registerModelShape = shape => {
       modelShape = Object.assign(modelShape !== null && modelShape !== void 0 ? modelShape : {}, shape);
+      // #29: the framework is immune to data keys shadowing Model methods, but
+      // user code calling model.<key>() in render/naps would see data — flag it
+      if (devWarnings) {
+        const collisions = Object.keys(shape).filter(key => typeof Model.prototype[key] === 'function');
+        if (collisions.length > 0) {
+          console.warn("SAM: modelShape key(s) ".concat(collisions.map(k => "'".concat(k, "'")).join(', '), " shadow Model method(s) of the same name; the framework is unaffected, but calling model.").concat(collisions[0], "() in your own render/naps returns the data \u2014 use getState() for snapshots"));
+        }
+      }
       // validate the current observable state against the declared shape
       Object.keys(model).filter(key => key.indexOf('__') !== 0).forEach(key => {
         const violation = checkShapeWrite(modelShape, key, model[key]);
@@ -833,7 +852,9 @@
         keyed: acceptorRegistry.keyed.slice(),
         broadcast: acceptorRegistry.broadcast
       },
-      modelShape: modelShape ? Object.assign({}, modelShape) : null
+      modelShape: modelShape ? {
+        ...modelShape
+      } : null
     });
     const mount = (arr = [], elements = [], operand = sealedModel) => elements.map(el => arr.push(el(operand)));
     let intents;
@@ -850,13 +871,13 @@
       }
     }];
     const reactors = [() => {
-      model.hasNext(history ? history.hasNext() : false);
+      invokeModel('hasNext', history ? history.hasNext() : false);
     }];
     const naps = [];
 
     // ancillary
-    let renderView = m => m.flush();
-    let _render = m => m.flush();
+    let renderView = m => safeFlush(m);
+    let _render = m => safeFlush(m);
     let storeRenderView = _render;
 
     // State Representation
@@ -867,9 +888,9 @@
 
         // render state representation (gated by nap)
         if (!naps.map(react).reduce(or, false)) {
-          renderView(clone ? model.clone() : model);
+          renderView(clone ? invokeModel('clone') : model);
         }
-        model.renderNextTime();
+        invokeModel('renderNextTime');
       } catch (err) {
         if (err.name === 'AssertionError' || isStrictError(err)) {
           throw err;
@@ -924,7 +945,7 @@
     let present = synchronize ? async (proposal, resolve) => {
       if (checkForOutOfOrder(proposal)) {
         beginStep(proposal);
-        model.resetEventQueue();
+        invokeModel('resetEventQueue');
         // accept proposal
         await Promise.all(acceptors.map(accept(proposal, stepApi)));
         storeBehavior(proposal);
@@ -953,18 +974,18 @@
 
     // SAM's internal acceptors
     const addInitialState = (initialState = {}) => {
-      model.update(initialState);
+      invokeModel('update', initialState);
       if (history) {
         history.snap(model, 0);
       }
-      model.resetBehavior();
+      invokeModel('resetBehavior');
     };
 
     // eslint-disable-next-line no-shadow
     const rollback = (conditions = []) => conditions.map(condition => model => () => {
       const isNotSafe = condition.expression(model);
       if (isNotSafe) {
-        model.log({
+        invokeModel('log', {
           error: {
             name: condition.name,
             model
@@ -972,17 +993,17 @@
         });
         // rollback if history is present
         if (history) {
-          model.update(history.last());
+          invokeModel('update', history.last());
           renderView(model);
         }
         return true;
       }
       return false;
     });
-    const isAllowed = action => (!model.__blockUnexpectedActions && model.allowedActions().length === 0 || model.allowedActions().map(a => typeof a === 'string' ? a === action.__actionName : a === action).reduce(or, false)) && !model.disallowedActions().map(a => typeof a === 'string' ? a === action.__actionName : a === action).reduce(or, false);
+    const isAllowed = action => (!model.__blockUnexpectedActions && invokeModel('allowedActions').length === 0 || invokeModel('allowedActions').map(a => typeof a === 'string' ? a === action.__actionName : a === action).reduce(or, false)) && !invokeModel('disallowedActions').map(a => typeof a === 'string' ? a === action.__actionName : a === action).reduce(or, false);
     const acceptLocalState = component => {
       if (component.name != null) {
-        model.setComponentState(component);
+        invokeModel('setComponentState', component);
       }
     };
 
@@ -1215,21 +1236,21 @@
     };
     const setRender = render => {
       const flushEventsAndRender = m => {
-        m.flush && m.flush();
+        safeFlush(m);
         render && render(m);
       };
       renderView = history ? wrap(flushEventsAndRender, s => history ? history.snap(s) : s) : flushEventsAndRender;
       _render = render;
     };
     const setLogger = l => {
-      model.setLogger(l);
+      invokeModel('setLogger', l);
     };
     const setHistory = h => {
       history = new History(h, {
         max
       });
-      model.hasNext(history.hasNext());
-      model.resetBehavior();
+      invokeModel('hasNext', history.hasNext());
+      invokeModel('resetBehavior');
       renderView = wrap(_render, s => history ? history.snap(s) : s);
     };
     const timetravel = (travel = {}) => {
@@ -1247,7 +1268,10 @@
           travelTo = history.travel(travel.index);
         }
       }
-      renderView(Object.assign({}, model, travelTo));
+      renderView({
+        ...model,
+        ...travelTo
+      });
     };
     const setCheck = ({
       begin = {},
@@ -1269,10 +1293,10 @@
       clear = false
     }) => {
       if (clear) {
-        model.clearAllowedActions();
+        invokeModel('clearAllowedActions');
       }
       if (actions.length > 0) {
-        model.addAllowedActions(actions);
+        invokeModel('addAllowedActions', actions);
       }
       return model.__allowedActions;
     };
@@ -1298,18 +1322,20 @@
         stepListener = listener;
       }).on(initialState, addInitialState).on(component, addComponent).on(render, setRender).on(travel, timetravel).on(logger, setLogger).on(check, setCheck).on(allowed, allowedActions).on(clearInterval, () => queue.clear()).on(event, addEventHandler);
       return {
-        hasNext: model.hasNext(),
-        hasError: model.hasError(),
-        errorMessage: model.errorMessage(),
-        error: model.error(),
+        hasNext: invokeModel('hasNext'),
+        hasError: invokeModel('hasError'),
+        errorMessage: invokeModel('errorMessage'),
+        error: invokeModel('error'),
         intents,
-        state: name => model.state(name, clone),
+        state: name => invokeModel('state', name, clone),
         getState,
         setState,
         lastStep,
         manifest,
         validate,
-        namedIntents: () => Object.assign({}, registeredIntents),
+        namedIntents: () => ({
+          ...registeredIntents
+        }),
         dispose: () => synchronize && queue.clear()
       };
     };
