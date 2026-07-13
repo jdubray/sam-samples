@@ -684,6 +684,7 @@
     // them so they classify as mutated (deep) instead of a false "unhandled"
     let stepBeforeSnapshot;
     let stepDeepChange = false;
+    let stepErrorBefore;
     const beginStep = proposal => {
       var _proposal$__actionNam;
       currentIntentName = (_proposal$__actionNam = proposal.__actionName) !== null && _proposal$__actionNam !== void 0 ? _proposal$__actionNam : null;
@@ -692,6 +693,7 @@
       stepRejections.length = 0;
       stepDeepChange = false;
       stepBeforeSnapshot = strict && currentIntentName != null ? display(model) : undefined;
+      stepErrorBefore = model.__error;
     };
 
     // strict mode hands acceptors/reactors/naps a sealed view of the model:
@@ -792,6 +794,17 @@
     const endStep = () => {
       if (stepBeforeSnapshot !== undefined && stepMutations.size === 0 && stepRejections.length === 0) {
         stepDeepChange = display(model) !== stepBeforeSnapshot;
+      }
+      // #31: an __error-slot write during a non-mutating step is the v1
+      // rejection idiom — classify it as rejected with the error text as the
+      // reason, unifying it with reject(reason) under one observable vocabulary
+      // (a step that also mutates classifies mutated; the error stays readable)
+      if (currentIntentName != null && stepRejections.length === 0 && stepMutations.size === 0 && !stepDeepChange && model.__error != null && model.__error !== stepErrorBefore) {
+        var _model$__error$messag, _model$__error;
+        stepRejections.push({
+          intent: currentIntentName,
+          reason: (_model$__error$messag = (_model$__error = model.__error) === null || _model$__error === void 0 ? void 0 : _model$__error.message) !== null && _model$__error$messag !== void 0 ? _model$__error$messag : String(model.__error)
+        });
       }
       const step = lastStep();
       if (devWarnings && strict && step.intent != null && step.classification === 'unhandled') {
