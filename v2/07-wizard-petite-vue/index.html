@@ -108,32 +108,35 @@
           },
 
           acceptors: {
-            SetQuantity: model => ({ quantity }, { reject }) => {
+            SetQuantity: model => ({ quantity }, { reject, next, unchanged }) => {
               if (!Number.isInteger(quantity) || quantity < 0) return reject('quantity must be a whole number ≥ 0')
-              model.quantity = quantity
+              next.quantity = quantity
+              unchanged('*')
             },
-            SetAddress: model => ({ address }) => { model.address = address },
-            SetCard: model => ({ card }) => { model.card = card },
+            SetAddress: model => ({ address }, { next, unchanged }) => { next.address = address; unchanged('*') },
+            SetCard: model => ({ card }, { next, unchanged }) => { next.card = card; unchanged('*') },
 
-            Next: model => (p, { reject }) => {
+            Next: model => (p, { reject, next, unchanged }) => {
               // per-step guards: the reasons a step refuses to advance
               if (model.step === 'cart' && model.quantity === 0) return reject('cart is empty — add at least one duck')
               if (model.step === 'shipping' && model.address.trim().length < 8) return reject('address looks too short')
               if (model.step === 'payment' && !/^\d{16}$/.test(model.card.replace(/\s/g, ''))) return reject('card number must be 16 digits')
               if (model.step === 'confirmed') return reject('order already confirmed')
-              model.step = STEPS[STEPS.indexOf(model.step) + 1]
+              next.step = STEPS[STEPS.indexOf(model.step) + 1]
+              unchanged('*')
             },
-            Back: model => (p, { reject }) => {
+            Back: model => (p, { reject, next, unchanged }) => {
               if (model.step === 'cart') return reject('already at the first step')
               if (model.step === 'confirmed') return reject('order already confirmed')
-              model.step = STEPS[STEPS.indexOf(model.step) - 1]
+              next.step = STEPS[STEPS.indexOf(model.step) - 1]
+              unchanged('*')
             },
-            Restart: model => (p, { reject }) => {
+            Restart: model => (p, { reject, next }) => {
               if (model.step !== 'confirmed') return reject('nothing to restart')
-              model.step = 'cart'
-              model.quantity = 1
-              model.address = ''
-              model.card = ''
+              next.step = 'cart'
+              next.quantity = 1
+              next.address = ''
+              next.card = ''
             }
           }
         },

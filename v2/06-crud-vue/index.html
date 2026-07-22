@@ -104,28 +104,30 @@
         },
 
         acceptors: {
-          Create: model => ({ id, name, email }, { reject }) => {
+          Create: model => ({ id, name, email }, { reject, next }) => {
             if (!name.trim()) return reject('name is required')
             if (!email.includes('@')) return reject('email looks invalid')
-            model.contacts = model.contacts.concat({ id, name, email })
-            model.selectedId = id
+            next.contacts = model.contacts.concat({ id, name, email })
+            next.selectedId = id
           },
-          Update: model => ({ id, name, email }, { reject }) => {
+          Update: model => ({ id, name, email }, { reject, next, unchanged }) => {
             if (!model.contacts.some(c => c.id === id)) return reject(`no contact ${id}`)
             if (!name.trim()) return reject('name is required')
             if (!email.includes('@')) return reject('email looks invalid')
-            model.contacts = model.contacts.map(c => (c.id === id ? { id, name, email } : c))
+            next.contacts = model.contacts.map(c => (c.id === id ? { id, name, email } : c))
+            unchanged('*')
           },
-          Delete: model => ({ deleteId }, { reject }) => {
+          Delete: model => ({ deleteId }, { reject, next }) => {
             if (!model.contacts.some(c => c.id === deleteId)) return reject(`no contact ${deleteId}`)
-            model.contacts = model.contacts.filter(c => c.id !== deleteId)
-            model.selectedId = null
+            next.contacts = model.contacts.filter(c => c.id !== deleteId)
+            next.selectedId = null
           },
-          Select: model => ({ selectId }, { reject }) => {
+          Select: model => ({ selectId }, { reject, next, unchanged }) => {
             if (selectId !== null && !model.contacts.some(c => c.id === selectId)) {
               return reject(`no contact ${selectId}`)
             }
-            model.selectedId = selectId
+            next.selectedId = selectId
+            unchanged('*')
           }
         }
       }

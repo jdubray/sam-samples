@@ -83,31 +83,34 @@
         },
 
         acceptors: {
-          Turn: model => ({ direction }, { reject }) => {
+          Turn: model => ({ direction }, { reject, next, unchanged }) => {
             if (!model.alive) return reject('game over — restart to play')
             if (!DELTA[direction]) return reject(`unknown direction ${direction}`)
             if (direction === OPPOSITE[model.direction]) return reject('cannot reverse into yourself')
-            model.direction = direction
+            next.direction = direction
+            unchanged('*')
           },
-          Tick: model => ({ nextFood }, { reject }) => {
+          Tick: model => ({ nextFood }, { reject, next, unchanged }) => {
             if (!model.alive) return reject('game over')
             const [dx, dy] = DELTA[model.direction]
             const head = [model.body[0][0] + dx, model.body[0][1] + dy]
             const hitWall = head[0] < 0 || head[0] >= GRID || head[1] < 0 || head[1] >= GRID
             const hitSelf = model.body.some(([x, y]) => x === head[0] && y === head[1])
             if (hitWall || hitSelf) {
-              model.alive = false
+              next.alive = false
+              unchanged('*')
               return
             }
             const ate = head[0] === model.food[0] && head[1] === model.food[1]
-            model.body = [head, ...(ate ? model.body : model.body.slice(0, -1))]
+            next.body = [head, ...(ate ? model.body : model.body.slice(0, -1))]
             if (ate) {
-              model.score += 10
-              model.food = nextFood
+              next.score = model.score + 10
+              next.food = nextFood
             }
+            unchanged('*')
           },
-          Restart: model => ({ restart }) => {
-            Object.assign(model, restart)
+          Restart: model => ({ restart }, { next }) => {
+            Object.assign(next, restart)
           }
         }
       },

@@ -456,6 +456,25 @@
   }
 
   /**
+   * Error thrown (strict mode, #25) when an acceptor step violates the next-state
+   * frame: a declared variable is neither assigned in `next` nor declared
+   * `unchanged`, or a variable is assigned by more than one acceptor in a single
+   * step (double-prime). Mirrors TLA+'s rule that every variable's prime must be
+   * constrained exactly once per step.
+   */
+  class SamFrameError extends Error {
+    /**
+     * @param {string} message - human-readable frame violation
+     * @param {Object} [details] - structured fields, e.g. { unaccounted } or { doublePrime }
+     */
+    constructor(message, details = {}) {
+      super(message);
+      this.name = 'SamFrameError';
+      Object.assign(this, details);
+    }
+  }
+
+  /**
    * Error thrown (strict mode) when instance.validate() finds obligations the
    * spec has not declared (missing schemas, domains, or model shape).
    */
@@ -606,7 +625,7 @@
 
   // errors the strict profile lets propagate to the intent caller rather than
   // converting to an __error proposal
-  const isStrictError = err => err.name === 'SamSchemaError' || err.name === 'SamShapeError';
+  const isStrictError = err => err.name === 'SamSchemaError' || err.name === 'SamShapeError' || err.name === 'SamFrameError';
 
   // v2 (#20): named intents — component.actions may be an object map of
   // name -> action | { action, schema, domain }. Normalizes to an array of
@@ -694,6 +713,14 @@
       stepDeepChange = false;
       stepBeforeSnapshot = strict && currentIntentName != null ? display(model) : undefined;
       stepErrorBefore = model.__error;
+      // v2 (#25): reset the next-state draft and its bookkeeping
+      if (nextStateMode) {
+        Object.keys(nextDraft).forEach(key => delete nextDraft[key]);
+        stepPrimed.clear();
+        stepUnchanged.clear();
+        stepAssignOrigin.clear();
+        stepUnchangedResolved = [];
+      }
     };
 
     // strict mode hands acceptors/reactors/naps a sealed view of the model:
@@ -725,8 +752,183 @@
         return true;
       }
     }) : model;
+
+    // v2 (#25): explicit next-state (prime) semantics. Active only in the strict
+    // profile once a modelShape is declared (it is the variable set primes range
+    // over). Acceptors receive `model` as a frozen pre-state (unprimed) and write
+    // to a `next` draft (primed); the draft commits atomically after all acceptors
+    // run, with an explicit-frame check (every variable assigned or `unchanged`).
+    let nextStateMode = false;
+    const nextDraft = {};
+    const stepPrimed = new Map(); // key -> { from, to }
+    const stepUnchanged = new Set(); // names (or '*') passed to unchanged()
+    let stepUnchangedResolved = []; // concrete variables held unchanged this step
+    const stepAssignOrigin = new Map(); // key -> acceptor id that assigned it (double-prime guard)
+    let nextAcceptorId = 0;
+
+    // v2 (#25): per-acceptor prime/frame accumulation for manifest(). Attribution
+    // is structural (each next.<var> write and unchanged() call is tagged with the
+    // acceptor that made it), not body-parsing; it accrues as acceptors run and
+    // converges under domain exploration. Keyed acceptors report under their intent
+    // name; broadcast/array acceptors aggregate under '*'. Each acceptor gets its
+    // own draft proxy/unchanged fn CLOSED OVER its id (not a shared mutable
+    // current-id), so attribution survives awaits in async acceptor bodies.
+    const acceptorMeta = {}; // key -> { primes:Set, unchanged:Set, unchangedAll:bool }
+    const acceptorKeyById = new Map(); // acceptor id -> key ('*' for broadcast/array)
+    const acceptorApiById = new Map(); // acceptor id -> { next, unchanged } bound to that id
+
+    // the frozen pre-state handed to acceptors: reads pass through to the (not-yet
+    // -committed) model; any write to a declared/observable key throws, forcing
+    // authors to assign `next.<var>` instead of mutating in place
+    const frozenModel = new Proxy(model, {
+      get(target, prop) {
+        const value = target[prop];
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+      set(target, prop, value) {
+        if (typeof prop === 'string' && prop.indexOf('__') !== 0) {
+          throw new SamShapeError(prop, "cannot write '".concat(prop, "' on the frozen pre-state; assign next.").concat(prop, " instead (#25)"));
+        }
+        target[prop] = value;
+        return true;
+      },
+      deleteProperty(target, prop) {
+        if (typeof prop === 'string' && prop.indexOf('__') !== 0) {
+          throw new SamShapeError(prop, "cannot delete '".concat(prop, "' on the frozen pre-state; assign next.").concat(prop, " instead (#25)"));
+        }
+        delete target[prop];
+        return true;
+      }
+    });
+
+    // the write-only `next` draft, bound to one acceptor id: shape-checked like
+    // sealedModel, records the primed value, and rejects a second acceptor
+    // priming an already-primed key. All bound proxies share the one nextDraft
+    // target — the id only drives attribution and the double-prime guard.
+    const makeNextProxy = id => new Proxy(nextDraft, {
+      set(target, prop, value) {
+        if (typeof prop === 'string' && prop.indexOf('__') !== 0) {
+          const violation = checkShapeWrite(modelShape, prop, value);
+          if (violation) {
+            throw new SamShapeError(prop, violation);
+          }
+          const origin = stepAssignOrigin.get(prop);
+          if (origin !== undefined && origin !== id) {
+            throw new SamFrameError("double-prime: variable '".concat(prop, "' assigned by more than one acceptor in a single step"), {
+              doublePrime: prop
+            });
+          }
+          stepAssignOrigin.set(prop, id);
+          if (stepPrimed.has(prop)) {
+            stepPrimed.get(prop).to = value;
+          } else {
+            stepPrimed.set(prop, {
+              from: model[prop],
+              to: value
+            });
+          }
+          const key = acceptorKeyById.get(id);
+          if (key && acceptorMeta[key]) {
+            acceptorMeta[key].primes.add(prop);
+          }
+        }
+        target[prop] = value;
+        return true;
+      }
+    });
+
+    // records variables the step deliberately leaves at their pre-state value;
+    // unchanged('*') frames all remaining unmentioned variables. Unknown names
+    // throw: a typo'd unchanged('rolle') must not silently fail to frame 'role'
+    const makeUnchanged = id => (...names) => {
+      const key = acceptorKeyById.get(id);
+      names.forEach(name => {
+        if (name !== '*' && modelShape && modelShape[name] === undefined) {
+          throw new SamFrameError("unchanged('".concat(name, "') does not match any declared modelShape variable (#25)"), {
+            unknown: name
+          });
+        }
+        stepUnchanged.add(name);
+        if (key && acceptorMeta[key]) {
+          if (name === '*') {
+            acceptorMeta[key].unchangedAll = true;
+          } else {
+            acceptorMeta[key].unchanged.add(name);
+          }
+        }
+      });
+    };
+    const registerAcceptorMeta = (id, key) => {
+      acceptorKeyById.set(id, key);
+      acceptorApiById.set(id, {
+        next: makeNextProxy(id),
+        unchanged: makeUnchanged(id)
+      });
+      if (!acceptorMeta[key]) {
+        acceptorMeta[key] = {
+          primes: new Set(),
+          unchanged: new Set(),
+          unchangedAll: false
+        };
+      }
+    };
+
+    // hands the acceptor its id-bound next/unchanged so prime attribution and the
+    // double-prime guard hold even when an async acceptor writes after an await
+    const asAcceptor = (id, fn) => (proposal, api) => {
+      if (!nextStateMode) {
+        return fn(proposal, api);
+      }
+      return fn(proposal, {
+        ...api,
+        ...acceptorApiById.get(id)
+      });
+    };
+
+    // commits the next-state draft atomically after all acceptors run: enforces
+    // the explicit frame (throws SamFrameError on an unaccounted variable) then
+    // applies the primed values through sealedModel so mutation tracking holds
+    const commitNextState = proposal => {
+      if (!nextStateMode || proposal.__error || currentIntentName == null || stepRejections.length > 0) {
+        return;
+      }
+      const assigned = Object.keys(nextDraft);
+      const explicitAll = stepUnchanged.has('*');
+      // derived variables are reactor-owned; they are not part of the acceptor frame
+      const obligation = Object.keys(modelShape).filter(key => !modelShape[key].derived);
+      const missing = obligation.filter(key => !assigned.includes(key) && !stepUnchanged.has(key) && !explicitAll);
+      if (missing.length > 0) {
+        // an entirely empty frame is the unhandled-intent signature — a fired
+        // intent no acceptor constrained; diagnose it as such rather than
+        // listing every variable
+        if (assigned.length === 0 && stepUnchanged.size === 0) {
+          throw new SamFrameError("next-state frame empty for intent '".concat(currentIntentName, "': no acceptor assigned next.<var> or declared unchanged(...) \u2014 unhandled intent or missing frame (#25)"), {
+            unaccounted: missing,
+            unhandledIntent: currentIntentName
+          });
+        }
+        throw new SamFrameError("next-state frame incomplete: variable(s) ".concat(missing.map(k => "'".concat(k, "'")).join(', '), " neither assigned in next nor declared unchanged (#25)"), {
+          unaccounted: missing
+        });
+      }
+      stepUnchangedResolved = obligation.filter(key => !assigned.includes(key) && (stepUnchanged.has(key) || explicitAll));
+      // apply through sealedModel so stepWrites/stepMutations record the commit
+      assigned.forEach(key => {
+        sealedModel[key] = nextDraft[key];
+      });
+    };
     const registerModelShape = shape => {
       modelShape = Object.assign(modelShape !== null && modelShape !== void 0 ? modelShape : {}, shape);
+      // v2 (#25): a declared shape in strict mode activates next-state semantics;
+      // expose next/unchanged to acceptors (absent in default mode and in strict
+      // instances without a modelShape, which keep in-place mutation). These
+      // stepApi entries are the unattributed (null-id) fallback — asAcceptor
+      // overrides them with each acceptor's id-bound pair
+      if (strict && !nextStateMode) {
+        nextStateMode = true;
+        stepApi.next = makeNextProxy(null);
+        stepApi.unchanged = makeUnchanged(null);
+      }
       // #29: the framework is immune to data keys shadowing Model methods, but
       // user code calling model.<key>() in render/naps would see data — flag it
       if (devWarnings) {
@@ -782,13 +984,20 @@
       } else if (writes.length > 0) {
         classification = 'identity-by-mutation';
       }
+      // v2 (#25): the primed view — the observable next-state relation for the step
+      const primed = {};
+      stepPrimed.forEach((value, key) => {
+        primed[key] = value;
+      });
       return {
         intent: currentIntentName,
         mutations,
         writes,
         rejections,
         classification,
-        deep: stepDeepChange
+        deep: stepDeepChange,
+        primed,
+        unchanged: stepUnchangedResolved.slice()
       };
     };
     const endStep = () => {
@@ -863,7 +1072,18 @@
       }, {}),
       acceptors: {
         keyed: acceptorRegistry.keyed.slice(),
-        broadcast: acceptorRegistry.broadcast
+        broadcast: acceptorRegistry.broadcast,
+        // v2 (#25): per-acceptor prime/frame view accumulated from execution —
+        // { primes, unchanged, unchangedAll } keyed by intent name ('*' for
+        // broadcast/array). Feeds the transpiler's UNCHANGED <<...>> clauses.
+        frames: Object.keys(acceptorMeta).reduce((acc, key) => {
+          acc[key] = {
+            primes: Array.from(acceptorMeta[key].primes),
+            unchanged: Array.from(acceptorMeta[key].unchanged),
+            unchangedAll: acceptorMeta[key].unchangedAll
+          };
+          return acc;
+        }, {})
       },
       modelShape: modelShape ? {
         ...modelShape
@@ -961,6 +1181,9 @@
         invokeModel('resetEventQueue');
         // accept proposal
         await Promise.all(acceptors.map(accept(proposal, stepApi)));
+
+        // v2 (#25): commit the next-state draft atomically after all acceptors
+        commitNextState(proposal);
         storeBehavior(proposal);
         endStep();
 
@@ -973,6 +1196,9 @@
         beginStep(proposal);
         // accept proposal (synchronously, so strict-profile errors propagate)
         acceptors.forEach(acceptSync(proposal, stepApi));
+
+        // v2 (#25): commit the next-state draft atomically after all acceptors
+        commitNextState(proposal);
         storeBehavior(proposal);
         endStep();
 
@@ -1022,7 +1248,7 @@
 
     // add one component at a time, returns array of intents from actions
     const addComponent = (component = {}) => {
-      var _intents;
+      var _intents, _component$localState;
       const {
         ignoreOutdatedProposals = false,
         debounce = 0,
@@ -1218,30 +1444,49 @@
       }
 
       // Add component's acceptors,  reactors, naps and safety condition to SAM instance
+      // v2 (#25): in next-state mode acceptors receive the frozen pre-state; each
+      // is wrapped with a distinct id so the draft can detect a variable primed by
+      // two acceptors. Reactors/naps keep the writable sealedModel (they own
+      // derived state, computed after commit).
+      const acceptorOperand = (_component$localState = component.localState) !== null && _component$localState !== void 0 ? _component$localState : nextStateMode ? frozenModel : sealedModel;
       if (component.acceptors && !Array.isArray(component.acceptors) && typeof component.acceptors === 'object') {
         // v2 (#23): keyed acceptor registration — the framework binds each
         // acceptor to its action, so acceptor bodies contain only guards and
-        // mutations; the switch-dispatch monolith is inexpressible in this form
+        // next-state assignments; the switch-dispatch monolith is inexpressible here
         Object.keys(component.acceptors).forEach(key => {
           const acceptorFactory = component.acceptors[key];
           if (key === '*') {
             // explicitly-marked cross-cutting (broadcast) acceptor
             acceptorRegistry.broadcast += 1;
-            mount(acceptors, [acceptorFactory], component.localState);
+            const id = nextAcceptorId++;
+            registerAcceptorMeta(id, '*');
+            mount(acceptors, [operand => {
+              const acceptor = acceptorFactory(operand);
+              return asAcceptor(id, (proposal, api) => acceptor(proposal, api));
+            }], acceptorOperand);
             return;
           }
           if (strict && intentRegistry[key] === undefined) {
             throw new Error("SAM: keyed acceptor '".concat(key, "' does not match any registered intent (declare the intent first, or use '*' for cross-cutting acceptors)"));
           }
           acceptorRegistry.keyed.push(key);
+          const id = nextAcceptorId++;
+          registerAcceptorMeta(id, key);
           mount(acceptors, [operand => {
             const acceptor = acceptorFactory(operand);
-            return (proposal, api) => proposal.__actionName === key ? acceptor(proposal, api) : undefined;
-          }], component.localState);
+            return asAcceptor(id, (proposal, api) => proposal.__actionName === key ? acceptor(proposal, api) : undefined);
+          }], acceptorOperand);
         });
       } else {
         acceptorRegistry.broadcast += A(component.acceptors).length;
-        mount(acceptors, component.acceptors, component.localState);
+        A(component.acceptors).forEach(acceptorFactory => {
+          const id = nextAcceptorId++;
+          registerAcceptorMeta(id, '*');
+          mount(acceptors, [operand => {
+            const acceptor = acceptorFactory(operand);
+            return asAcceptor(id, (proposal, api) => acceptor(proposal, api));
+          }], acceptorOperand);
+        });
       }
       mount(reactors, component.reactors, component.localState);
       mount(naps, rollback(component.safety), component.localState);

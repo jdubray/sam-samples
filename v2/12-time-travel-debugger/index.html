@@ -86,18 +86,21 @@
         },
 
         acceptors: {
-          Add: model => ({ name, price }, { reject }) => {
+          Add: model => ({ name, price }, { reject, next, unchanged }) => {
             if (model.items.length >= 6) return reject('cart is full (6 items max)')
-            model.items = model.items.concat({ name, price })
+            next.items = model.items.concat({ name, price })
+            unchanged('discount')
           },
-          RemoveLast: model => (p, { reject }) => {
+          RemoveLast: model => (p, { reject, next, unchanged }) => {
             if (model.items.length === 0) return reject('cart is already empty')
-            model.items = model.items.slice(0, -1)
+            next.items = model.items.slice(0, -1)
+            unchanged('discount')
           },
-          Coupon: model => (p, { reject }) => {
+          Coupon: model => (p, { reject, next, unchanged }) => {
             if (model.discount > 0) return reject('coupon already applied')
             if (model.items.length < 2) return reject('coupon needs at least 2 items')
-            model.discount = 5
+            next.discount = 5
+            unchanged('items')
           }
         },
 

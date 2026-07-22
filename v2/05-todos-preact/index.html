@@ -102,19 +102,23 @@
         },
 
         acceptors: {
-          Add: model => ({ title, id }, { reject }) => {
+          Add: model => ({ title, id }, { reject, next, unchanged }) => {
             if (title.length === 0) return reject('title is blank')
-            model.todos = model.todos.concat({ id, title, done: false })
+            next.todos = model.todos.concat({ id, title, done: false })
+            unchanged('*')
           },
-          Toggle: model => ({ toggle }) => {
-            model.todos = model.todos.map(t => (t.id === toggle ? { ...t, done: !t.done } : t))
+          Toggle: model => ({ toggle }, { next, unchanged }) => {
+            next.todos = model.todos.map(t => (t.id === toggle ? { ...t, done: !t.done } : t))
+            unchanged('*')
           },
-          Remove: model => ({ remove }) => {
-            model.todos = model.todos.filter(t => t.id !== remove)
+          Remove: model => ({ remove }, { next, unchanged }) => {
+            next.todos = model.todos.filter(t => t.id !== remove)
+            unchanged('*')
           },
-          SetFilter: model => ({ filter }, { reject }) => {
+          SetFilter: model => ({ filter }, { reject, next, unchanged }) => {
             if (!['all', 'active', 'done'].includes(filter)) return reject(`unknown filter ${filter}`)
-            model.filter = filter
+            next.filter = filter
+            unchanged('*')
           }
         },
 

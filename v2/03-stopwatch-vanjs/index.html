@@ -58,28 +58,33 @@
         },
 
         acceptors: {
-          Start: model => ({ now }, { reject }) => {
+          Start: model => ({ now }, { reject, next, unchanged }) => {
             if (model.running) return reject('already running')
-            model.running = true
-            model.startedAt = now - model.elapsed
+            next.running = true
+            next.startedAt = now - model.elapsed
+            unchanged('*')
           },
-          Stop: model => ({ now }, { reject }) => {
+          Stop: model => ({ now }, { reject, next, unchanged }) => {
             if (!model.running) return reject('not running')
-            model.running = false
-            model.elapsed = now - model.startedAt
+            next.running = false
+            next.elapsed = now - model.startedAt
+            unchanged('*')
           },
-          Tick: model => ({ now }, { reject }) => {
+          Tick: model => ({ now }, { reject, next, unchanged }) => {
             if (!model.running) return reject('not running')
-            model.elapsed = now - model.startedAt
+            next.elapsed = now - model.startedAt
+            unchanged('*')
           },
-          Lap: model => ({ now }, { reject }) => {
+          Lap: model => ({ now }, { reject, next, unchanged }) => {
             if (!model.running) return reject('cannot lap a stopped watch')
-            model.laps = model.laps.concat(fmt(now - model.startedAt))
+            next.laps = model.laps.concat(fmt(now - model.startedAt))
+            unchanged('*')
           },
-          Reset: model => (proposal, { reject }) => {
+          Reset: model => (proposal, { reject, next, unchanged }) => {
             if (model.running) return reject('stop the watch first')
-            model.elapsed = 0
-            model.laps = []
+            next.elapsed = 0
+            next.laps = []
+            unchanged('*')
           }
         }
       },
