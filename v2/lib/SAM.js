@@ -1195,7 +1195,24 @@
       if (checkForOutOfOrder(proposal)) {
         beginStep(proposal);
         // accept proposal (synchronously, so strict-profile errors propagate)
-        acceptors.forEach(acceptSync(proposal, stepApi));
+        const acceptResults = acceptors.map(acceptSync(proposal, stepApi));
+
+        // async acceptors on a non-synchronized instance are a silent-loss bug:
+        // the step commits before the awaited body runs, so next-state writes
+        // land in a draft that the next step discards. Throw in next-state mode
+        // (construction over convention), warn otherwise. Use synchronize: true
+        // for async acceptors.
+        if (acceptResults.some(result => result && typeof result.then === 'function')) {
+          if (nextStateMode) {
+            throw new SamFrameError("async acceptor on a non-synchronized instance: next-state writes after an await are discarded \u2014 pass createInstance({ synchronize: true }) or make the acceptor synchronous (intent '".concat(currentIntentName, "')"), {
+              asyncAcceptor: true,
+              intent: currentIntentName
+            });
+          }
+          if (devWarnings) {
+            console.warn("SAM: acceptor returned a promise on a non-synchronized instance (intent '".concat(currentIntentName, "') \u2014 writes after an await land outside the step; use synchronize: true for async acceptors"));
+          }
+        }
 
         // v2 (#25): commit the next-state draft atomically after all acceptors
         commitNextState(proposal);
