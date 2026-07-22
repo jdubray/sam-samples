@@ -1939,6 +1939,7 @@
     SamSchemaError,
     SamShapeError,
     SamValidationError,
+    SamFrameError,
     validateProposal,
     checkShapeWrite
   };
