@@ -504,13 +504,22 @@
     return typeof value;
   };
 
+  // v2.2 (#35): `type` may be a single runtime type string or an array of them
+  // (a union — e.g. ['string', 'object'] for xstate-style state values). A value
+  // is legal when its runtime type matches the string or is in the list.
+  // Omitting `type` entirely ({}) is the explicit "any" declaration.
+  const typeMatches = (specType, actualType) => Array.isArray(specType) ? specType.includes(actualType) : specType === actualType;
+  const displayType = specType => Array.isArray(specType) ? specType.join('|') : specType;
+
   /**
    * Validates a proposal against a declared payload schema.
    *
    * A schema maps field names to `{ type, required, nullable }`:
    * - `required`: the field must be present (not undefined)
    * - `nullable`: null is an accepted value
-   * - `type`: one of 'string' | 'number' | 'boolean' | 'object' | 'array' | 'function'
+   * - `type`: a runtime type string ('string' | 'number' | 'boolean' | 'object' |
+   *   'array' | 'function') or an array of them declaring a union (#35);
+   *   omitted entirely = explicit "any"
    *
    * Fields absent from the schema are ignored (the sealed model shape, issue #21,
    * owns that concern).
@@ -537,8 +546,8 @@
         }
         return;
       }
-      if (spec.type && typeOf(value) !== spec.type) {
-        violations.push("field '".concat(field, "' expected type '").concat(spec.type, "', got '").concat(typeOf(value), "'"));
+      if (spec.type && !typeMatches(spec.type, typeOf(value))) {
+        violations.push("field '".concat(field, "' expected type '").concat(displayType(spec.type), "', got '").concat(typeOf(value), "'"));
       }
     });
     return violations;
@@ -565,8 +574,8 @@
     if (value === null || value === undefined) {
       return spec.nullable ? null : "key '".concat(key, "' set to ").concat(value, " but not declared nullable");
     }
-    if (spec.type && typeOf(value) !== spec.type) {
-      return "key '".concat(key, "' expected type '").concat(spec.type, "', got '").concat(typeOf(value), "'");
+    if (spec.type && !typeMatches(spec.type, typeOf(value))) {
+      return "key '".concat(key, "' expected type '").concat(displayType(spec.type), "', got '").concat(typeOf(value), "'");
     }
     return null;
   };
@@ -858,11 +867,38 @@
         }
       });
     };
+
+    // v2.2 (#36): reject() bound to the acceptor id — rejecting AFTER writing
+    // next.* in the same acceptor throws instead of silently discarding the
+    // writes (the "annotate success with reject(reason)" field misuse: 5/5
+    // generated specs no-opped this way). A DIFFERENT acceptor rejecting after
+    // another wrote remains legal — that is a deliberate cross-cutting veto.
+    const makeReject = id => reason => {
+      if (nextStateMode) {
+        const written = [];
+        stepAssignOrigin.forEach((origin, key) => {
+          if (origin === id) {
+            written.push(key);
+          }
+        });
+        if (written.length > 0) {
+          throw new SamFrameError("reject() after next-state writes: reject declares a NO-OP and would discard ".concat(written.map(k => "'".concat(k, "'")).join(', '), " \u2014 a declined branch must reject before writing; a successful step must not reject (there is no accept-with-reason primitive)"), {
+            rejectAfterWrite: written,
+            intent: currentIntentName
+          });
+        }
+      }
+      stepRejections.push({
+        intent: currentIntentName,
+        reason
+      });
+    };
     const registerAcceptorMeta = (id, key) => {
       acceptorKeyById.set(id, key);
       acceptorApiById.set(id, {
         next: makeNextProxy(id),
-        unchanged: makeUnchanged(id)
+        unchanged: makeUnchanged(id),
+        reject: makeReject(id)
       });
       if (!acceptorMeta[key]) {
         acceptorMeta[key] = {
