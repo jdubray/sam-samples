@@ -64,27 +64,31 @@
         },
 
         acceptors: {
-          Start: model => (p, { reject }) => {
+          Start: model => (p, { reject, next, unchanged }) => {
             if (model.status !== 'ready') return reject(`cannot start while ${model.status}`)
-            model.status = 'counting'
+            next.status = 'counting'
+            unchanged('*')
           },
-          Countdown: model => (p, { reject }) => {
+          Countdown: model => (p, { reject, next, unchanged }) => {
             if (model.status !== 'counting') return reject(`cannot count down while ${model.status}`)
             if (model.counter <= 0) return reject('countdown already complete')
-            model.counter -= 1
+            next.counter = model.counter - 1
+            unchanged('*')
           },
-          Launch: model => (p, { reject }) => {
+          Launch: model => (p, { reject, next, unchanged }) => {
             if (model.status !== 'counting' || model.counter > 0) return reject('launch conditions not met')
-            model.status = 'launched'
+            next.status = 'launched'
+            unchanged('*')
           },
-          Abort: model => (p, { reject }) => {
+          Abort: model => (p, { reject, next, unchanged }) => {
             if (model.status !== 'counting') return reject(`nothing to abort while ${model.status}`)
-            model.status = 'aborted'
+            next.status = 'aborted'
+            unchanged('*')
           },
-          Reset: model => (p, { reject }) => {
+          Reset: model => (p, { reject, next }) => {
             if (model.status === 'counting') return reject('abort first')
-            model.status = 'ready'
-            model.counter = COUNTDOWN
+            next.status = 'ready'
+            next.counter = COUNTDOWN
           }
         },
 

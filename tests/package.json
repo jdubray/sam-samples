@@ -4,7 +4,9 @@
   "description": "Puppeteer smoke tests for SAM samples",
   "private": true,
   "scripts": {
-    "test": "node samples.test.js"
+    "test": "node samples.test.js && node v2.test.js",
+    "test:legacy": "node samples.test.js",
+    "test:v2": "node v2.test.js"
   },
   "dependencies": {
     "http-server": "^14.1.1",

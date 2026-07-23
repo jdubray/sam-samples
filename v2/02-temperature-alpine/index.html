@@ -70,16 +70,16 @@
           },
 
           acceptors: {
-            SetCelsius: model => ({ celsius }, { reject }) => {
+            SetCelsius: model => ({ celsius }, { reject, next }) => {
               if (Number.isNaN(celsius)) return reject('not a number')
               if (celsius < ABSOLUTE_ZERO_C) return reject(`${celsius}°C is below absolute zero`)
-              model.celsius = celsius
+              next.celsius = celsius
             },
-            SetFahrenheit: model => ({ fahrenheit }, { reject }) => {
+            SetFahrenheit: model => ({ fahrenheit }, { reject, next }) => {
               if (Number.isNaN(fahrenheit)) return reject('not a number')
               const celsius = toC(fahrenheit)
               if (celsius < ABSOLUTE_ZERO_C) return reject(`${fahrenheit}°F is below absolute zero`)
-              model.celsius = celsius
+              next.celsius = celsius
             }
           },
 

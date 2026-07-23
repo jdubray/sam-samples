@@ -73,14 +73,14 @@
             }
           },
           acceptors: {
-            Deposit: model => ({ deposit }) => {
-              model.balance += deposit
+            Deposit: model => ({ deposit }, { next }) => {
+              next.balance = model.balance + deposit
             },
-            Withdraw: model => ({ withdraw }, { reject }) => {
+            Withdraw: model => ({ withdraw }, { reject, next }) => {
               if (guarded && withdraw > model.balance) {
                 return reject(`insufficient funds: ${withdraw} > ${model.balance}`)
               }
-              model.balance -= withdraw
+              next.balance = model.balance - withdraw
             }
           }
         },

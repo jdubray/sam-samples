@@ -100,24 +100,25 @@
         },
 
         acceptors: {
-          ElectionTimeout: model => (p, { reject }) => {
+          ElectionTimeout: model => (p, { reject, next }) => {
             if (model.role === 'leader') return reject('leaders do not time out')
-            model.role = 'candidate'
-            model.term += 1
-            model.votedFor = 'n1'
-            model.votesGranted = 1
+            next.role = 'candidate'
+            next.term = model.term + 1
+            next.votedFor = 'n1'
+            next.votesGranted = 1
           },
-          VoteGranted: model => (p, { reject }) => {
+          VoteGranted: model => (p, { reject, next, unchanged }) => {
             if (model.role !== 'candidate') return reject('votes only count while campaigning')
-            model.votesGranted += 1
-            if (model.votesGranted >= 2) model.role = 'leader'
+            next.votesGranted = model.votesGranted + 1
+            next.role = next.votesGranted >= 2 ? 'leader' : model.role
+            unchanged('term', 'votedFor')
           },
-          Heartbeat: model => ({ term }, { reject }) => {
+          Heartbeat: model => ({ term }, { reject, next }) => {
             if (term < model.term) return reject(`stale term ${term} < ${model.term}`)
-            model.role = 'follower'
-            model.term = term
-            model.votedFor = null
-            model.votesGranted = 0
+            next.role = 'follower'
+            next.term = term
+            next.votedFor = null
+            next.votesGranted = 0
           }
         }
       },

@@ -63,11 +63,11 @@
         },
 
         acceptors: {
-          Increment: model => ({ by }) => {
-            model.count += by
+          Increment: model => ({ by }, { next }) => {
+            next.count = model.count + by
           },
-          Reset: model => () => {
-            model.count = 0
+          Reset: model => (proposal, { next }) => {
+            next.count = 0
           }
         }
       },

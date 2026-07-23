@@ -86,12 +86,12 @@
             },
 
             acceptors: {
-              Rate: model => ({ value }, { reject }) => {
+              Rate: model => ({ value }, { reject, next }) => {
                 if (!Number.isInteger(value) || value < 0 || value > MAX) {
                   return reject(`rating must be an integer between 0 and ${MAX}`)
                 }
                 // clicking the current rating clears it
-                model.value = value === model.value ? 0 : value
+                next.value = value === model.value ? 0 : value
               }
             }
           },
